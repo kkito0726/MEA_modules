@@ -95,8 +95,8 @@ def calc_velocity_from_grid(data, peak_index, mesh_num=8):
     # 抜けているデータを既知のデータから補完する
     result = griddata(points=knew_xy_coord, values=knew_values, xi=(xx, yy), method='cubic')
     
-    # 勾配ベクトルを算出
-    grady, gradx = np.gradient(result, 450*10**-6)
+    # 勾配ベクトルを算出 (第二引数はgrid間の距離 (m))
+    grady, gradx = np.gradient(result, x_max/(mesh_num-1)*10**-6)
 
     cv = 1/np.sqrt(gradx**2 + grady**2)
     cv_list.append(cv)

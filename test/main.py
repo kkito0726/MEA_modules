@@ -22,5 +22,5 @@ showAll(data)
 draw(data, peak_index)
 
 # ベクトル解析で伝導速度を算出
-cv_list = calc_velocity_from_grid(data, peak_index)
+cv_list = calc_velocity_from_grid(data, peak_index, 100)
 print(cv_list)
