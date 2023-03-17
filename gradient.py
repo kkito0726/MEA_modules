@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 from scipy.interpolate import griddata
 import statistics
+from electrode_distance import distance
 
 # ピーク抽出できなかったchを除去する。
 def remove_undetected_ch(data, peak_index):
@@ -23,12 +23,10 @@ def remove_undetected_ch(data, peak_index):
 # 伝導のカラーマップを描画
 def draw(data, peak_index):
   time_del, remove_ch = remove_undetected_ch(data, peak_index)
-  
-  df = pd.read_csv("./electrode_distance.csv")
 
-  # データ範囲を取得
-  x_min, x_max = df['X'].min(), df['X'].max()
-  y_min, y_max = df['Y'].min(), df['Y'].max()
+  # # データ範囲を取得
+  x_min, x_max = min(distance[:, 0]), max(distance[:, 0])
+  y_min, y_max = min(distance[:, 1]), max(distance[:, 1])
 
   # 取得したデータ範囲で新しく座標にする配列を作成
   new_x_coord = np.linspace(x_min, x_max, 100)
@@ -43,8 +41,7 @@ def draw(data, peak_index):
   xx_vec, yy_vec = np.meshgrid(new_x_coord_vec, new_y_coord_vec)
   
   # 既知のx, y座標を取得
-  knew_xy_coord = df[['X', 'Y']].values
-  knew_xy_coord = np.delete(knew_xy_coord, remove_ch, 0)
+  knew_xy_coord = np.delete(distance, remove_ch, 0)
   # l = np.array([0.0, 0.5, 1.0, 1.5, 2.0])
 
   for f in range(len(time_del[0])):
@@ -66,7 +63,7 @@ def draw(data, peak_index):
     ax.set_aspect('equal', adjustable='box')
     c = ax.contourf(xx, yy, result, cmap='jet')
     ax.contour(xx, yy, result,colors="k", linewidths = 0.5, linestyles = 'solid')
-    plt.scatter(df["X"], df["Y"], marker=",", color="w")
+    plt.scatter(distance[:, 0], distance[:, 1], marker=",", color="w")
     plt.scatter(knew_xy_coord[:,0], knew_xy_coord[:,1],marker=",", color="gray")
     plt.quiver(xx_vec, yy_vec, gradx , grady)
     plt.colorbar(c)
@@ -76,10 +73,9 @@ def draw(data, peak_index):
 def calc_velocity_from_grid(data, peak_index, mesh_num=8):
   time_del, remove_ch = remove_undetected_ch(data, peak_index)
 
-  df = pd.read_csv("./electrode_distance.csv")
   # データ範囲を取得
-  x_min, x_max = df['X'].min(), df['X'].max()
-  y_min, y_max = df['Y'].min(), df['Y'].max()
+  x_min, x_max = min(distance[:, 0]), max(distance[:, 0])
+  y_min, y_max = min(distance[:, 1]), max(distance[:, 1])
 
   # 取得したデータ範囲で新しく座標にする配列を作成
   new_x_coord = np.linspace(x_min, x_max, mesh_num)
@@ -87,8 +83,7 @@ def calc_velocity_from_grid(data, peak_index, mesh_num=8):
   xx, yy = np.meshgrid(new_x_coord, new_y_coord)
   
   # 既知のX, Y座標を取得
-  knew_xy_coord = df[['X', 'Y']].values
-  knew_xy_coord = np.delete(knew_xy_coord, remove_ch, 0)
+  knew_xy_coord = np.delete(distance, remove_ch, 0)
 
   cv_list = []
   for f in range(len(time_del[0])):
