@@ -67,6 +67,8 @@ def draw(data, peak_index):
     plt.scatter(knew_xy_coord[:,0], knew_xy_coord[:,1],marker=",", color="gray")
     plt.quiver(xx_vec, yy_vec, gradx , grady)
     plt.colorbar(c)
+    plt.xticks(np.arange(0, 3151, 450))
+    plt.yticks(np.arange(0, 3151, 450))
     plt.show()
 
 # ベクトル解析で伝導速度を算出
