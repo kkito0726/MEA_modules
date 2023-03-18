@@ -55,7 +55,7 @@ def draw(data, peak_index):
     result_vec = griddata(points=knew_xy_coord, values=knew_values, xi=(xx_vec, yy_vec), method='cubic')
     
     # 勾配ベクトルを算出
-    grady, gradx = np.gradient(result_vec, 1, 1)
+    grady, gradx = np.gradient(result_vec)
     
     # グラフ表示
     fig = plt.figure()
