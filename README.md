@@ -22,7 +22,9 @@ $ pip install git+https://github.com/kkito0726/MEA_modules.git
 
 ## 使い方
 
-```python:MEA計測データの読み込み
+### データの読み込み
+
+```python
 from pyMEA.read_bio import hed2array
 
 # 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
