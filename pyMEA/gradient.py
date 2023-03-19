@@ -3,7 +3,7 @@ from numpy import ndarray
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 import statistics
-from electrode_distance import distance
+from pyMEA.electrode_distance import distance
 from typing import Tuple, List
 
 # ピーク抽出できなかったchを除去する。

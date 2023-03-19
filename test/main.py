@@ -1,9 +1,7 @@
-import sys
-sys.path.append("../../MEA-modules")
-from read_bio import hed2array
-from peak_detection import detect_peak_neg
-from plot import showAll
-from gradient import draw, calc_velocity_from_grid
+from pyMEA.read_bio import hed2array
+from pyMEA.peak_detection import detect_peak_neg
+from pyMEA.plot import showAll
+from pyMEA.gradient import draw, calc_velocity_from_grid
 
 hed_path = input("ヘッダファイルのパスを入力: ")
 start = int(input("読み込み開始時刻を入力: "))
@@ -22,5 +20,5 @@ showAll(data)
 draw(data, peak_index)
 
 # ベクトル解析で伝導速度を算出
-cv_list = calc_velocity_from_grid(data, peak_index, 100)
+cv_list = calc_velocity_from_grid(data, peak_index)
 print(cv_list)
