@@ -1,1 +1,44 @@
 # MEA-modules
+
+MEA 計測データの読み込み・解析のためのモジュールをまとめたパッケージです。
+
+## 前提条件
+
+- Python のバージョンは 3.5 以上で 3.9.7 以上推奨です。
+- 必要なライブラリは[requirements.txt](https://github.com/kkito0726/MEA_modules/blob/main/requirements.txt)に記載しています。
+- 以下のライブラリを pip でインストールしておきましょう。
+  - numpy
+  - pandas
+  - matplotlib
+  - scipy
+
+## インストール
+
+ターミナルで任意の Python 環境下で以下のコマンドを実行を実行してください
+
+```
+$ pip install git+https://github.com/kkito0726/MEA_modules.git
+```
+
+## 使い方
+
+```python:MEA計測データの読み込み
+from pyMEA.read_bio import hed2array
+
+# 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
+data = hed2array(hed_path, start, end)
+
+'''
+データには以下の二次元配列が返る
+[
+  [時刻データ],
+  [ch 1の電位データ],
+  [ch 2の電位データ],
+  [ch 3の電位データ],
+  .
+  .
+  .
+  [ch 64の電位データ]
+]
+'''
+```
