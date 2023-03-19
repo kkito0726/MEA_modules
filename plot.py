@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy import ndarray
+from typing import List
 
 # 64電極すべての電極の波形を出力
-def showAll(MEA_raw, start=0, end=5, volt_min=-200, volt_max=200):
+def showAll(MEA_data: ndarray, start=0, end=5, volt_min=-200, volt_max=200) -> None:
   sampling_rate = 10000
   
   sampling_rate = 10000 # サンプリングレート (Hz)
@@ -12,14 +14,14 @@ def showAll(MEA_raw, start=0, end=5, volt_min=-200, volt_max=200):
   plt.figure(figsize=(16,16))
   for i in range(1, 65, 1):
     plt.subplot(8, 8, i)
-    plt.plot(MEA_raw[0][start_frame:end_frame], MEA_raw[i][start_frame:end_frame])
+    plt.plot(MEA_data[0][start_frame:end_frame], MEA_data[i][start_frame:end_frame])
     # plt.xlim(start, end)
     plt.ylim(volt_min, volt_max)
       
   plt.show()
   
 #外周のデータを表示
-def circuit(MEA_raw, start=0, end=5, sampling_rate=10000):
+def circuit(MEA_raw: ndarray, start=0, end=5, sampling_rate=10000) -> None:
     import matplotlib.pyplot as plt
     import numpy as np
 
@@ -51,7 +53,7 @@ def circuit(MEA_raw, start=0, end=5, sampling_rate=10000):
     plt.show()
 
 #任意の電極データを一つのグラフに表示
-def showDetection(MEA_raw, eles, start=0, end=5, sampling_rate=10000, figsize=(12, 12)):
+def showDetection(MEA_raw: ndarray, eles: List[int], start=0, end=5, sampling_rate=10000, figsize=(12, 12)) -> None:
   MEA_data = []
   for ele in eles:
       MEA_data.append(MEA_raw[ele])

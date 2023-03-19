@@ -1,11 +1,13 @@
 import numpy as np
+from numpy import ndarray
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 import statistics
 from electrode_distance import distance
+from typing import Tuple, List
 
 # ピーク抽出できなかったchを除去する。
-def remove_undetected_ch(data, peak_index):
+def remove_undetected_ch(data: ndarray, peak_index: ndarray) -> Tuple[List[ndarray], List[int]]:
   # ピークの時刻 (s)を取得
   time = [data[0][peak_index[i]] for i in range(1, 65)]
   
@@ -14,14 +16,14 @@ def remove_undetected_ch(data, peak_index):
   remove_ch = []
   for i in range(len(time)):
       if len(time[i]) != statistics.mode(peaks):
-          remove_ch.append(i)
+        remove_ch.append(i)
   print("弾いた電極番号: ", np.array(remove_ch))
   time_del = np.delete(time, remove_ch, 0)
   
   return time_del, remove_ch
 
 # 伝導のカラーマップを描画
-def draw(data, peak_index):
+def draw(data: ndarray, peak_index: ndarray) -> None:
   time_del, remove_ch = remove_undetected_ch(data, peak_index)
 
   # # データ範囲を取得
@@ -42,7 +44,6 @@ def draw(data, peak_index):
   
   # 既知のx, y座標を取得
   knew_xy_coord = np.delete(distance, remove_ch, 0)
-  # l = np.array([0.0, 0.5, 1.0, 1.5, 2.0])
 
   for f in range(len(time_del[0])):
     knew_values = [time_del[i][f] for i in range(len(time_del))]
@@ -50,6 +51,7 @@ def draw(data, peak_index):
     # 単位をmsに変換
     knew_values *= 1000
 
+    # 抜けているデータを既知のデータから補完する
     result = griddata(points=knew_xy_coord, values=knew_values, xi=(xx, yy), method='cubic')
     result -= np.min(result)
     result_vec = griddata(points=knew_xy_coord, values=knew_values, xi=(xx_vec, yy_vec), method='cubic')
@@ -72,7 +74,7 @@ def draw(data, peak_index):
     plt.show()
 
 # ベクトル解析で伝導速度を算出
-def calc_velocity_from_grid(data, peak_index, mesh_num=8):
+def calc_velocity_from_grid(data: ndarray, peak_index: ndarray, mesh_num=8) -> List[ndarray]:
   time_del, remove_ch = remove_undetected_ch(data, peak_index)
 
   # データ範囲を取得

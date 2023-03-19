@@ -1,8 +1,10 @@
 import numpy as np
+from numpy import ndarray
 import os
+from typing import List, Tuple
 
 # hedファイルの解読関数
-def decode_hed(hed_path):
+def decode_hed(hed_path: str) -> Tuple[int, int]:
 
   # hedファイルを読み込む。
   hed_data = np.fromfile(hed_path, dtype='<h', sep='')
@@ -14,10 +16,10 @@ def decode_hed(hed_path):
 
   # サンプリングレートとゲインを返す。
   # hed_dataの要素16がrate、要素3がgainのキーとなる。
-  return [rates[hed_data[16]], gains[hed_data[3]]]
+  return rates[hed_data[16]], gains[hed_data[3]]
 
 # bioファイルを読み込む関数
-def read_bio(bio_path, start, end, sampling_rate=10000, gain=50000, volt_range=100): # sampling_rate (Hz), volt_range (mV)
+def read_bio(bio_path: str, start: int, end: int, sampling_rate=10000, gain=50000, volt_range=100) -> ndarray: # sampling_rate (Hz), volt_range (mV)
     electrode_number = 64
     data_unit_length = electrode_number + 4
 
@@ -39,7 +41,7 @@ def read_bio(bio_path, start, end, sampling_rate=10000, gain=50000, volt_range=1
     return data
 
 # hedファイルの情報からbioファイルを一気に読み込む
-def hed2array(hed_path, start, end):
+def hed2array(hed_path: str, start: int, end: int) -> ndarray:
     # hedファイルからサンプリングレートとゲインを取得
     samp, gain = decode_hed(hed_path)
     
