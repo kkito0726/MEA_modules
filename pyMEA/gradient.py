@@ -3,7 +3,6 @@ from numpy import ndarray
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 import statistics
-from pyMEA.electrode_distance import distance
 from typing import Tuple, List
 
 # ピーク抽出できなかったchを除去する。
@@ -22,28 +21,34 @@ def remove_undetected_ch(data: ndarray, peak_index: ndarray) -> Tuple[List[ndarr
   
   return time_del, remove_ch
 
-# 伝導のカラーマップを描画
-def draw(data: ndarray, peak_index: ndarray) -> None:
-  time_del, remove_ch = remove_undetected_ch(data, peak_index)
-
-  # # データ範囲を取得
-  x_min, x_max = min(distance[:, 0]), max(distance[:, 0])
-  y_min, y_max = min(distance[:, 1]), max(distance[:, 1])
+# 格子データを生成
+def get_mesh(ele_dis: int, mesh_num):
+  # データ範囲を取得
+  x_min, x_max = 0, ele_dis*7
+  y_min, y_max = 0, ele_dis*7
 
   # 取得したデータ範囲で新しく座標にする配列を作成
-  new_x_coord = np.linspace(x_min, x_max, 100)
-  new_y_coord = np.linspace(y_min, y_max, 100)
+  x_coord = np.linspace(x_min, x_max, mesh_num)
+  y_coord = np.linspace(y_min, y_max, mesh_num)
 
-  # ベクトル描画用の座標も作成
-  new_x_coord_vec = np.linspace(x_min, x_max, 8)
-  new_y_coord_vec = np.linspace(y_min, y_max, 8)
+  # 取得したデータ範囲で新しく座標にする配列を作成
+  xx, yy = np.meshgrid(x_coord, y_coord)
+  
+  return xx, yy
+
+# 伝導のカラーマップを描画
+def draw(data: ndarray, peak_index: ndarray, ele_dis=450, mesh_num=100) -> None:
+  time_del, remove_ch = remove_undetected_ch(data, peak_index)
 
   # x, yのグリッド配列作成
-  xx, yy = np.meshgrid(new_x_coord, new_y_coord)
-  xx_vec, yy_vec = np.meshgrid(new_x_coord_vec, new_y_coord_vec)
+  xx, yy = get_mesh(ele_dis, mesh_num)
+  xx_vec, yy_vec = get_mesh(ele_dis, 8)
+  
+  # 電極座標を取得
+  ele_point = np.array([[np.ravel(xx_vec)[i], np.ravel(np.flipud(yy_vec))[i]] for i in range(64)])
   
   # 既知のx, y座標を取得
-  knew_xy_coord = np.delete(distance, remove_ch, 0)
+  knew_xy_coord = np.delete(ele_point, remove_ch, 0)
 
   for f in range(len(time_del[0])):
     knew_values = [time_del[i][f] for i in range(len(time_del))]
@@ -65,29 +70,27 @@ def draw(data: ndarray, peak_index: ndarray) -> None:
     ax.set_aspect('equal', adjustable='box')
     c = ax.contourf(xx, yy, result, cmap='jet')
     ax.contour(xx, yy, result,colors="k", linewidths = 0.5, linestyles = 'solid')
-    plt.scatter(distance[:, 0], distance[:, 1], marker=",", color="w")
+    plt.scatter(ele_point[:, 0], ele_point[:, 1], marker=",", color="w")
     plt.scatter(knew_xy_coord[:,0], knew_xy_coord[:,1],marker=",", color="gray")
     plt.quiver(xx_vec, yy_vec, gradx , grady)
     plt.colorbar(c)
-    plt.xticks(np.arange(0, 3151, 450))
-    plt.yticks(np.arange(0, 3151, 450))
+    plt.xticks(np.arange(0, ele_dis*7+1, ele_dis))
+    plt.yticks(np.arange(0, ele_dis*7+1, ele_dis))
     plt.show()
 
 # ベクトル解析で伝導速度を算出
-def calc_velocity_from_grid(data: ndarray, peak_index: ndarray, mesh_num=8) -> List[ndarray]:
+def calc_velocity_from_grid(data: ndarray, peak_index: ndarray, ele_dis=450, mesh_num=8) -> List[ndarray]:
   time_del, remove_ch = remove_undetected_ch(data, peak_index)
 
-  # データ範囲を取得
-  x_min, x_max = min(distance[:, 0]), max(distance[:, 0])
-  y_min, y_max = min(distance[:, 1]), max(distance[:, 1])
-
-  # 取得したデータ範囲で新しく座標にする配列を作成
-  new_x_coord = np.linspace(x_min, x_max, mesh_num)
-  new_y_coord = np.linspace(y_min, y_max, mesh_num)
-  xx, yy = np.meshgrid(new_x_coord, new_y_coord)
+  # x, yのグリッド配列作成
+  xx, yy = get_mesh(ele_dis, mesh_num)
+  xx_ele, yy_ele = get_mesh(ele_dis, 8)
+  
+  # 電極座標を取得
+  ele_point = np.array([[np.ravel(xx_ele)[i], np.ravel(np.flipud(yy_ele))[i]] for i in range(64)])
   
   # 既知のX, Y座標を取得
-  knew_xy_coord = np.delete(distance, remove_ch, 0)
+  knew_xy_coord = np.delete(ele_point, remove_ch, 0)
 
   cv_list = []
   for f in range(len(time_del[0])):
@@ -98,8 +101,9 @@ def calc_velocity_from_grid(data: ndarray, peak_index: ndarray, mesh_num=8) -> L
     result = griddata(points=knew_xy_coord, values=knew_values, xi=(xx, yy), method='cubic')
     
     # 勾配ベクトルを算出 (第二引数はgrid間の距離 (m))
-    grady, gradx = np.gradient(result, x_max/(mesh_num-1)*10**-6)
+    grady, gradx = np.gradient(result, ele_dis*7/(mesh_num-1)*10**-6)
 
+    # 伝導速度の算出
     cv = 1/np.sqrt(gradx**2 + grady**2)
     cv_list.append(cv)
     
