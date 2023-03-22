@@ -37,7 +37,7 @@ def get_mesh(ele_dis: int, mesh_num):
   return xx, yy
 
 # 伝導のカラーマップを描画
-def draw(data: ndarray, peak_index: ndarray, ele_dis=450, mesh_num=100) -> None:
+def draw(data: ndarray, peak_index: ndarray, ele_dis=450, mesh_num=100, xlabel="", ylabel="", dpi=300) -> None:
   time_del, remove_ch = remove_undetected_ch(data, peak_index)
 
   # x, yのグリッド配列作成
@@ -65,7 +65,7 @@ def draw(data: ndarray, peak_index: ndarray, ele_dis=450, mesh_num=100) -> None:
     grady, gradx = np.gradient(result_vec)
     
     # グラフ表示
-    fig = plt.figure()
+    fig = plt.figure(dpi=300)
     ax = fig.add_subplot(111)
     ax.set_aspect('equal', adjustable='box')
     c = ax.contourf(xx, yy, result, cmap='jet')
@@ -76,6 +76,8 @@ def draw(data: ndarray, peak_index: ndarray, ele_dis=450, mesh_num=100) -> None:
     plt.colorbar(c)
     plt.xticks(np.arange(0, ele_dis*7+1, ele_dis))
     plt.yticks(np.arange(0, ele_dis*7+1, ele_dis))
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     plt.show()
 
 # ベクトル解析で伝導速度を算出
