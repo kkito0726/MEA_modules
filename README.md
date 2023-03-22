@@ -38,6 +38,9 @@ $ pip install -e .
 
 ### データの読み込み
 
+- .hed と.bio のファイル名は同じ名前にする。
+- .hed と.bio は同じ階層のフォルダに保存しておく。
+
 ```python
 from pyMEA.read_bio import hed2array
 
