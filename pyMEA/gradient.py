@@ -38,6 +38,20 @@ def get_mesh(ele_dis: int, mesh_num):
 
 # 伝導のカラーマップを描画
 def draw(data: ndarray, peak_index: ndarray, ele_dis=450, mesh_num=100, xlabel="", ylabel="", dpi=300) -> None:
+  """
+  心筋シートの伝導をカラーマップで描画する関数。
+  64電極のピーク取得データから伝導方向を可視化する。
+  
+  Parameters
+  ----------
+    data: hed2arrayで読み込んだ生データ。
+    peak_index: ピークのindex番号をまとめたもの
+    ele_dis: 電極間距離 (μm)
+    mesh_num: 何*何でデータを補完するのか
+    xlabel: x軸の軸ラベル
+    ylabel: y軸のラベル
+    dpi: 図の解像度
+  """
   time_del, remove_ch = remove_undetected_ch(data, peak_index)
 
   # x, yのグリッド配列作成
@@ -65,7 +79,7 @@ def draw(data: ndarray, peak_index: ndarray, ele_dis=450, mesh_num=100, xlabel="
     grady, gradx = np.gradient(result_vec)
     
     # グラフ表示
-    fig = plt.figure(dpi=300)
+    fig = plt.figure(dpi=dpi)
     ax = fig.add_subplot(111)
     ax.set_aspect('equal', adjustable='box')
     c = ax.contourf(xx, yy, result, cmap='jet')

@@ -42,6 +42,26 @@ def read_bio(bio_path: str, start: int, end: int, sampling_rate=10000, gain=5000
 
 # hedファイルの情報からbioファイルを一気に読み込む
 def hed2array(hed_path: str, start: int, end: int) -> ndarray:
+    """
+    Parameters
+    ----------
+        hed_path: ヘッダーファイルのパス
+        start: 読み込み開始時間
+        end: 読み込み終了時間
+    
+    Returns
+    -------
+        [
+            [時刻データ],
+            [ch 1の電位データ],
+            [ch 2の電位データ],
+            [ch 3の電位データ],
+            .
+            .
+            .
+            [ch 64の電位データ]
+        ]
+    """
     # hedファイルからサンプリングレートとゲインを取得
     samp, gain = decode_hed(hed_path)
     
