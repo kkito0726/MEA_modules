@@ -88,7 +88,7 @@ def draw_2d(popts: List[ndarray], ele_dis: int, mesh_num: int, xlabel="", ylabel
     plt.ylabel(ylabel)
     plt.show()
     
-def draw_3d(popts, ele_dis, mesh_num, dpi=300) -> None:
+def draw_3d(popts, ele_dis, mesh_num, xlabel="", ylabel="", dpi=300) -> None:
   xx, yy = get_mesh(ele_dis, mesh_num)
   
   for popt in popts:
@@ -98,8 +98,12 @@ def draw_3d(popts, ele_dis, mesh_num, dpi=300) -> None:
     
     fig = plt.figure(dpi=dpi)
     ax = fig.add_subplot(111, projection='3d')
-    surf = ax.plot_surface(xx, yy, z.reshape(mesh_num, mesh_num), cmap='jet')
-    fig.colorbar(surf)
+    c = ax.plot_surface(xx, yy, z.reshape(mesh_num, mesh_num), cmap='jet')
+    fig.colorbar(c)
+    plt.xticks(np.arange(0, ele_dis*7+1, ele_dis))
+    plt.yticks(np.arange(0, ele_dis*7+1, ele_dis))
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     fig.show()
     
 def calc_velocity(popts, ele_dis, mesh_num=8):
