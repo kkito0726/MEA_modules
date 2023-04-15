@@ -117,14 +117,15 @@ def draw_3d(popts, ele_dis, mesh_num, xlabel="", ylabel="", dpi=300) -> None:
     fig.show()
 
 # 伝導速度の算出
-def calc_velocity(popts, ele_dis, mesh_num=8):
+def calc_velocity(popts: List[float], ele_dis: int, mesh_num=8) -> List[ndarray]:
   xx, yy = get_mesh(ele_dis, mesh_num)
   
   cvs_list = []
   for popt in popts:
     z = model([xx, yy], *popt)
     grady, gradx = np.gradient(z.reshape(mesh_num, mesh_num), np.diff(xx)[0][0]*10**-6)
-    cvs = 1/np.sqrt(gradx**2 + grady**2).ravel()
+    cx, cy = gradx/(gradx**2 + grady**2), grady/(gradx**2 + grady**2)
+    cvs = np.sqrt(cx**2 + cy**2).ravel()
     cvs_list.append(cvs)
     
   return cvs_list
