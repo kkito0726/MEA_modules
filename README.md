@@ -34,6 +34,15 @@ $ pip install -e .
 
 このコマンドで setup.py を探してパッケージの読み込みが開始される。
 
+## アップデート
+
+新しいバージョンにアップデートする場合は一度ライブラリを削除して再度インストールする。
+
+```
+$ pip uninstall pyMEA -y
+$ pip install git+https://github.com/kkito0726/MEA_modules.git
+```
+
 ## 使い方
 
 ### データの読み込み
