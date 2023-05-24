@@ -52,12 +52,18 @@ def fit_data(times: ndarray, remove_ch, ele_dis: int) -> List[ndarray]:
   xx = np.delete(xx, remove_ch)
   yy = np.delete(yy, remove_ch)
   
-  popts = []
+  popts, r2s = [], []
   for time in times:
     popt, pcov = curve_fit(model, [xx, yy], time)
     popts.append(popt)
     
-  return popts
+    residuals = time - model([xx, yy], *popt)
+    rss = np.sum(residuals**2)
+    tss = np.sum((time - np.mean(time))**2)
+    r2 = 1 - (rss / tss)
+    r2s.append(r2)
+    
+  return popts, r2s
 
 def remove_fit_data(data: ndarray, peak_index: ndarray, ele_dis: int) -> List[ndarray]:
   # ピーク抽出できなかった電極のデータは除去する
