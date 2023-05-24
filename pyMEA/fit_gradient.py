@@ -85,6 +85,7 @@ def draw_2d(popts: List[ndarray], ele_dis: int, mesh_num: int, xlabel="", ylabel
     # 電極上の勾配を算出する
     z_ele = model([ex, ey], *popt)
     grady, gradx = np.gradient(z_ele.reshape(8, 8), ele_dis*7/(8-1)*10**-6)
+    cx, cy = gradx/(gradx**2 + grady**2), grady/(gradx**2 + grady**2)
     
     # グラフにプロットする
     fig = plt.figure(dpi=dpi)
@@ -93,7 +94,7 @@ def draw_2d(popts: List[ndarray], ele_dis: int, mesh_num: int, xlabel="", ylabel
     c = ax.contourf(xx, yy, z.reshape(mesh_num, mesh_num), cmap='jet')
     ax.contour(xx, yy, z.reshape(100, 100),colors="k", linewidths=0.5, linestyles='solid')
     plt.scatter(ex, ey, marker=",", color="grey")
-    plt.quiver(ex, ey, gradx, grady)
+    plt.quiver(ex, ey, cx, cy)
     plt.colorbar(c)
     plt.xticks(np.arange(0, ele_dis*7+1, ele_dis))
     plt.yticks(np.arange(0, ele_dis*7+1, ele_dis))
