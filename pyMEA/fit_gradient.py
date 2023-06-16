@@ -9,10 +9,10 @@ from numpy import ndarray
 
 def remove_undetected_ch(data: ndarray, peak_index: ndarray) -> Tuple[List[ndarray], List[int]]:
   # ピークの時刻 (s)を取得
-  time = np.array([data[0][peak_index[i]] for i in range(1, 65)])
+  time = [data[0][peak_index[i]] for i in range(1, 65)]
   
   # 各電極の取得ピーク数の最頻値以外の電極は削除
-  peaks = np.array([len(peak_index[i]) for i in range(1, 65)])
+  peaks = [len(peak_index[i]) for i in range(1, 65)]
   remove_ch = []
   for i in range(len(time)):
       if len(time[i]) != statistics.mode(peaks):
