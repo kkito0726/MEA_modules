@@ -7,24 +7,31 @@ from scipy.optimize import curve_fit
 import numpy as np
 from numpy import ndarray
 
-def remove_undetected_ch(data: ndarray, peak_index: ndarray) -> Tuple[List[ndarray], List[int]]:
-  # ピークの時刻 (s)を取得
-  time = [data[0][peak_index[i]] for i in range(1, 65)]
-  
-  # 各電極の取得ピーク数の最頻値以外の電極は削除
-  peaks = [len(peak_index[i]) for i in range(1, 65)]
-  remove_ch = []
-  for i in range(len(time)):
-      if len(time[i]) != statistics.mode(peaks):
-        remove_ch.append(i)
-  print("弾いた電極番号: ", np.array(remove_ch))
-  time_del = np.delete(time, remove_ch, 0)
-  
-  res = []
-  for j in range(len(time_del[0])):
-    res.append([time_del[i][j] for i in range(time_del.shape[0])])
-  
-  return np.array(res), remove_ch
+
+def remove_undetected_ch(
+    data: ndarray, peak_index: ndarray
+) -> Tuple[List[ndarray], List[int]]:
+    # ピークの時刻 (s)を取得
+    time = [data[0][peak_index[i]] for i in range(1, 65)]
+
+    # 各電極の取得ピーク数の最頻値以外の電極は削除
+    peaks = [len(peak_index[i]) for i in range(1, 65)]
+    remove_ch = []
+    for i in range(len(time)):
+        if len(time[i]) != statistics.mode(peaks):
+            remove_ch.append(i)
+
+    # ピークを正しく検出できていないchのデータを削除
+    for ch in sorted(remove_ch, reverse=True):
+        time.pop(ch)
+    print("弾いた電極番号: ", np.array(remove_ch))
+
+    res = []
+    for j in range(len(time[0])):
+        res.append([time[i][j] for i in range(len(time))])
+
+    return res, remove_ch
+
 
 def get_mesh(ele_dis: int, mesh_num: int):
     # データ範囲を取得
