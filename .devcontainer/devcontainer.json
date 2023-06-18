@@ -17,7 +17,8 @@
 	"vscode": {
 		"extensions": [
 			"donjayamanne.python-extension-pack",
-			"ionutvmi.path-autocomplete"
+			"ionutvmi.path-autocomplete",
+			"ms-toolsai.jupyter"
 		]
 	}
 }
