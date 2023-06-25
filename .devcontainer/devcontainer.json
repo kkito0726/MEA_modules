@@ -18,7 +18,8 @@
 		"extensions": [
 			"donjayamanne.python-extension-pack",
 			"ionutvmi.path-autocomplete",
-			"ms-toolsai.jupyter"
+			"ms-toolsai.jupyter",
+			"streetsidesoftware.code-spell-checker"
 		]
 	}
 }
