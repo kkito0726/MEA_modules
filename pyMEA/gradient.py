@@ -38,6 +38,9 @@ def get_mesh(ele_dis: int, mesh_num):
     # 取得したデータ範囲で新しく座標にする配列を作成
     xx, yy = np.meshgrid(x_coord, y_coord)
 
+    # 電極番号順に配列を修正
+    yy = np.rot90(np.rot90(yy))
+
     return xx, yy
 
 

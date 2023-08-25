@@ -45,6 +45,9 @@ def get_mesh(ele_dis: int, mesh_num: int):
     # 取得したデータ範囲で新しく座標にする配列を作成
     xx, yy = np.meshgrid(x_coord, y_coord)
 
+    # 電極番号順に配列を修正
+    yy = np.rot90(np.rot90(yy))
+
     return xx, yy
 
 
@@ -128,7 +131,7 @@ def draw_2d(
             xx, yy, z.reshape(100, 100), colors="k", linewidths=0.5, linestyles="solid"
         )
         plt.scatter(ex, ey, marker=",", color="grey")
-        plt.quiver(ex, ey, cx, cy)
+        plt.quiver(ex, ey, cx, -cy)
         plt.colorbar(c)
         plt.xticks(np.arange(0, ele_dis * 7 + 1, ele_dis))
         plt.yticks(np.arange(0, ele_dis * 7 + 1, ele_dis))
