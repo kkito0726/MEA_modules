@@ -103,7 +103,14 @@ def remove_fit_data(data: ndarray, peak_index: ndarray, ele_dis: int) -> List[nd
 
 
 def draw_2d(
-    popts: List[ndarray], ele_dis: int, mesh_num: int, xlabel="", ylabel="", dpi=300
+    popts: List[ndarray],
+    ele_dis: int,
+    mesh_num: int,
+    contour=False,
+    xlabel="X (μm)",
+    ylabel="Y (μm)",
+    clabel="Δt (ms)",
+    dpi=300,
 ) -> None:
     # grid配列を生成
     xx, yy = get_mesh(ele_dis, mesh_num)
@@ -126,17 +133,27 @@ def draw_2d(
         fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(111)
         ax.set_aspect("equal", adjustable="box")
-        c = ax.contourf(xx, yy, z.reshape(mesh_num, mesh_num), cmap="jet")
-        ax.contour(
-            xx, yy, z.reshape(100, 100), colors="k", linewidths=0.5, linestyles="solid"
-        )
+        if contour:
+            c = ax.contourf(xx, yy, z.reshape(mesh_num, mesh_num), cmap="jet")
+            ax.contour(
+                xx,
+                yy,
+                z.reshape(100, 100),
+                colors="k",
+                linewidths=0.5,
+                linestyles="solid",
+            )
+        else:
+            c = ax.pcolormesh(xx, yy, z.reshape(mesh_num, mesh_num), cmap="jet")
         plt.scatter(ex, ey, marker=",", color="grey")
         plt.quiver(ex, ey, cx, -cy)
-        plt.colorbar(c)
-        plt.xticks(np.arange(0, ele_dis * 7 + 1, ele_dis))
-        plt.yticks(np.arange(0, ele_dis * 7 + 1, ele_dis))
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
+        bar = plt.colorbar(c)
+        bar.set_label(clabel)
+        plt.xticks(np.arange(0, ele_dis * 7 + 1, ele_dis))
+        plt.yticks(np.arange(0, ele_dis * 7 + 1, ele_dis))
+
         plt.show()
 
 
