@@ -4,7 +4,7 @@ from numpy import ndarray
 
 
 def raster_plot(
-    MEA_data: ndarray, peak_index: ndarray, figsize=(8, 8), start=0, xtick=30
+    MEA_data: ndarray, peak_index: ndarray, figsize=(8, 8), start=0, end=120, xtick=30
 ) -> None:
     plt.figure(figsize=figsize, dpi=300)
     for i in range(1, len(MEA_data)):
@@ -16,8 +16,8 @@ def raster_plot(
             markersize=4,
         )
     # plt.title("Positive peaks & Negative peaks")
-    plt.xticks(range(0, int(np.max(MEA_data[0])), xtick))
-    plt.xlim(start, int(max(MEA_data[0])) + 1)
+    # plt.xticks(range(0, int(np.max(MEA_data[0])), xtick))
+    plt.xlim(start, end)
     plt.ylim(0, 65)
     plt.yticks(range(4, 65, 4))
     plt.xlabel("Time (s)")
