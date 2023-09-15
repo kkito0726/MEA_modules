@@ -107,6 +107,7 @@ def draw_2d(
     ele_dis: int,
     mesh_num: int,
     contour=False,
+    isQuiver=False,
     xlabel="X (μm)",
     ylabel="Y (μm)",
     clabel="Δt (ms)",
@@ -146,7 +147,8 @@ def draw_2d(
         else:
             c = ax.pcolormesh(xx, yy, z.reshape(mesh_num, mesh_num), cmap="jet")
         plt.scatter(ex, ey, marker=",", color="grey")
-        plt.quiver(ex, ey, cx, -cy)
+        if isQuiver:
+            plt.quiver(ex, ey, cx, -cy)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         bar = plt.colorbar(c)
