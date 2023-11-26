@@ -6,17 +6,15 @@ from numpy import ndarray
 
 
 class MEA:
-    def __init__(self, hed_path: str, start: int, end: int) -> None:
+    def __init__(self, hed_path: str, start: int=0, end: int=120) -> None:
         self.hed_path: str = hed_path
         self.start: int = start
         self.end: int = end
         self.time: int = end - start
-        sampling_rate, gain = decode_hed(self.hed_path)
-        self.SAMPLING_RATE: int = sampling_rate
-        self.GAIN: int = gain
-
+        self.SAMPLING_RATE, self.GAIN = decode_hed(self.hed_path)
         self.array: ndarray = hed2array(self.hed_path, self.start, self.end)
-    
+        
+    @property
     def info(self) -> None:
         print(f"読み込み開始時間  : {self.start} s\n読み込み終了時間  : {self.end} s\n読み込み合計時間  : {self.time} s\nサンプリングレート: {self.SAMPLING_RATE} Hz\nGAIN           : {self.GAIN}")
         
