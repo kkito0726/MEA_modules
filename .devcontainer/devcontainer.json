@@ -19,7 +19,8 @@
 			"donjayamanne.python-extension-pack",
 			"ionutvmi.path-autocomplete",
 			"ms-toolsai.jupyter",
-			"streetsidesoftware.code-spell-checker"
+			"streetsidesoftware.code-spell-checker",
+			"ms-python.black-formatter"
 		]
 	}
 }
