@@ -119,7 +119,7 @@ def showDetection(
     ele_label = [str(eles[i]) for i in range(len(eles))]
     plt.xlim(start, end)
     plt.yticks(range(0, len(eles), 1), ele_label)
-    plt.ylim(-1, len(eles), 1)
+    plt.ylim(-1, len(eles))
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.show()
