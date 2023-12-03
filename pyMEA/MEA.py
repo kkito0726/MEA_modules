@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 from pyMEA.read_bio import decode_hed, hed2array
 from pyMEA.plot import showDetection
+from pyMEA.fit_gradient import remove_fit_data, draw_2d
 from numpy import ndarray
 
 
@@ -128,3 +129,24 @@ class MEA:
             ylabel=ylabel,
             dpi=dpi,
         )
+
+    def draw_2d(
+        self,
+        peak_index: ndarray,
+        ele_dis=450,  # 電極間距離 (μm)
+        mesh_num=100,  # mesh_num x mesh_numでデータを生成
+        contour=False,  # 等高線で表示するかどうか
+        isQuiver=False,  # 速度ベクトルを表示するかどうか
+        dpi=300,
+    ) -> tuple[ndarray]:
+        popts, r2s = remove_fit_data(self.array, peak_index=peak_index, ele_dis=ele_dis)
+        draw_2d(
+            popts=popts,
+            ele_dis=ele_dis,
+            mesh_num=mesh_num,
+            contour=contour,
+            isQuiver=isQuiver,
+            dpi=dpi,
+        )
+
+        return popts, r2s
