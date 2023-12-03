@@ -13,6 +13,30 @@ class MEA:
         self.time: int = end - start
         self.SAMPLING_RATE, self.GAIN = decode_hed(self.hed_path)
         self.array: ndarray = hed2array(self.hed_path, self.start, self.end)
+    
+    def __repr__(self) -> ndarray:
+        return repr(self.array)
+    
+    def __getitem__(self, index: int) -> ndarray:
+        return self.array[index]
+    
+    def __len__(self) -> int:
+        return len(self.array)
+    
+    def __add__(self, value):
+        return self.array + value
+    
+    def __sub__(self, value):
+        return self.array - value
+    
+    def __mul__(self, value):
+        return self.array * value
+    
+    def __truediv__(self, value):
+        return self.array / value
+    
+    def __floordiv__(self, value):
+        return self.array // value
         
     @property
     def info(self) -> None:
