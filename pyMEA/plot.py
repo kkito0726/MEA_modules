@@ -85,7 +85,7 @@ def circuit(
 
     plt.xlim(start, end)
     plt.yticks(range(0, len(eles), 1))
-    plt.ylim(-1, len(eles), 1)
+    plt.ylim(-1, len(eles))
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.show()
