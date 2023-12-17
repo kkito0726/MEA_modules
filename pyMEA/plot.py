@@ -3,6 +3,37 @@ import numpy as np
 from numpy import ndarray
 from typing import List
 
+circuit_eles = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    16,
+    24,
+    32,
+    40,
+    48,
+    56,
+    64,
+    63,
+    62,
+    61,
+    60,
+    59,
+    58,
+    57,
+    49,
+    41,
+    33,
+    25,
+    17,
+    9,
+]
+
 
 # 64電極すべての電極の波形を出力
 def showAll(
@@ -39,39 +70,8 @@ def circuit(
     figsize=(8, 8),
     dpi=300,
 ) -> None:
-    eles = [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        16,
-        24,
-        32,
-        40,
-        48,
-        56,
-        64,
-        63,
-        62,
-        61,
-        60,
-        59,
-        58,
-        57,
-        49,
-        41,
-        33,
-        25,
-        17,
-        9,
-    ]
-
     MEA_data = []
-    for ele in eles:
+    for ele in circuit_eles:
         MEA_data.append(MEA_raw[ele])
 
     data = np.array(MEA_data)
@@ -84,8 +84,8 @@ def circuit(
         plt.plot(MEA_raw[0][start_frame:end_frame], tmp_volt[start_frame:end_frame] + i)
 
     plt.xlim(start, end)
-    plt.yticks(range(0, len(eles), 1))
-    plt.ylim(-1, len(eles))
+    plt.yticks(range(0, len(circuit_eles), 1))
+    plt.ylim(-1, len(circuit_eles))
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.show()
