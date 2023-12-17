@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from pyMEA.read_bio import decode_hed, hed2array
 from pyMEA.plot import showDetection
-from pyMEA.fit_gradient import remove_fit_data, draw_2d
+from pyMEA.fit_gradient import remove_fit_data, draw_2d, draw_3d
 from numpy import ndarray
 
 
@@ -146,6 +146,29 @@ class MEA:
             mesh_num=mesh_num,
             contour=contour,
             isQuiver=isQuiver,
+            dpi=dpi,
+        )
+
+        return popts, r2s
+
+    def draw_3d(
+        self,
+        peak_index: ndarray,
+        ele_dis=450,
+        mesh_num=100,
+        xlabel="X (μm)",
+        ylabel="Y (μm)",
+        clabel="Δt (ms)",
+        dpi=300,
+    ):
+        popts, r2s = remove_fit_data(self.array, peak_index=peak_index, ele_dis=ele_dis)
+        draw_3d(
+            popts=popts,
+            ele_dis=ele_dis,
+            mesh_num=mesh_num,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            clabel=clabel,
             dpi=dpi,
         )
 

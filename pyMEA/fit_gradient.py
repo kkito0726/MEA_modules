@@ -163,7 +163,13 @@ def draw_2d(
 
 
 def draw_3d(
-    popts: List[ndarray], ele_dis: int, mesh_num: int, xlabel="", ylabel="", dpi=300
+    popts: List[ndarray],
+    ele_dis: int,
+    mesh_num: int,
+    xlabel="",
+    ylabel="",
+    clabel="",
+    dpi=300,
 ) -> None:
     xx, yy = get_mesh(ele_dis, mesh_num)
 
@@ -177,7 +183,8 @@ def draw_3d(
         fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(111, projection="3d")
         c = ax.plot_surface(xx, yy, z.reshape(mesh_num, mesh_num), cmap="jet")
-        fig.colorbar(c)
+        bar = fig.colorbar(c)
+        bar.set_label(clabel)
         plt.xticks(np.arange(0, ele_dis * 7 + 1, ele_dis))
         plt.yticks(np.arange(0, ele_dis * 7 + 1, ele_dis))
         plt.xlabel(xlabel)
