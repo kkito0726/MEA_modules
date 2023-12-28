@@ -138,7 +138,7 @@ class MEA:
         contour=False,  # 等高線で表示するかどうか
         isQuiver=False,  # 速度ベクトルを表示するかどうか
         dpi=300,
-    ) -> tuple[ndarray]:
+    ) -> tuple[ndarray, ndarray]:
         popts, r2s = remove_fit_data(self.array, peak_index=peak_index, ele_dis=ele_dis)
         draw_2d(
             popts=popts,
@@ -160,7 +160,7 @@ class MEA:
         ylabel="Y (μm)",
         clabel="Δt (ms)",
         dpi=300,
-    ):
+    ) -> tuple[ndarray, ndarray]:
         popts, r2s = remove_fit_data(self.array, peak_index=peak_index, ele_dis=ele_dis)
         draw_3d(
             popts=popts,

@@ -74,7 +74,9 @@ def model(X, p00, p10, p01, p20, p11, p02, p30, p21, p12, p03):
 # フィッティング関数
 
 
-def fit_data(times: ndarray, remove_ch, ele_dis: int) -> List[ndarray]:
+def fit_data(
+    times: ndarray, remove_ch: List[int], ele_dis: int
+) -> tuple[ndarray, ndarray]:
     xx, yy = get_mesh(ele_dis, 8)
     xx = np.delete(xx, remove_ch)
     yy = np.delete(yy, remove_ch)
@@ -90,7 +92,7 @@ def fit_data(times: ndarray, remove_ch, ele_dis: int) -> List[ndarray]:
         r2 = 1 - (rss / tss)
         r2s.append(r2)
 
-    return popts, r2s
+    return np.array(popts), np.array(r2s)
 
 
 def remove_fit_data(data: ndarray, peak_index: ndarray, ele_dis: int) -> List[ndarray]:
@@ -195,7 +197,7 @@ def draw_3d(
 # 伝導速度の算出
 
 
-def calc_velocity(popts: List[ndarray], ele_dis: int, mesh_num=8) -> List[ndarray]:
+def calc_velocity(popts: ndarray, ele_dis: int, mesh_num=8) -> ndarray:
     xx, yy = get_mesh(ele_dis, mesh_num)
 
     cvs_list = []
@@ -208,4 +210,4 @@ def calc_velocity(popts: List[ndarray], ele_dis: int, mesh_num=8) -> List[ndarra
         cvs = np.sqrt(cx**2 + cy**2).ravel()
         cvs_list.append(cvs)
 
-    return cvs_list
+    return np.array(cvs_list)
