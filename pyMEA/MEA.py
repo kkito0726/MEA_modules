@@ -46,6 +46,10 @@ class MEA:
             f"読み込み開始時間  : {self.start} s\n読み込み終了時間  : {self.end} s\n読み込み合計時間  : {self.time} s\nサンプリングレート: {self.SAMPLING_RATE} Hz\nGAIN           : {self.GAIN}"
         )
 
+    @property
+    def shape(self) -> tuple[int, int]:
+        return self.array.shape
+
     def showAll(
         self, start=None, end=5, volt_min=-200, volt_max=200, figsize=(8, 8), dpi=300
     ) -> None:
