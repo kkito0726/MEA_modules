@@ -118,10 +118,15 @@ class MEA:
             start = self.start
         if end == None:
             end = self.end
+
+        # 読み込み開始時間が途中からの場合のズレを解消する
+        start = abs(start - self.start)
+        end = abs(end - self.start)
         showDetection(
             MEA_raw=self.array,
             eles=eles,
             start=start,
+            read_start=self.start,
             end=end,
             sampling_rate=self.SAMPLING_RATE,
             figsize=figsize,
