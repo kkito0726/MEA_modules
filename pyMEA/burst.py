@@ -66,11 +66,11 @@ def sbf_single(
     data: ndarray,
     peak_index: ndarray,
     ch: int,
-    max_isi=0.1,
-    min_spikes=0.5,
-    min_ibi=0.06,
-    spikes_threshold=5,
-) -> list:
+    max_isi=0.175,
+    min_spikes=5,
+    min_ibi=0.8,
+    spikes_threshold=9,
+):
     spikes = data[0][peak_index[ch]]
     spikes_length = len(spikes)
 
@@ -91,11 +91,21 @@ def sbf_single(
     print(f"Step1-2: {sbfs}")
 
     step3 = []
-    for i in range(len(sbfs) - 1):
-        if abs(sbfs[i + 1][0] - sbfs[i][-1]) < min_ibi:
-            step3.append(sbfs[i] + sbfs[i + 1])
+    tmp = []
+    for s in range(len(sbfs)):
+        if tmp == []:
+            for a in range(len(sbfs[s])):
+                tmp.append(sbfs[s][a])
+        elif sbfs[s][0] - sbfs[s - 1][-1] < min_ibi:
+            for b in range(len(sbfs[s])):
+                tmp.append(sbfs[s][b])
         else:
-            step3.append(sbfs[i])
+            step3.append(tmp)
+            tmp = []
+            for c in range(len(sbfs[s])):
+                tmp.append(sbfs[s][c])
+            if s == len(sbfs) - 1:
+                step3.append(sbfs[-1])
 
     print(f"Step3: {step3}")
 
