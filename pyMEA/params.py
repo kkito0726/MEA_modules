@@ -1,40 +1,65 @@
-from peak_detection import detect_peak_neg
+from pyMEA.peak_detection import detect_peak_pos
+from pyMEA.MEA import MEA
 import numpy as np
 from numpy import ndarray
-from scipy.signal import savgol_filter, find_peaks
 
 
 # ISIを算出する関数
-def calc_isi(MEA_data: ndarray, ele: int):
-    # 1st peakを抽出
-    peak_index = detect_peak_neg(MEA_data)
-    peak_time = MEA_data[0][peak_index[ele]]
-    isi = np.diff(peak_time)
-
-    return isi
+def calc_isi(peak_index: ndarray, ele: int, sampling_rate=10000):
+    return np.diff(peak_index[ele]) / sampling_rate
 
 
 def calc_fpd(
-    MEA_data: ndarray, ele: ndarray, window=30, height=(10, 80), sampling_rate=10000
-):
-    # 任意の電極の1st peakを抽出
-    peak_neg = detect_peak_neg(MEA_data)[ele]
-    data = np.copy(MEA_data[ele])
+    data: MEA, neg_peak: np.ndarray, ele: int, peak_range=(30, 110)
+) -> list[float]:
+    # 1st peak付近のデータを0に変換
+    for p in neg_peak[ele]:
+        data[ele][p - 200 : p + 200] = 0
 
-    # 先頭の1st peakより前のデータは0に置き換える
-    data[: peak_neg[0]] = 0
+    # 各拍動周期で2nd peakを抽出
+    fpds = []
+    for p in neg_peak[ele]:
+        tmp = data[:, p + 200 : p + 5000]  # 2nd peak付近のデータを抽出
+        pos_peak = detect_peak_pos(tmp, height=peak_range, distance=3000)
+        # ピークが見つからなかったら飛ばして次の拍動周期
+        if len(pos_peak[ele]) == 0:
+            continue
 
-    # 1st peakの前のデータを0に置き換えて不要なピークを潰す
-    for idx in peak_neg:
-        data[idx - 500 : idx] = 0
+        pos_time = tmp[0][pos_peak[ele]]
+        fpd = pos_time[0] - data[0][p]
+        fpds.append(fpd)
 
-    # データをスムージングしてピーク抽出する
-    smooth = savgol_filter(data, window, 0)
-    peaks, _ = find_peaks(smooth, height=height)
+    return fpds
 
-    fpd = (peaks - peak_neg[: len(peaks)]) / sampling_rate
 
-    return fpd
+def calc_fpd_params(
+    data: MEA, neg_peak: np.ndarray, ele: int, peak_range=(30, 110)
+) -> list[float]:
+    isi = np.diff(neg_peak[ele]) / data.SAMPLING_RATE
+    # 1st peak付近のデータを0に変換
+    for p in neg_peak[ele]:
+        data[ele][p - 200 : p + 200] = 0
+
+    # 各拍動周期で2nd peakを抽出
+    fpds, fpdcBs, fpdcFs = [], [], []
+    for index, p in enumerate(neg_peak[ele]):
+        tmp = data[:, p + 200 : p + 5000]  # 2nd peak付近のデータを抽出
+        pos_peak = detect_peak_pos(tmp, height=peak_range, distance=3000)
+        # ピークが見つからなかったら飛ばして次の拍動周期
+        if len(pos_peak[ele]) == 0:
+            continue
+
+        pos_time = tmp[0][pos_peak[ele]]
+        fpd = pos_time[0] - data[0][p]
+        fpds.append(fpd)
+
+        if 0 < index < len(isi):
+            fpdcB = fpd / np.sqrt(isi[index])
+            fpdcBs.append(fpdcB)
+            fpdcF = fpd / (isi[index] ** (1 / 3))
+            fpdcFs.append(fpdcF)
+
+    return fpds, fpdcBs, fpdcFs
 
 
 # 環状の回路の各電極間の伝導速度

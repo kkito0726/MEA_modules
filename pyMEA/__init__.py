@@ -4,6 +4,7 @@ from pyMEA.filter import filter_fft
 from pyMEA.peak_detection import detect_peak_neg, detect_peak_pos
 from pyMEA.plot import showAll, showDetection
 from pyMEA.fit_gradient import remove_fit_data, draw_2d, draw_3d, calc_velocity
+from pyMEA.params import calc_fpd, calc_fpd_params, calc_isi
 
 __all__ = [
     "MEA",
@@ -17,4 +18,7 @@ __all__ = [
     "draw_2d",
     "draw_3d",
     "calc_velocity",
+    "calc_fpd",
+    "calc_fpd_params",
+    "calc_isi",
 ]
