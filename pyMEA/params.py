@@ -27,7 +27,11 @@ def calc_fpd(
 
         pos_time = tmp[0][pos_peak[ele]]
         fpd = pos_time[0] - data[0][p]
-        fpds.append(fpd)
+        if 0.1 < fpd < 0.4:
+            fpds.append(fpd)
+        # 範囲外FPDの場合スルー
+        else:
+            continue
 
     return fpds
 
@@ -51,12 +55,16 @@ def calc_fpd_params(
 
         pos_time = tmp[0][pos_peak[ele]]
         fpd = pos_time[0] - data[0][p]
-        fpds.append(fpd)
+        if 0.1 < fpd < 0.4:
+            fpds.append(fpd)
+        # 範囲外FPDの場合スルー
+        else:
+            continue
 
-        if 0 < index < len(isi):
-            fpdcB = fpd / np.sqrt(isi[index])
+        if 0 < index:
+            fpdcB = fpd / np.sqrt(isi[index - 1])
             fpdcBs.append(fpdcB)
-            fpdcF = fpd / (isi[index] ** (1 / 3))
+            fpdcF = fpd / (isi[index - 1] ** (1 / 3))
             fpdcFs.append(fpdcF)
 
     return fpds, fpdcBs, fpdcFs
