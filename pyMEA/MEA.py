@@ -147,6 +147,7 @@ class MEA:
         contour=False,  # 等高線で表示するかどうか
         isQuiver=False,  # 速度ベクトルを表示するかどうか
         dpi=300,
+        cmap="jet",
     ) -> tuple[ndarray, ndarray]:
         popts, r2s = remove_fit_data(self.array, peak_index=peak_index, ele_dis=ele_dis)
         draw_2d(
@@ -156,6 +157,7 @@ class MEA:
             contour=contour,
             isQuiver=isQuiver,
             dpi=dpi,
+            cmap=cmap,
         )
 
         return popts, r2s

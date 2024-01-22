@@ -114,6 +114,7 @@ def draw_2d(
     ylabel="Y (μm)",
     clabel="Δt (ms)",
     dpi=300,
+    cmap="jet",
 ) -> None:
     # grid配列を生成
     xx, yy = get_mesh(ele_dis, mesh_num)
@@ -137,7 +138,7 @@ def draw_2d(
         ax = fig.add_subplot(111)
         ax.set_aspect("equal", adjustable="box")
         if contour:
-            c = ax.contourf(xx, yy, z.reshape(mesh_num, mesh_num), cmap="jet")
+            c = ax.contourf(xx, yy, z.reshape(mesh_num, mesh_num), cmap=cmap)
             ax.contour(
                 xx,
                 yy,
@@ -147,7 +148,7 @@ def draw_2d(
                 linestyles="solid",
             )
         else:
-            c = ax.pcolormesh(xx, yy, z.reshape(mesh_num, mesh_num), cmap="jet")
+            c = ax.pcolormesh(xx, yy, z.reshape(mesh_num, mesh_num), cmap=cmap)
         plt.scatter(ex, ey, marker=",", color="grey")
         if isQuiver:
             plt.quiver(ex, ey, cx, -cy)
