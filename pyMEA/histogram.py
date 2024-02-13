@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from numpy import ndarray
 
 
-def peak_flatten(MEA_data: ndarray, peak_index: ndarray, start_ch=1, end_ch=64) -> ndarray:
-    detect_time = [MEA_data[0][peak_index[i]] for i in range(start_ch, end_ch + 1)]
+def peak_flatten(MEA_data: ndarray, peak_index: ndarray, eles: list[int]) -> ndarray:
+    detect_time = [MEA_data[0][peak_index[i]] for i in eles]
     detect_time = list(itertools.chain.from_iterable(detect_time))
 
     return np.array(detect_time)
@@ -15,8 +15,7 @@ def peak_flatten(MEA_data: ndarray, peak_index: ndarray, start_ch=1, end_ch=64) 
 def mkHist(
     MEA_data: ndarray,
     peak_index: ndarray,
-    start_ch=1,
-    end_ch=64,
+    eles: list[int],
     figsize=(20, 6),
     bin_duration=0.05,
     sampling=10000,
@@ -24,7 +23,7 @@ def mkHist(
     end=120,
     dpi=300,
 ) -> ndarray:
-    detect_time = peak_flatten(MEA_data, peak_index, start_ch=start_ch, end_ch=end_ch)
+    detect_time = peak_flatten(MEA_data, peak_index, eles)
 
     plt.figure(figsize=figsize, dpi=dpi)
     bins = len(MEA_data[0]) / sampling / bin_duration
