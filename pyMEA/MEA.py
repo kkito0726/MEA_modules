@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 
 from pyMEA.read_bio import decode_hed, hed2array
 from pyMEA.plot import showDetection
+from pyMEA.raster_plot import raster_plot
+from pyMEA.histogram import mkHist
 from pyMEA.fit_gradient import remove_fit_data, draw_2d, draw_3d
 from pyMEA.utils import channel
 from numpy import ndarray
@@ -51,6 +53,15 @@ class MEA:
     def shape(self) -> tuple[int, int]:
         return self.array.shape
 
+    def _set_times(self, start, end) -> tuple[int, int]:
+        # 時間の設定がなければ読み込み時間全体をプロットするようにする。
+        if start == None:
+            start = self.start
+        if end == None:
+            end = self.end
+
+        return start, end
+
     def showAll(
         self, start=None, end=5, volt_min=-200, volt_max=200, figsize=(8, 8), dpi=300
     ) -> None:
@@ -84,15 +95,11 @@ class MEA:
         volt_min=-200,
         volt_max=200,
         figsize=(8, 2),
-        dpi=300,
+        dpi=None,
         xlabel="Time (s)",
         ylabel="Voltage (μV)",
     ) -> None:
-        # 時間の設定がなければ全体をプロットするようにする。
-        if start == None:
-            start = self.start
-        if end == None:
-            end = self.end
+        start, end = self._set_times(start, end)
 
         # 読み込み開始時間が0ではないときズレが生じるため差を取っている
         start_frame = int(abs(self.start - start) * self.SAMPLING_RATE)
@@ -119,15 +126,11 @@ class MEA:
         volt_min=-200,
         volt_max=200,
         figsize=(8, 2),
-        dpi=300,
+        dpi=None,
         xlabel="Time (s)",
         ylabel="Voltage (μV)",
     ) -> None:
-        # 時間の設定がなければ全体をプロットするようにする。
-        if start == None:
-            start = self.start
-        if end == None:
-            end = self.end
+        start, end = self._set_times(start, end)
 
         # 読み込み開始時間が0ではないときズレが生じるため差を取っている
         start_frame = int(abs(self.start - start) * self.SAMPLING_RATE)
@@ -165,12 +168,7 @@ class MEA:
         ylabel="Electrode Number",
         dpi=300,
     ) -> None:
-        # 時間の設定がなければ全体をプロットするようにする。
-        if start == None:
-            start = self.start
-        if end == None:
-            end = self.end
-
+        start, end = self._set_times(start, end)
         # 読み込み開始時間が途中からの場合のズレを解消する
         start = abs(start - self.start)
         end = abs(end - self.start)
@@ -184,6 +182,49 @@ class MEA:
             figsize=figsize,
             xlabel=xlabel,
             ylabel=ylabel,
+            dpi=dpi,
+        )
+
+    def raster_plot(
+        self,
+        peak_index: ndarray,
+        eles: list[int],
+        tick_ch=1,
+        figsize=(8, 8),
+        start=None,
+        end=None,
+    ) -> None:
+        start, end = self._set_times(start, end)
+        raster_plot(
+            MEA_data=self.array,
+            peak_index=peak_index,
+            eles=eles,
+            tick_ch=tick_ch,
+            figsize=figsize,
+            start=start,
+            end=end,
+        )
+
+    def mkHist(
+        self,
+        peak_index: ndarray,
+        eles: list[int],
+        figsize=(20, 6),
+        bin_duration=0.05,
+        start=None,
+        end=None,
+        dpi=300,
+    ) -> ndarray:
+        start, end = self._set_times(start, end)
+        mkHist(
+            MEA_data=self.array,
+            peak_index=peak_index,
+            eles=eles,
+            figsize=figsize,
+            bin_duration=bin_duration,
+            sampling=self.SAMPLING_RATE,
+            start=start,
+            end=end,
             dpi=dpi,
         )
 
