@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from pyMEA.read_bio import decode_hed, hed2array
 from pyMEA.plot import showDetection
 from pyMEA.fit_gradient import remove_fit_data, draw_2d, draw_3d
+from pyMEA.utils import channel
 from numpy import ndarray
 
 
@@ -74,6 +75,7 @@ class MEA:
 
         plt.show()
 
+    @channel
     def showSingle(
         self,
         ch: int,
@@ -100,6 +102,52 @@ class MEA:
         plt.plot(
             self.array[0][start_frame:end_frame], self.array[ch][start_frame:end_frame]
         )
+        plt.xlim(start, end)
+        plt.ylim(volt_min, volt_max)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+
+        plt.show()
+
+    @channel
+    def plotPeaks(
+        self,
+        ch: int,
+        *peak_indexes: ndarray,
+        start: int = None,
+        end: int = None,
+        volt_min=-200,
+        volt_max=200,
+        figsize=(8, 2),
+        dpi=300,
+        xlabel="Time (s)",
+        ylabel="Voltage (μV)",
+    ) -> None:
+        # 時間の設定がなければ全体をプロットするようにする。
+        if start == None:
+            start = self.start
+        if end == None:
+            end = self.end
+
+        # 読み込み開始時間が0ではないときズレが生じるため差を取っている
+        start_frame = int(abs(self.start - start) * self.SAMPLING_RATE)
+        end_frame = int(abs(self.start - end) * self.SAMPLING_RATE)
+
+        # 波形データのプロット
+        plt.figure(figsize=figsize, dpi=dpi)
+        x, y = (
+            self.array[0][start_frame:end_frame],
+            self.array[ch][start_frame:end_frame],
+        )
+        plt.plot(x, y)
+
+        # ピークのプロット
+        for peak_index in peak_indexes:
+            peaks = peak_index[ch]
+            peaks = peaks[start_frame < peaks]
+            peaks = peaks[peaks < end_frame]
+            plt.plot(x[peaks], y[peaks], ".")
+
         plt.xlim(start, end)
         plt.ylim(volt_min, volt_max)
         plt.xlabel(xlabel)
