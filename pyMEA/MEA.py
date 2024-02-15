@@ -229,7 +229,7 @@ class MEA:
         dpi=300,
     ) -> ndarray:
         start, end = self._set_times(start, end)
-        mkHist(
+        return mkHist(
             MEA_data=self.array,
             peak_index=peak_index,
             eles=eles,
