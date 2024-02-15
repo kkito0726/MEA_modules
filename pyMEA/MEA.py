@@ -5,6 +5,7 @@ from pyMEA.read_bio import decode_hed, hed2array
 from pyMEA.plot import showDetection
 from pyMEA.raster_plot import raster_plot
 from pyMEA.histogram import mkHist
+from pyMEA.peak_detection import remove_artifact
 from pyMEA.fit_gradient import remove_fit_data, draw_2d, draw_3d
 from pyMEA.utils import channel
 from numpy import ndarray
@@ -52,6 +53,18 @@ class MEA:
     @property
     def shape(self) -> tuple[int, int]:
         return self.array.shape
+
+    def remove_artifact(
+        self, artifact_peaks: ndarray, front_frame=8500, end_frame=20000
+    ) -> None:
+        new_array = remove_artifact(
+            MEA_data=self.array,
+            artifact_peaks=artifact_peaks,
+            front_frame=front_frame,
+            end_frame=end_frame,
+        )
+
+        self.array = new_array
 
     def _set_times(self, start, end) -> tuple[int, int]:
         # 時間の設定がなければ読み込み時間全体をプロットするようにする。

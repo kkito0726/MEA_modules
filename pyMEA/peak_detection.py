@@ -102,3 +102,13 @@ def detect_peak_all(
     peak_index[0] = np.array([])
 
     return peak_index
+
+
+# レーザー照射によるアーティファクトを除去
+def remove_artifact(
+    MEA_data: ndarray, artifact_peaks: ndarray, front_frame=8500, end_frame=20000
+):
+    for i in range(1, 65):
+        for peak in artifact_peaks:
+            MEA_data[i][peak - front_frame : peak + end_frame] = 0
+    return MEA_data
