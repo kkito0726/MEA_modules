@@ -128,4 +128,4 @@ def showDetection(
     plt.ylim(-1, len(eles))
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.show()
+    # plt.show()
