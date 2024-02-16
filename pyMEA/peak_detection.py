@@ -111,12 +111,14 @@ def remove_artifact(
     remove_times = []
     for i in range(1, 65):
         for peak in artifact_peaks:
+            start_frame = peak - front_frame
+            finish_frame = peak + end_frame
+            MEA_data[i][start_frame:finish_frame] = 0
+
+            # アーティファクト除去時間は全電極で共通であるため、1回だけ記録する
             if i == 1:
-                start_frame = peak - front_frame
-                finish_frame = peak + end_frame
                 remove_times.append(
                     [MEA_data[0][start_frame], MEA_data[0][finish_frame]]
                 )
-            MEA_data[i][start_frame:finish_frame] = 0
 
     return MEA_data, np.array(remove_times)
