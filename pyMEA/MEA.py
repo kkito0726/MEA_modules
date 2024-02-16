@@ -56,8 +56,8 @@ class MEA:
 
     def remove_artifact(
         self, artifact_peaks: ndarray, front_frame=8500, end_frame=20000
-    ) -> None:
-        new_array = remove_artifact(
+    ) -> ndarray:
+        new_array, remove_times = remove_artifact(
             MEA_data=self.array,
             artifact_peaks=artifact_peaks,
             front_frame=front_frame,
@@ -65,6 +65,8 @@ class MEA:
         )
 
         self.array = new_array
+
+        return remove_times
 
     def _set_times(self, start, end) -> tuple[int, int]:
         # 時間の設定がなければ読み込み時間全体をプロットするようにする。
