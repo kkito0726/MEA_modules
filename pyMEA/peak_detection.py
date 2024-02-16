@@ -114,6 +114,9 @@ def remove_artifact(
             if i == 1:
                 start_frame = peak - front_frame
                 finish_frame = peak + end_frame
+                remove_times.append(
+                    [MEA_data[0][start_frame], MEA_data[0][finish_frame]]
+                )
             MEA_data[i][start_frame:finish_frame] = 0
-            remove_times.append([MEA_data[0][start_frame], MEA_data[0][finish_frame]])
+
     return MEA_data, np.array(remove_times)
