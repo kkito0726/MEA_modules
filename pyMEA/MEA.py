@@ -129,7 +129,7 @@ class MEA:
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
 
-        plt.show()
+        # plt.show()
 
     @channel
     def plotPeaks(
