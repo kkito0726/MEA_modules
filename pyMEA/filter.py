@@ -73,3 +73,34 @@ def filter_by_moving_average(data: MEA, power_noise_freq=50, steps=10) -> ndarra
             )
 
     return data - elc_noise
+
+
+"""
+心筋波形の平均を取ってノイズを除去する
+"""
+
+
+# 1電極の平均波形を算出
+def calc_average_wave(data: MEA, neg_peaks: np.ndarray, ele: int, front=500, end=3000):
+
+    waves = np.array([data[ele][p - front : p + end] for p in neg_peaks[ele][1:-1]])
+    ave_wave = [waves[:, i].mean() for i in range(len(waves[0]))]
+    return np.array(ave_wave)
+
+
+# 全64電極の平均波形を算出
+def calc_64_ave_waves(data: MEA, neg_peaks: np.ndarray, front=0.05, end=0.3):
+    front_frame = int(front * data.SAMPLING_RATE)
+    end_frame = int(end * data.SAMPLING_RATE)
+    ave_waves = np.array([None for _ in range(65)])
+
+    for ch in range(1, 65):
+        if len(neg_peaks[ch]) > 3:
+            ave_waves[ch] = calc_average_wave(
+                data, neg_peaks, ch, front=front_frame, end=end_frame
+            )
+        else:
+            ave_waves[ch] = np.array([0 for _ in range(end_frame + front_frame)])
+    ave_waves[0] = np.arange(len(ave_waves[1])) / data.SAMPLING_RATE
+
+    return ave_waves
