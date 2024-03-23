@@ -18,4 +18,4 @@ class CardioAveWave(MEA):
         self.array = calc_64_ave_waves(self, neg_peaks, front, back)
 
         self.start = 0
-        self.end = back
+        self.end = front + back
