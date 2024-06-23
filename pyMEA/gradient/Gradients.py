@@ -21,6 +21,12 @@ class Gradients:
     def __repr__(self) -> list[Gradient]:
         return repr(self.gradients)
 
+    def __getitem__(self, index: int) -> Gradient:
+        return self.gradients[index]
+
+    def __len__(self) -> int:
+        return len(self.gradients)
+
     def calc_velocity(self):
         cvs = []
         for gradient in self.gradients:
