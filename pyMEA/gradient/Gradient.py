@@ -1,4 +1,4 @@
-from Solver import Solver
+from pyMEA.gradient.Solver import Solver
 import numpy as np
 import matplotlib.pyplot as plt
 

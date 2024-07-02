@@ -1,5 +1,5 @@
-from Solver import Solver
-from Gradient import Gradient
+from pyMEA.gradient.Solver import Solver
+from pyMEA.gradient.Gradient import Gradient
 from pyMEA.MEA import MEA
 import numpy as np
 import statistics
