@@ -1,4 +1,4 @@
-from pyMEA.peak_detection import detect_peak_pos
+from pyMEA.find_peaks.peak_detection import detect_peak_pos
 from pyMEA.MEA import MEA
 import numpy as np
 from numpy import ndarray

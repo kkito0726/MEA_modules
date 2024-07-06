@@ -51,10 +51,10 @@ $ pip install git+https://github.com/kkito0726/MEA_modules.git
 - .hed と.bio は同じ階層のフォルダに保存しておく。
 
 ```python
-from pyMEA.read_bio import hed2array
+from pyMEA import *
 
 # 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
-data = hed2array(hed_path, start, end)
+data = MEA(hed_path, start, end)
 
 '''
 データには以下の二次元配列が返る
@@ -69,4 +69,61 @@ data = hed2array(hed_path, start, end)
   [ch 64の電位データ]
 ]
 '''
+```
+
+### 読み込み情報の確認
+
+```python
+print(data.info)
+```
+
+### ６４電極の波形をすべて表示
+
+```python
+from pyMEA import *
+
+# 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
+data = MEA(hed_path, start, end)
+data.showAll()
+```
+
+### 指定の 1 電極表示
+
+```python
+from pyMEA import *
+
+# 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
+data = MEA(hed_path, start, end)
+ch = 1 # 表示したい電極番号
+data.showSingle(ch)
+```
+
+### 波形とピーク位置を確認
+
+```python
+from pyMEA import *
+
+# 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
+data = MEA(hed_path, start, end)
+ch = 1 # 表示したい電極番号
+peak_index_neg = detect_peak_neg(data, 3000)
+peak_index_pos = detect_peak_pos(data, 3000)
+
+# 上下両方のピークをプロットする場合
+data.plotPeaks(ch, peak_index_neg, peak_index_pos)
+
+# 下のピークをプロットする場合
+data.plotPeaks(ch, peak_index_neg)
+```
+
+### カラーマップ描画
+
+```python
+from pyMEA import *
+
+# 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
+data = MEA(hed_path, start, end)
+peak_index = detect_peak_neg(data, 3000)
+
+data.draw_2d(peal_index, 450)
 ```
