@@ -74,7 +74,7 @@ data = MEA(hed_path, start, end)
 ### 読み込み情報の確認
 
 ```python
-print(data.info)
+data.info
 ```
 
 ### ６４電極の波形をすべて表示
