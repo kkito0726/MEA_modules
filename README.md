@@ -98,6 +98,24 @@ ch = 1 # 表示したい電極番号
 data.showSingle(ch)
 ```
 
+### 波形とピーク位置を確認
+
+```python
+from pyMEA import *
+
+# 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
+data = MEA(hed_path, start, end)
+ch = 1 # 表示したい電極番号
+peak_index_neg = detect_peak_neg(data, 3000)
+peak_index_pos = detect_peak_pos(data, 3000)
+
+# 上下両方のピークをプロットする場合
+data.plotPeaks(ch, peak_index_neg, peak_index_pos)
+
+# 下のピークをプロットする場合
+data.plotPeaks(ch, peak_index_neg)
+```
+
 ### カラーマップ描画
 
 ```python

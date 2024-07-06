@@ -2,17 +2,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from pyMEA.read.read_bio import decode_hed, hed2array
-from pyMEA.plot import showDetection
+from pyMEA.plot.plot import showDetection
 from pyMEA.plot.raster_plot import raster_plot
 from pyMEA.plot.histogram import mkHist
 from pyMEA.find_peaks.peak_detection import remove_artifact
 from pyMEA.fit_gradient import remove_fit_data, draw_2d, draw_3d
-from pyMEA.utils import channel
+from pyMEA.utils.decorators import channel
 from numpy import ndarray
 
 
 class MEA:
     def __init__(self, hed_path: str, start: int = 0, end: int = 120) -> None:
+        """
+        Args:
+            hed_path: .hedファイルのパス
+            start: 読み込み開始時間 [s]
+            end: 読み込み終了時間[s]
+        """
         self.hed_path: str = hed_path
         self.start: int = start
         self.end: int = end
@@ -80,6 +86,17 @@ class MEA:
     def showAll(
         self, start=None, end=5, volt_min=-200, volt_max=200, figsize=(8, 8), dpi=300
     ) -> None:
+        """
+        64電極すべての波形を描画する
+
+        Args:
+            start: 読み込み開始時間 [s]
+            end: 読み込み終了時間[s]
+            volt_min: マイナス電位 [μV]
+            volt_max: プラス電位 [μV]
+            figsize: figのアスペクト比
+            dpi: 解像度
+        """
         # 時間の設定がない場合はデータの最初から5秒間をプロットする。
         if start == None:
             start = self.start
@@ -114,6 +131,18 @@ class MEA:
         xlabel="Time (s)",
         ylabel="Voltage (μV)",
     ) -> None:
+        """
+        1電極の波形を描画する
+
+        Args:
+            ch: 描画する電極番号
+            start: 読み込み開始時間 [s]
+            end: 読み込み終了時間[s]
+            volt_min: マイナス電位 [μV]
+            volt_max: プラス電位 [μV]
+            figsize: figのアスペクト比
+            dpi: 解像度
+        """
         start, end = self._set_times(start, end)
 
         # 読み込み開始時間が0ではないときズレが生じるため差を取っている
@@ -145,6 +174,19 @@ class MEA:
         xlabel="Time (s)",
         ylabel="Voltage (μV)",
     ) -> None:
+        """
+        1電極の波形とピークの位置をプロット
+
+        Args:
+            ch: 描画する電極番号
+            *peak_index: ピーク配列 (可変長)以降の引数は引数名を指定する
+            start: 読み込み開始時間 [s]
+            end: 読み込み終了時間[s]
+            volt_min: マイナス電位 [μV]
+            volt_max: プラス電位 [μV]
+            figsize: figのアスペクト比
+            dpi: 解像度
+        """
         start, end = self._set_times(start, end)
 
         # 読み込み開始時間が0ではないときズレが生じるため差を取っている
@@ -253,6 +295,18 @@ class MEA:
         dpi=300,
         cmap="jet",
     ) -> tuple[ndarray, ndarray]:
+        """
+        カラーマップ描画
+
+        Args:
+            peak_index: ピークの配列
+            ele_dis: 電極間距離 (μm)
+            mesh_num: mesh_num x mesh_numでデータを生成
+            contour: 等高線で表示するかどうか
+            isQuiver: 速度ベクトルを表示するかどうか
+            dpi: 解像度
+            cmap: カラーセット
+        """
         popts, r2s = remove_fit_data(self.array, peak_index=peak_index, ele_dis=ele_dis)
         draw_2d(
             popts=popts,

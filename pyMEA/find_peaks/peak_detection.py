@@ -6,12 +6,20 @@ from scipy.signal import find_peaks
 # 64電極すべての下ピークを取得
 def detect_peak_neg(
     MEA_data: ndarray,
-    distance=5000,
+    distance=3000,
     threshold=3,
     min_amp=10,
     width=None,
     prominence=None,
 ) -> ndarray:
+    """
+    64電極すべての下ピークを取得
+
+    Args:
+        data: MEA読み込みデータ
+        distance: ピークを取る間隔
+        threshold: SD * thresholdより大きいピークを取る
+    """
     peak_index = np.array([None for _ in range(len(MEA_data))])
     for i in range(1, len(MEA_data)):
         # ピーク抽出の閾値を設定
