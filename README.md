@@ -125,5 +125,5 @@ from pyMEA import *
 data = MEA(hed_path, start, end)
 peak_index = detect_peak_neg(data, 3000)
 
-data.draw_2d(peal_index, 450)
+data.draw_2d(peak_index, 450)
 ```
