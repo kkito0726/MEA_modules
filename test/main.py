@@ -1,5 +1,5 @@
-from pyMEA.read_bio import hed2array
-from pyMEA.peak_detection import detect_peak_neg
+from pyMEA.read.read_bio import hed2array
+from pyMEA.find_peaks.peak_detection import detect_peak_neg
 from pyMEA.plot import showAll
 from pyMEA.gradient import draw, calc_velocity_from_grid
 import glob

@@ -1,5 +1,5 @@
 from pyMEA.MEA import MEA
-from pyMEA.filter import filter_by_moving_average
+from pyMEA.utils.filter import filter_by_moving_average
 
 
 class FilterMEA(MEA):

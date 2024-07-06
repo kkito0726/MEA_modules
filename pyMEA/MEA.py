@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from pyMEA.read_bio import decode_hed, hed2array
+from pyMEA.read.read_bio import decode_hed, hed2array
 from pyMEA.plot import showDetection
-from pyMEA.raster_plot import raster_plot
-from pyMEA.histogram import mkHist
-from pyMEA.peak_detection import remove_artifact
+from pyMEA.plot.raster_plot import raster_plot
+from pyMEA.plot.histogram import mkHist
+from pyMEA.find_peaks.peak_detection import remove_artifact
 from pyMEA.fit_gradient import remove_fit_data, draw_2d, draw_3d
 from pyMEA.utils import channel
 from numpy import ndarray
@@ -249,7 +249,7 @@ class MEA:
         ele_dis=450,  # 電極間距離 (μm)
         mesh_num=100,  # mesh_num x mesh_numでデータを生成
         contour=False,  # 等高線で表示するかどうか
-        isQuiver=False,  # 速度ベクトルを表示するかどうか
+        isQuiver=True,  # 速度ベクトルを表示するかどうか
         dpi=300,
         cmap="jet",
     ) -> tuple[ndarray, ndarray]:
