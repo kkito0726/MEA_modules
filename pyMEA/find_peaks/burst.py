@@ -6,9 +6,10 @@ Matsuda, N., et al.
 "Detection of synchronized burst firing in cultured human induced pluripotent stem cell-derived neurons using a 4-step method." 
 Biochemical and biophysical research communications 497.2 (2018): 612-618.
 """
+import itertools
+
 import numpy as np
 from numpy import ndarray
-import itertools
 
 
 # 64電極のpeak_indexを一次元の配列にまとめる。

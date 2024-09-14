@@ -16,7 +16,7 @@ def detect_peak_neg(
     64電極すべての下ピークを取得
 
     Args:
-        data: MEA読み込みデータ
+        MEA_data: MEA読み込みデータ
         distance: ピークを取る間隔
         threshold: SD * thresholdより大きいピークを取る
     """

@@ -1,7 +1,7 @@
-import numpy as np
-from numpy import ndarray, float64
-from sklearn.preprocessing import minmax_scale
 import matplotlib.pyplot as plt
+import numpy as np
+from numpy import float64, ndarray
+from sklearn.preprocessing import minmax_scale
 
 
 # データの正規化
