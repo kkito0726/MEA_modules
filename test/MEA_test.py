@@ -1,8 +1,9 @@
 import unittest
+
 from pyMEA.MEA import MEA
 
-class MyTestCase(unittest.TestCase):
 
+class MyTestCase(unittest.TestCase):
     def test_MEA_instance(self):
         path = "./public/230615_day2_test_5s_.hed"
         start, end = 1, 2
@@ -16,5 +17,5 @@ class MyTestCase(unittest.TestCase):
             self.assertEqual(len(d), data.SAMPLING_RATE * data.time)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
