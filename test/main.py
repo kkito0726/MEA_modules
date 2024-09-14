@@ -5,7 +5,7 @@ path = "./public/230615_day2_test_5s_.hed"
 start, end = 1, 2
 data = MEA(path, start, end)
 neg_peak_index = detect_peak_neg(data.array)
-pos_peak_index = detect_peak_pos(data.array)
+pos_peak_index = detect_peak_pos(data.array, height=500)
 
 
 if __name__ == "__main__":
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     data.showSingle(32, start, end)
 
     # ピーク抽出位置確認
-    data.plotPeaks(32, neg_peak_index, pos_peak_index)
+    data.plotPeaks(32, neg_peak_index, pos_peak_index, volt_min=-2000, volt_max=2000)
 
     # 波形積み上げ表示
     data.showDetection([i for i in range(1, 65)], start, end)
