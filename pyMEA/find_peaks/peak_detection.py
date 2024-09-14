@@ -1,3 +1,4 @@
+
 import numpy as np
 from numpy import ndarray
 from scipy.signal import find_peaks
@@ -48,7 +49,7 @@ def detect_peak_pos(
     distance=10000,
     width=None,
     prominence=None,
-    height: tuple[int] = (10, 80),
+    height: tuple[int, int] = (10, 80),
 ) -> ndarray:
     peak_index = np.array([None for _ in range(len(MEA_data))])
     for i in range(1, len(MEA_data)):

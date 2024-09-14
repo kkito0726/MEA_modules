@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ndarray
 
+from pyMEA import MEA
+
 circuit_eles = [
     1,
     2,
@@ -94,7 +96,7 @@ def circuit(
 
 # 任意の電極データを一つのグラフに表示
 def showDetection(
-    MEA_raw: ndarray,
+    MEA_raw: MEA,
     eles: List[int],
     start=0,
     end=5,

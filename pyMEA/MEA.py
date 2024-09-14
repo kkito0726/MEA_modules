@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 from numpy import ndarray
 
-from pyMEA.find_peaks.peak_detection import remove_artifact
 from pyMEA.fit_gradient import draw_2d, draw_3d, remove_fit_data
 from pyMEA.plot.histogram import mkHist
 from pyMEA.plot.plot import showDetection
@@ -25,19 +24,17 @@ class MEA:
         self.__SAMPLING_RATE, self.__GAIN = decode_hed(self.__hed_path)
         self.__array = hed2array(self.__hed_path, self.__start, self.__end)
 
-
-
-    def __repr__(self) -> ndarray:
-        return repr(self.__array)
+    def __repr__(self):
+        return repr(self.array)
 
     def __getitem__(self, index: int) -> ndarray:
-        return self.__array[index]
+        return self.array[index]
 
     def __len__(self) -> int:
-        return len(self.__array)
+        return len(self.array)
 
     def __add__(self, value):
-        return self.__array + value
+        return self.array + value
 
     def __sub__(self, value):
         return self.__array - value
@@ -53,34 +50,20 @@ class MEA:
 
     @property
     def info(self) -> str:
-        info = f"読み込み開始時間  : {self.__start} s\n読み込み終了時間  : {self.__end} s\n読み込み合計時間  : {self.__time} s\nサンプリングレート: {self.__SAMPLING_RATE} Hz\nGAIN           : {self.__GAIN}"
+        info = f"読み込み開始時間  : {self.start} s\n読み込み終了時間  : {self.end} s\n読み込み合計時間  : {self.time} s\nサンプリングレート: {self.SAMPLING_RATE} Hz\nGAIN           : {self.GAIN}"
         print(info)
         return info
 
     @property
     def shape(self) -> tuple[int, ...]:
-        return self.__array.shape
-
-    def remove_artifact(
-        self, artifact_peaks: ndarray, front_frame=8500, end_frame=20000
-    ) -> ndarray:
-        new_array, remove_times = remove_artifact(
-            MEA_data=self.__array,
-            artifact_peaks=artifact_peaks,
-            front_frame=front_frame,
-            end_frame=end_frame,
-        )
-
-        self.__array = new_array
-
-        return remove_times
+        return self.array.shape
 
     def _set_times(self, start, end) -> tuple[int, int]:
         # 時間の設定がなければ読み込み時間全体をプロットするようにする。
         if start is None:
-            start = self.__start
+            start = self.start
         if end is None:
-            end = self.__end
+            end = self.end
 
         return start, end
 
@@ -100,20 +83,20 @@ class MEA:
         """
         # 時間の設定がない場合はデータの最初から5秒間をプロットする。
         if start is None:
-            start = self.__start
+            start = self.start
         if end is None:
             end = start + 5
 
         # 読み込み開始時間が0ではないときズレが生じるため差を取っている
-        start_frame = int(abs(self.__start - start) * self.__SAMPLING_RATE)
-        end_frame = int(abs(self.__start - end) * self.__SAMPLING_RATE)
+        start_frame = int(abs(self.start - start) * self.SAMPLING_RATE)
+        end_frame = int(abs(self.start - end) * self.SAMPLING_RATE)
 
         plt.figure(figsize=figsize, dpi=dpi)
         for i in range(1, 65, 1):
             plt.subplot(8, 8, i)
             plt.plot(
-                self.__array[0][start_frame:end_frame],
-                self.__array[i][start_frame:end_frame],
+                self.array[0][start_frame:end_frame],
+                self.array[i][start_frame:end_frame],
             )
             plt.ylim(volt_min, volt_max)
 
@@ -149,12 +132,12 @@ class MEA:
         start, end = self._set_times(start, end)
 
         # 読み込み開始時間が0ではないときズレが生じるため差を取っている
-        start_frame = int(abs(self.__start - start) * self.__SAMPLING_RATE)
-        end_frame = int(abs(self.__start - end) * self.__SAMPLING_RATE)
+        start_frame = int(abs(self.start - start) * self.SAMPLING_RATE)
+        end_frame = int(abs(self.start - end) * self.SAMPLING_RATE)
 
         plt.figure(figsize=figsize, dpi=dpi)
         plt.plot(
-            self.__array[0][start_frame:end_frame], self.__array[ch][start_frame:end_frame]
+            self.array[0][start_frame:end_frame], self.array[ch][start_frame:end_frame]
         )
         plt.xlim(start, end)
         plt.ylim(volt_min, volt_max)
@@ -195,14 +178,14 @@ class MEA:
         start, end = self._set_times(start, end)
 
         # 読み込み開始時間が0ではないときズレが生じるため差を取っている
-        start_frame = int(abs(self.__start - start) * self.__SAMPLING_RATE)
-        end_frame = int(abs(self.__start - end) * self.__SAMPLING_RATE)
+        start_frame = int(abs(self.start - start) * self.SAMPLING_RATE)
+        end_frame = int(abs(self.start - end) * self.SAMPLING_RATE)
 
         # 波形データのプロット
         plt.figure(figsize=figsize, dpi=dpi)
         x, y = (
-            self.__array[0][start_frame:end_frame],
-            self.__array[ch][start_frame:end_frame],
+            self.array[0][start_frame:end_frame],
+            self.array[ch][start_frame:end_frame],
         )
         plt.plot(x, y)
 
@@ -232,15 +215,15 @@ class MEA:
     ) -> None:
         start, end = self._set_times(start, end)
         # 読み込み開始時間が途中からの場合のズレを解消する
-        start = abs(start - self.__start)
-        end = abs(end - self.__start)
+        start = abs(start - self.start)
+        end = abs(end - self.start)
         showDetection(
-            MEA_raw=self.__array,
+            MEA_raw=self,
             eles=eles,
             start=start,
-            read_start=self.__start,
+            read_start=self.start,
             end=end,
-            sampling_rate=self.__SAMPLING_RATE,
+            sampling_rate=self.SAMPLING_RATE,
             figsize=figsize,
             xlabel=xlabel,
             ylabel=ylabel,
@@ -258,7 +241,7 @@ class MEA:
     ) -> None:
         start, end = self._set_times(start, end)
         raster_plot(
-            MEA_data=self.__array,
+            MEA_data=self,
             peak_index=peak_index,
             eles=eles,
             tick_ch=tick_ch,
@@ -279,12 +262,12 @@ class MEA:
     ) -> ndarray:
         start, end = self._set_times(start, end)
         return mkHist(
-            MEA_data=self.__array,
+            MEA_data=self,
             peak_index=peak_index,
             eles=eles,
             figsize=figsize,
             bin_duration=bin_duration,
-            sampling=self.__SAMPLING_RATE,
+            sampling=self.SAMPLING_RATE,
             start=start,
             end=end,
             dpi=dpi,
@@ -312,7 +295,7 @@ class MEA:
             dpi: 解像度
             cmap: カラーセット
         """
-        popts, r2s = remove_fit_data(self.__array, peak_index=peak_index, ele_dis=ele_dis)
+        popts, r2s = remove_fit_data(self, peak_index=peak_index, ele_dis=ele_dis)
         draw_2d(
             popts=popts,
             ele_dis=ele_dis,
@@ -335,7 +318,7 @@ class MEA:
         clabel="Δt (ms)",
         dpi=300,
     ) -> tuple[ndarray, ndarray]:
-        popts, r2s = remove_fit_data(self.__array, peak_index=peak_index, ele_dis=ele_dis)
+        popts, r2s = remove_fit_data(self, peak_index=peak_index, ele_dis=ele_dis)
         draw_3d(
             popts=popts,
             ele_dis=ele_dis,

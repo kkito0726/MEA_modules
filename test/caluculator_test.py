@@ -24,7 +24,7 @@ class CalculatorTest(unittest.TestCase):
 
     def test_FPDが正しく計算できる(self):
         fpd = calc450.fpd(peak_index, 19)
-        estimate = [0.1795, 0.177,  0.1729, 0.1813, 0.1782, 0.1799, 0.1834, 0.1809]
+        estimate = [0.1795, 0.177, 0.1729, 0.1813, 0.1782, 0.1799, 0.1834, 0.1809]
 
         for i in range(len(fpd)):
             self.assertEqual(round(fpd[i], 2), round(estimate[i], 2))
@@ -54,6 +54,7 @@ class CalculatorTest(unittest.TestCase):
 
         for i in range(len(cv)):
             self.assertEqual(round(cv[i], 3), round(estimate[i], 3))
+
 
 if __name__ == "__main__":
     unittest.main()

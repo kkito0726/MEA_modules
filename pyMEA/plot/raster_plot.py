@@ -2,9 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ndarray
 
+from pyMEA import MEA
+
 
 def raster_plot(
-    MEA_data: ndarray,
+    MEA_data: MEA,
     peak_index: ndarray,
     eles: list[int],
     tick_ch=1,
