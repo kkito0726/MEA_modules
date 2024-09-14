@@ -1,6 +1,6 @@
+from pyMEA.find_peaks.peak_detection import detect_peak_neg
 from pyMEA.MEA import MEA
 from pyMEA.utils.filter import calc_64_ave_waves
-from pyMEA.find_peaks.peak_detection import detect_peak_neg
 
 
 class CardioAveWave(MEA):

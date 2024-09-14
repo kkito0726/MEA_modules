@@ -1,7 +1,8 @@
-import numpy as np
+from typing import List, Tuple
 
-from typing import Tuple, List
+import numpy as np
 from numpy import ndarray
+
 from pyMEA.MEA import MEA
 
 
@@ -82,7 +83,6 @@ def filter_by_moving_average(data: MEA, power_noise_freq=50, steps=10) -> ndarra
 
 # 1電極の平均波形を算出
 def calc_average_wave(data: MEA, neg_peaks: np.ndarray, ele: int, front=500, end=3000):
-
     waves = np.array([data[ele][p - front : p + end] for p in neg_peaks[ele][1:-1]])
     ave_wave = [waves[:, i].mean() for i in range(len(waves[0]))]
     return np.array(ave_wave)

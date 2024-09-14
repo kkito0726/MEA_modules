@@ -1,25 +1,33 @@
-from pyMEA.read.read_bio import hed2array
-from pyMEA.find_peaks.peak_detection import detect_peak_neg
-from pyMEA.plot import showAll
-from pyMEA.gradient import draw, calc_velocity_from_grid
-import glob
+from pyMEA import *
 
-hed_path = glob.glob("./public/*.hed")
-start = 0
-end = 5
+path = "./public/230615_day2_test_5s_.hed"
 
-# データの読み込み
-data = hed2array(hed_path, start, end)
+start, end = 1, 2
+data = MEA(path, start, end)
+neg_peak_index = detect_peak_neg(data.array)
+pos_peak_index = detect_peak_pos(data.array, height=500)
 
-# ピーク抽出
-peak_index = detect_peak_neg(data)
 
-# 波形の表示
-showAll(data)
+if __name__ == "__main__":
+    data.info
 
-# 伝導のカラーマップを描画
-draw(data, peak_index)
+    # 64電極表示
+    data.showAll(start, end)
 
-# ベクトル解析で伝導速度を算出
-cv_list = calc_velocity_from_grid(data, peak_index)
-print(cv_list)
+    # 1電極表示
+    data.showSingle(32, start, end)
+
+    # ピーク抽出位置確認
+    data.plotPeaks(32, neg_peak_index, pos_peak_index, volt_min=-2000, volt_max=2000)
+
+    # 波形積み上げ表示
+    data.showDetection([i for i in range(1, 65)], start, end)
+
+    # ラスタプロット
+    data.raster_plot(neg_peak_index, [i for i in range(1, 65)])
+
+    # 2Dカラーマップ
+    data.draw_2d(neg_peak_index, 450)
+
+    # 3Dカラーマップ
+    data.draw_3d(neg_peak_index, 450)

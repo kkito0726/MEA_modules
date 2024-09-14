@@ -1,9 +1,10 @@
+import statistics
+from typing import List, Tuple
+
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ndarray
-import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
-import statistics
-from typing import Tuple, List
 
 
 # ピーク抽出できなかったchを除去する。

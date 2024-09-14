@@ -1,14 +1,13 @@
-import numpy as np
 import matplotlib.pyplot as plt
+from numpy import ndarray
 
-from pyMEA.read.read_bio import decode_hed, hed2array
+from pyMEA.find_peaks.peak_detection import remove_artifact
+from pyMEA.fit_gradient import draw_2d, draw_3d, remove_fit_data
+from pyMEA.plot.histogram import mkHist
 from pyMEA.plot.plot import showDetection
 from pyMEA.plot.raster_plot import raster_plot
-from pyMEA.plot.histogram import mkHist
-from pyMEA.find_peaks.peak_detection import remove_artifact
-from pyMEA.fit_gradient import remove_fit_data, draw_2d, draw_3d
+from pyMEA.read.read_bio import decode_hed, hed2array
 from pyMEA.utils.decorators import channel
-from numpy import ndarray
 
 
 class MEA:
@@ -24,7 +23,7 @@ class MEA:
         self.end: int = end
         self.time: int = end - start
         self.SAMPLING_RATE, self.GAIN = decode_hed(self.hed_path)
-        self.array: ndarray = hed2array(self.hed_path, self.start, self.end)
+        self.array = hed2array(self.hed_path, self.start, self.end)
 
     def __repr__(self) -> ndarray:
         return repr(self.array)
@@ -51,13 +50,13 @@ class MEA:
         return self.array // value
 
     @property
-    def info(self) -> None:
-        print(
-            f"読み込み開始時間  : {self.start} s\n読み込み終了時間  : {self.end} s\n読み込み合計時間  : {self.time} s\nサンプリングレート: {self.SAMPLING_RATE} Hz\nGAIN           : {self.GAIN}"
-        )
+    def info(self) -> str:
+        info = f"読み込み開始時間  : {self.start} s\n読み込み終了時間  : {self.end} s\n読み込み合計時間  : {self.time} s\nサンプリングレート: {self.SAMPLING_RATE} Hz\nGAIN           : {self.GAIN}"
+        print(info)
+        return info
 
     @property
-    def shape(self) -> tuple[int, int]:
+    def shape(self) -> tuple[int, ...]:
         return self.array.shape
 
     def remove_artifact(
@@ -76,9 +75,9 @@ class MEA:
 
     def _set_times(self, start, end) -> tuple[int, int]:
         # 時間の設定がなければ読み込み時間全体をプロットするようにする。
-        if start == None:
+        if start is None:
             start = self.start
-        if end == None:
+        if end is None:
             end = self.end
 
         return start, end
@@ -98,10 +97,10 @@ class MEA:
             dpi: 解像度
         """
         # 時間の設定がない場合はデータの最初から5秒間をプロットする。
-        if start == None:
+        if start is None:
             start = self.start
-        if end == None:
-            end == start + 5
+        if end is None:
+            end = start + 5
 
         # 読み込み開始時間が0ではないときズレが生じるため差を取っている
         start_frame = int(abs(self.start - start) * self.SAMPLING_RATE)
@@ -142,6 +141,8 @@ class MEA:
             volt_max: プラス電位 [μV]
             figsize: figのアスペクト比
             dpi: 解像度
+            xlabel: X軸ラベル
+            ylabel: Y軸ラベル
         """
         start, end = self._set_times(start, end)
 
@@ -186,6 +187,8 @@ class MEA:
             volt_max: プラス電位 [μV]
             figsize: figのアスペクト比
             dpi: 解像度
+            xlabel: X軸ラベル
+            ylabel: Y軸ラベル
         """
         start, end = self._set_times(start, end)
 

@@ -1,7 +1,7 @@
-import numpy as np
 import itertools
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
+import numpy as np
 from numpy import ndarray
 
 

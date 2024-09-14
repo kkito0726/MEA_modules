@@ -1,7 +1,8 @@
+import os
+from typing import Tuple
+
 import numpy as np
 from numpy import ndarray
-import os
-from typing import List, Tuple
 
 
 # hedファイルの解読関数
@@ -24,7 +25,7 @@ def decode_hed(hed_path: str) -> Tuple[int, int]:
 
     # サンプリングレートとゲインを返す。
     # hed_dataの要素16がrate、要素3がgainのキーとなる。
-    return rates[hed_data[16]], gains[hed_data[3]]
+    return rates[int(hed_data[16])], gains[int(hed_data[3])]
 
 
 # bioファイルを読み込む関数

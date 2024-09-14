@@ -1,16 +1,15 @@
 import statistics
+from typing import List, Tuple
+
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ndarray
-from typing import Tuple, List
 from scipy.optimize import curve_fit
-import numpy as np
-from numpy import ndarray
 
 
 def remove_undetected_ch(
     data: ndarray, peak_index: ndarray
-) -> Tuple[List[ndarray], List[int]]:
+) -> Tuple[ndarray, List[int]]:
     # ピークの時刻 (s)を取得
     time = [data[0][peak_index[i]] for i in range(1, 65)]
 
@@ -95,7 +94,9 @@ def fit_data(
     return np.array(popts), np.array(r2s)
 
 
-def remove_fit_data(data: ndarray, peak_index: ndarray, ele_dis: int) -> List[ndarray]:
+def remove_fit_data(
+    data: ndarray, peak_index: ndarray, ele_dis: int
+) -> tuple[ndarray, ndarray]:
     # ピーク抽出できなかった電極のデータは除去する
     times, remove_ch = remove_undetected_ch(data, peak_index)
     return fit_data(times, remove_ch, ele_dis)
@@ -128,7 +129,9 @@ def draw_2d(
 
         # 電極上の勾配を算出する
         z_ele = model([ex, ey], *popt)
-        grady, gradx = np.gradient(z_ele.reshape(8, 8), ele_dis * 7 / (8 - 1) * 10**-6)
+        grady, gradx = np.gradient(
+            z_ele.reshape(8, 8), ele_dis * 7 / (8 - 1) * 10**-6
+        )
         cx, cy = gradx / (gradx**2 + grady**2), grady / (gradx**2 + grady**2)
 
         # グラフにプロットする
