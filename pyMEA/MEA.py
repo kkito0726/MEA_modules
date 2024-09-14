@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 from numpy import ndarray
 
-from pyMEA.find_peaks.peak_detection import remove_artifact
 from pyMEA.fit_gradient import draw_2d, draw_3d, remove_fit_data
 from pyMEA.plot.histogram import mkHist
 from pyMEA.plot.plot import showDetection
@@ -18,14 +17,14 @@ class MEA:
             start: 読み込み開始時間 [s]
             end: 読み込み終了時間[s]
         """
-        self.hed_path: str = hed_path
-        self.start: int = start
-        self.end: int = end
-        self.time: int = end - start
-        self.SAMPLING_RATE, self.GAIN = decode_hed(self.hed_path)
-        self.array = hed2array(self.hed_path, self.start, self.end)
+        self.__hed_path: str = hed_path
+        self.__start: int = start
+        self.__end: int = end
+        self.__time: int = end - start
+        self.__SAMPLING_RATE, self.__GAIN = decode_hed(self.__hed_path)
+        self.__array = hed2array(self.__hed_path, self.__start, self.__end)
 
-    def __repr__(self) -> ndarray:
+    def __repr__(self):
         return repr(self.array)
 
     def __getitem__(self, index: int) -> ndarray:
@@ -38,16 +37,16 @@ class MEA:
         return self.array + value
 
     def __sub__(self, value):
-        return self.array - value
+        return self.__array - value
 
     def __mul__(self, value):
-        return self.array * value
+        return self.__array * value
 
     def __truediv__(self, value):
-        return self.array / value
+        return self.__array / value
 
     def __floordiv__(self, value):
-        return self.array // value
+        return self.__array // value
 
     @property
     def info(self) -> str:
@@ -58,20 +57,6 @@ class MEA:
     @property
     def shape(self) -> tuple[int, ...]:
         return self.array.shape
-
-    def remove_artifact(
-        self, artifact_peaks: ndarray, front_frame=8500, end_frame=20000
-    ) -> ndarray:
-        new_array, remove_times = remove_artifact(
-            MEA_data=self.array,
-            artifact_peaks=artifact_peaks,
-            front_frame=front_frame,
-            end_frame=end_frame,
-        )
-
-        self.array = new_array
-
-        return remove_times
 
     def _set_times(self, start, end) -> tuple[int, int]:
         # 時間の設定がなければ読み込み時間全体をプロットするようにする。
@@ -233,7 +218,7 @@ class MEA:
         start = abs(start - self.start)
         end = abs(end - self.start)
         showDetection(
-            MEA_raw=self.array,
+            MEA_raw=self,
             eles=eles,
             start=start,
             read_start=self.start,
@@ -256,7 +241,7 @@ class MEA:
     ) -> None:
         start, end = self._set_times(start, end)
         raster_plot(
-            MEA_data=self.array,
+            MEA_data=self,
             peak_index=peak_index,
             eles=eles,
             tick_ch=tick_ch,
@@ -277,7 +262,7 @@ class MEA:
     ) -> ndarray:
         start, end = self._set_times(start, end)
         return mkHist(
-            MEA_data=self.array,
+            MEA_data=self,
             peak_index=peak_index,
             eles=eles,
             figsize=figsize,
@@ -310,7 +295,7 @@ class MEA:
             dpi: 解像度
             cmap: カラーセット
         """
-        popts, r2s = remove_fit_data(self.array, peak_index=peak_index, ele_dis=ele_dis)
+        popts, r2s = remove_fit_data(self, peak_index=peak_index, ele_dis=ele_dis)
         draw_2d(
             popts=popts,
             ele_dis=ele_dis,
@@ -333,7 +318,7 @@ class MEA:
         clabel="Δt (ms)",
         dpi=300,
     ) -> tuple[ndarray, ndarray]:
-        popts, r2s = remove_fit_data(self.array, peak_index=peak_index, ele_dis=ele_dis)
+        popts, r2s = remove_fit_data(self, peak_index=peak_index, ele_dis=ele_dis)
         draw_3d(
             popts=popts,
             ele_dis=ele_dis,
@@ -345,3 +330,31 @@ class MEA:
         )
 
         return popts, r2s
+
+    @property
+    def hed_path(self) -> str:
+        return self.__hed_path
+
+    @property
+    def start(self) -> int:
+        return self.__start
+
+    @property
+    def end(self) -> int:
+        return self.__end
+
+    @property
+    def time(self) -> int:
+        return self.__time
+
+    @property
+    def SAMPLING_RATE(self) -> int:
+        return self.__SAMPLING_RATE
+
+    @property
+    def GAIN(self) -> int:
+        return self.__GAIN
+
+    @property
+    def array(self):
+        return self.__array

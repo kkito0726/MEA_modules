@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ndarray
 
+from pyMEA import MEA
+
 
 def peak_flatten(MEA_data: ndarray, peak_index: ndarray, eles: list[int]) -> ndarray:
     detect_time = [MEA_data[0][peak_index[i]] for i in eles]
@@ -13,7 +15,7 @@ def peak_flatten(MEA_data: ndarray, peak_index: ndarray, eles: list[int]) -> nda
 
 
 def mkHist(
-    MEA_data: ndarray,
+    MEA_data: MEA,
     peak_index: ndarray,
     eles: list[int],
     figsize=(20, 6),

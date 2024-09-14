@@ -1,9 +1,8 @@
 from pyMEA.CardioAveWave import CardioAveWave
 from pyMEA.FilterMEA import FilterMEA
 from pyMEA.find_peaks.peak_detection import detect_peak_neg, detect_peak_pos
-from pyMEA.fit_gradient import calc_velocity
+from pyMEA.fit_gradient import calc_gradient_velocity
 from pyMEA.MEA import MEA
-from pyMEA.utils.params import calc_fpd, calc_fpd_params, calc_isi
 
 __all__ = [
     "MEA",
@@ -11,8 +10,5 @@ __all__ = [
     "CardioAveWave",
     "detect_peak_neg",
     "detect_peak_pos",
-    "calc_velocity",
-    "calc_fpd",
-    "calc_fpd_params",
-    "calc_isi",
+    "calc_gradient_velocity",
 ]

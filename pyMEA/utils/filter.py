@@ -101,6 +101,6 @@ def calc_64_ave_waves(data: MEA, neg_peaks: np.ndarray, front=0.05, end=0.3):
             )
         else:
             ave_waves[ch] = np.array([0 for _ in range(end_frame + front_frame)])
-    ave_waves[0] = np.arange(len(ave_waves[1])) / data.SAMPLING_RATE
+    ave_waves[0] = np.arange(len(ave_waves[1])) / data.__SAMPLING_RATE
 
     return ave_waves

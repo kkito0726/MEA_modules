@@ -1,45 +1,18 @@
+from typing import Any
+
 import numpy as np
-from numpy import ndarray
+from numpy import dtype, floating, ndarray
 
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
 from pyMEA.MEA import MEA
 
 
-# ISIを算出する関数
-def calc_isi(peak_index: ndarray, ele: int, sampling_rate=10000):
-    return np.diff(peak_index[ele]) / sampling_rate
-
-
-def calc_fpd(
-    data: MEA, neg_peak: np.ndarray, ele: int, peak_range=(30, 110)
-) -> list[float]:
-    # 1st peak付近のデータを0に変換
-    for p in neg_peak[ele]:
-        data[ele][p - 200 : p + 200] = 0
-
-    # 各拍動周期で2nd peakを抽出
-    fpds = []
-    for p in neg_peak[ele]:
-        tmp = data[:, p + 200 : p + 5000]  # 2nd peak付近のデータを抽出
-        pos_peak = detect_peak_pos(tmp, height=peak_range, distance=3000)
-        # ピークが見つからなかったら飛ばして次の拍動周期
-        if len(pos_peak[ele]) == 0:
-            continue
-
-        pos_time = tmp[0][pos_peak[ele]]
-        fpd = pos_time[0] - data[0][p]
-        if 0.1 < fpd < 0.4:
-            fpds.append(fpd)
-        # 範囲外FPDの場合スルー
-        else:
-            continue
-
-    return fpds
-
-
+# バゼット (Bazett's)とFredericia (フレデリシア)の補正式で補正しFredericia (たものも計算)で補正しFredericia (たものも計算)で補正したものも計算
 def calc_fpd_params(
     data: MEA, neg_peak: np.ndarray, ele: int, peak_range=(30, 110)
-) -> list[float]:
+) -> tuple[
+    list[ndarray[Any, dtype[Any]]], Any, list[ndarray[Any, dtype[floating[Any]]]]
+]:
     isi = np.diff(neg_peak[ele]) / data.SAMPLING_RATE
     # 1st peak付近のデータを0に変換
     for p in neg_peak[ele]:

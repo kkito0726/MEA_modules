@@ -6,10 +6,10 @@ import numpy as np
 from numpy import ndarray
 from scipy.optimize import curve_fit
 
+from pyMEA import MEA
 
-def remove_undetected_ch(
-    data: ndarray, peak_index: ndarray
-) -> Tuple[ndarray, List[int]]:
+
+def remove_undetected_ch(data: MEA, peak_index: ndarray) -> Tuple[ndarray, List[int]]:
     # ピークの時刻 (s)を取得
     time = [data[0][peak_index[i]] for i in range(1, 65)]
 
@@ -95,7 +95,7 @@ def fit_data(
 
 
 def remove_fit_data(
-    data: ndarray, peak_index: ndarray, ele_dis: int
+    data: MEA, peak_index: ndarray, ele_dis: int
 ) -> tuple[ndarray, ndarray]:
     # ピーク抽出できなかった電極のデータは除去する
     times, remove_ch = remove_undetected_ch(data, peak_index)
@@ -106,7 +106,7 @@ def remove_fit_data(
 
 
 def draw_2d(
-    popts: List[ndarray],
+    popts: ndarray,
     ele_dis: int,
     mesh_num: int,
     contour=False,
@@ -167,7 +167,7 @@ def draw_2d(
 
 
 def draw_3d(
-    popts: List[ndarray],
+    popts: ndarray,
     ele_dis: int,
     mesh_num: int,
     xlabel="",
@@ -199,7 +199,7 @@ def draw_3d(
 # 伝導速度の算出
 
 
-def calc_velocity(popts: ndarray, ele_dis: int, mesh_num=8) -> ndarray:
+def calc_gradient_velocity(popts: ndarray, ele_dis: int, mesh_num=8) -> ndarray:
     xx, yy = get_mesh(ele_dis, mesh_num)
 
     cvs_list = []
