@@ -1,3 +1,4 @@
+from pyMEA.calculator.caluculator import Calculator
 from pyMEA.CardioAveWave import CardioAveWave
 from pyMEA.FilterMEA import FilterMEA
 from pyMEA.find_peaks.peak_detection import detect_peak_neg, detect_peak_pos
@@ -6,6 +7,7 @@ from pyMEA.MEA import MEA
 
 __all__ = [
     "MEA",
+    "Calculator",
     "FilterMEA",
     "CardioAveWave",
     "detect_peak_neg",
