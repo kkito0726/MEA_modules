@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 
 from pyMEA import detect_peak_neg
-from pyMEA.calculator.caluculator import Calculator
+from pyMEA.calculator.calculator import Calculator
 from pyMEA.MEA import MEA
 
 path = "./public/230615_day2_test_5s_.hed"

@@ -1,4 +1,4 @@
-from pyMEA.calculator.caluculator import Calculator
+from pyMEA.calculator.calculator import Calculator
 from pyMEA.CardioAveWave import CardioAveWave
 from pyMEA.FilterMEA import FilterMEA
 from pyMEA.find_peaks.peak_detection import detect_peak_neg, detect_peak_pos
