@@ -5,8 +5,8 @@ from numpy import dtype, floating, ndarray
 
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
 from pyMEA.find_peaks.peak_model import NegPeaks, Peaks
-from pyMEA.MEA import MEA
 from pyMEA.fit_gradient import get_mesh, model
+from pyMEA.MEA import MEA
 from pyMEA.utils.decorators import ch_validator
 
 
@@ -140,10 +140,12 @@ class Calculator:
         for popt in popts:
             z = model([xx, yy], *popt)
             grady, gradx = np.gradient(
-                z.reshape(mesh_num, mesh_num), np.diff(xx)[0][0] * 10 ** -6
+                z.reshape(mesh_num, mesh_num), np.diff(xx)[0][0] * 10**-6
             )
-            cx, cy = gradx / (gradx ** 2 + grady ** 2), grady / (gradx ** 2 + grady ** 2)
-            cvs = np.sqrt(cx ** 2 + cy ** 2).ravel()
+            cx, cy = gradx / (gradx**2 + grady**2), grady / (
+                gradx**2 + grady**2
+            )
+            cvs = np.sqrt(cx**2 + cy**2).ravel()
             cvs_list.append(cvs)
 
         return np.array(cvs_list)

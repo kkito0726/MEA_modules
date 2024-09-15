@@ -16,7 +16,7 @@ peak_index = detect_peak_neg(data.array)
 ele_dis = 450 # 電極間距離 (μm)
 cal = Calculator(data, ele_dis)
 
-ch =32
+ch = 32
 isi = cal.isi(peak_index, ch) # ISI (s)
 fpd = cal.fpd(peak_index, ch) # FPD (s)
 
