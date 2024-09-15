@@ -1,4 +1,5 @@
 import inspect
+from functools import wraps
 
 
 def channel(func):
@@ -38,6 +39,32 @@ def ch_validator(func):
                     if not (1 <= ch <= 64):
                         raise ValueError(f"{param_name}は1-64の整数で入力してください")
 
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def time_validator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # 関数の引数名を取得
+        sig = inspect.signature(func)
+
+        # argsをkwargsに変換（位置引数を名前付き引数に変換）
+        bound_args = sig.bind_partial(*args, **kwargs)
+        bound_args.apply_defaults()
+
+        # 'start' と 'end' の引数を取得
+        start = bound_args.arguments.get('start')
+        end = bound_args.arguments.get('end')
+
+        # バリデーション
+        if start < 0 or end < 0:
+            raise ValueError("startとendは0以上のの整数で入力してください")
+        if start > end:
+            raise ValueError("start < endになるように入力してください")
+
+        # 条件を満たしていれば関数を実行
         return func(*args, **kwargs)
 
     return wrapper

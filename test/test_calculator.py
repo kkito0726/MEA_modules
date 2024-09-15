@@ -67,6 +67,19 @@ class CalculatorTest(unittest.TestCase):
 
         self.assertEqual(mock_show.call_count, 8)
 
+    def test_電極番号を1から64の範囲外を指定するとき例外が発生する(self):
+        with self.assertRaises(ValueError) as context:
+            calc450.isi(peak_index, 65)
+        self.assertEqual(str(context.exception), "chは1-64の整数で入力してください")
+
+        with self.assertRaises(ValueError) as context:
+            calc450.isi(peak_index, 0)
+        self.assertEqual(str(context.exception), "chは1-64の整数で入力してください")
+
+        with self.assertRaises(ValueError) as context:
+            calc450.isi(peak_index, -1)
+        self.assertEqual(str(context.exception), "chは1-64の整数で入力してください")
+
 
 if __name__ == "__main__":
     unittest.main()
