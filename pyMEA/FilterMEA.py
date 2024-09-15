@@ -14,4 +14,4 @@ class FilterMEA(MEA):
         super().__init__(hed_path, start, end)
         self.power_noise_freq = power_noise_freq
         self.steps = steps
-        self.array = filter_by_moving_average(self, power_noise_freq, steps)
+        super.__array = filter_by_moving_average(self, power_noise_freq, steps)
