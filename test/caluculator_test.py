@@ -1,5 +1,5 @@
 import unittest
-from test.main import neg_peak_index
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 
@@ -54,6 +54,18 @@ class CalculatorTest(unittest.TestCase):
 
         for i in range(len(cv)):
             self.assertEqual(round(cv[i], 3), round(estimate[i], 3))
+
+    @patch("matplotlib.pyplot.show")
+    def test_速度ベクトルから伝導速度が正しく計算できる(self, mock_show: MagicMock):
+        popts, r2s = data.draw_2d(peak_index, 450)
+        cvs = calc450.gradient_velocity(popts)
+
+        for cv in cvs:
+            self.assertEqual(cv.shape, (64,))
+            for c in cv:
+                self.assertTrue(0 <= c <= 0.4)
+
+        self.assertEqual(mock_show.call_count, 8)
 
 
 if __name__ == "__main__":

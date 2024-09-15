@@ -1,18 +1,22 @@
+from typing import Any
 
 import numpy as np
 from numpy import ndarray
 from scipy.signal import find_peaks
 
+from pyMEA import MEA
+from pyMEA.find_peaks.peak_model import AllPeaks, NegPeaks, Peaks, PosPeaks
+
 
 # 64電極すべての下ピークを取得
 def detect_peak_neg(
-    MEA_data: ndarray,
+    MEA_data: MEA,
     distance=3000,
     threshold=3,
     min_amp=10,
     width=None,
     prominence=None,
-) -> ndarray:
+) -> NegPeaks:
     """
     64電極すべての下ピークを取得
 
@@ -21,7 +25,7 @@ def detect_peak_neg(
         distance: ピークを取る間隔
         threshold: SD * thresholdより大きいピークを取る
     """
-    peak_index = np.array([None for _ in range(len(MEA_data))])
+    peak_index: ndarray[Any, np.dtype] = np.array([None for _ in range(len(MEA_data))])
     for i in range(1, len(MEA_data)):
         # ピーク抽出の閾値を設定
         height = np.std(MEA_data[i]) * threshold
@@ -40,17 +44,17 @@ def detect_peak_neg(
         peak_index[i] = np.sort(peak_index[i])
     peak_index[0] = np.array([])
 
-    return peak_index
+    return NegPeaks(peak_index)
 
 
 # 64電極すべての上ピークを取得
 def detect_peak_pos(
-    MEA_data: ndarray,
-    distance=10000,
+    MEA_data: MEA,
+    distance=3000,
     width=None,
     prominence=None,
     height: tuple[int, int] = (10, 80),
-) -> ndarray:
+) -> PosPeaks:
     peak_index = np.array([None for _ in range(len(MEA_data))])
     for i in range(1, len(MEA_data)):
         # height = np.std(MEA_data[i]) * 3
@@ -66,17 +70,17 @@ def detect_peak_pos(
         peak_index[i] = np.sort(peak_index[i])
     peak_index[0] = np.array([])
 
-    return peak_index
+    return PosPeaks(peak_index)
 
 
 # 64電極すべての上下ピークを取得
 def detect_peak_all(
-    MEA_data: ndarray,
-    threshold: list[int] = [3, 3],
+    MEA_data: MEA,
+    threshold: tuple[int] = (3, 3),
     distance=3000,
     width=None,
     prominence=None,
-) -> ndarray:
+) -> AllPeaks:
     peak_index = np.array([None for _ in range(len(MEA_data))])
     for i in range(1, 65):
         # +のデータだけでSDを計算してthresholdを決定する
@@ -110,7 +114,7 @@ def detect_peak_all(
 
     peak_index[0] = np.array([])
 
-    return peak_index
+    return AllPeaks(peak_index)
 
 
 # レーザー照射によるアーティファクトを除去

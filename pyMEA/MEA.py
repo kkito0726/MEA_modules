@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from numpy import ndarray
 
+from pyMEA.find_peaks.peak_model import Peaks
 from pyMEA.fit_gradient import draw_2d, draw_3d, remove_fit_data
 from pyMEA.plot.histogram import mkHist
 from pyMEA.plot.plot import showDetection
@@ -150,7 +151,7 @@ class MEA:
     def plotPeaks(
         self,
         ch: int,
-        *peak_indexes: ndarray,
+        *peak_indexes: Peaks,
         start: int = None,
         end: int = None,
         volt_min=-200,
@@ -232,7 +233,7 @@ class MEA:
 
     def raster_plot(
         self,
-        peak_index: ndarray,
+        peak_index: Peaks,
         eles: list[int],
         tick_ch=1,
         figsize=(8, 8),
@@ -252,7 +253,7 @@ class MEA:
 
     def mkHist(
         self,
-        peak_index: ndarray,
+        peak_index: Peaks,
         eles: list[int],
         figsize=(20, 6),
         bin_duration=0.05,
@@ -275,7 +276,7 @@ class MEA:
 
     def draw_2d(
         self,
-        peak_index: ndarray,
+        peak_index: Peaks,
         ele_dis=450,  # 電極間距離 (μm)
         mesh_num=100,  # mesh_num x mesh_numでデータを生成
         contour=False,  # 等高線で表示するかどうか
@@ -310,7 +311,7 @@ class MEA:
 
     def draw_3d(
         self,
-        peak_index: ndarray,
+        peak_index: Peaks,
         ele_dis=450,
         mesh_num=100,
         xlabel="X (μm)",
