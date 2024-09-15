@@ -7,10 +7,11 @@ from pyMEA.plot.histogram import mkHist
 from pyMEA.plot.plot import showDetection
 from pyMEA.plot.raster_plot import raster_plot
 from pyMEA.read.read_bio import decode_hed, hed2array
-from pyMEA.utils.decorators import channel
+from pyMEA.utils.decorators import channel, time_validator
 
 
 class MEA:
+    @time_validator
     def __init__(self, hed_path: str, start: int = 0, end: int = 120) -> None:
         """
         Args:
