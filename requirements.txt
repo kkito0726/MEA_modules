@@ -36,7 +36,7 @@ prompt-toolkit
 psutil
 ptyprocess
 pure-eval
-Pygments1
+Pygments
 pyparsing
 python-dateutil
 pytz
