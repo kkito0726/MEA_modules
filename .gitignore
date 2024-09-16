@@ -4,3 +4,4 @@ pyMEA.egg-info
 test.py
 test/public
 *.ipynb
+.idea
