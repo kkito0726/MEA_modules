@@ -4,7 +4,7 @@ import numpy as np
 
 from pyMEA.gradient.Gradient import Gradient
 from pyMEA.gradient.Solver import Solver
-from pyMEA.MEA import MEA
+from pyMEA.read.MEA import MEA
 
 
 class Gradients:

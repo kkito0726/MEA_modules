@@ -4,7 +4,7 @@ import numpy as np
 from numpy import ndarray
 from scipy.signal import find_peaks
 
-from pyMEA import MEA
+from pyMEA.read.MEA import MEA
 from pyMEA.find_peaks.peak_model import AllPeaks, NegPeaks, Peaks, PosPeaks
 
 

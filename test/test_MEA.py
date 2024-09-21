@@ -1,7 +1,6 @@
 import unittest
-from array import array
 
-from pyMEA.MEA import MEA
+from pyMEA.read.MEA import MEA
 
 
 class MEATest(unittest.TestCase):

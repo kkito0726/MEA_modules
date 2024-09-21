@@ -5,7 +5,7 @@ import numpy as np
 
 from pyMEA.figure.FigMEA import FigMEA
 from pyMEA.find_peaks.peak_detection import detect_peak_neg
-from pyMEA.MEA import MEA
+from pyMEA.read.MEA import MEA
 
 
 class MyTestCase(unittest.TestCase):

@@ -1,13 +1,7 @@
-import matplotlib.pyplot as plt
 from numpy import ndarray
 
-from pyMEA.figure.plot.histogram import mkHist
-from pyMEA.figure.plot.plot import showDetection
-from pyMEA.figure.plot.raster_plot import raster_plot
-from pyMEA.find_peaks.peak_model import Peaks
-from pyMEA.fit_gradient import draw_2d, draw_3d, remove_fit_data
 from pyMEA.read.read_bio import decode_hed, hed2array
-from pyMEA.utils.decorators import channel, time_validator
+from pyMEA.utils.decorators import time_validator
 
 
 class MEA:

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pyMEA import MEA
+from pyMEA.read.MEA import MEA
 from pyMEA.find_peaks.peak_model import Peaks
 
 

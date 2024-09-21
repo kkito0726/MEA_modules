@@ -1,9 +1,7 @@
-from typing import List, Tuple
-
 import numpy as np
 from numpy import ndarray
 
-from pyMEA.MEA import MEA
+from pyMEA.read.MEA import MEA
 
 
 def filter_fft(MEA_data: ndarray, fc=200, sampling_rate=10000) -> ndarray:

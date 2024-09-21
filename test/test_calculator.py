@@ -6,7 +6,7 @@ import numpy as np
 from pyMEA import detect_peak_neg
 from pyMEA.calculator.calculator import Calculator
 from pyMEA.figure.FigMEA import FigMEA
-from pyMEA.MEA import MEA
+from pyMEA.read.MEA import MEA
 
 
 class CalculatorTest(unittest.TestCase):

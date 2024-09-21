@@ -1,16 +1,16 @@
 import statistics
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy import ndarray
+from numpy import ndarray, dtype
 from scipy.interpolate import griddata
 
 
 # ピーク抽出できなかったchを除去する。
 def remove_undetected_ch(
     data: ndarray, peak_index: ndarray
-) -> Tuple[List[ndarray], List[int]]:
+) -> tuple[ndarray[Any, dtype[Any]], list[int]]:
     # ピークの時刻 (s)を取得
     time = [data[0][peak_index[i]] for i in range(1, 65)]
 

@@ -6,7 +6,7 @@ from numpy import dtype, floating, ndarray
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
 from pyMEA.find_peaks.peak_model import NegPeaks, Peaks
 from pyMEA.fit_gradient import get_mesh, model
-from pyMEA.MEA import MEA
+from pyMEA.read.MEA import MEA
 from pyMEA.utils.decorators import ch_validator
 
 
