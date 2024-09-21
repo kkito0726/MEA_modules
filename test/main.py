@@ -12,7 +12,7 @@ if __name__ == "__main__":
     data.info
 
     # 64電極表示
-    data.showAll(start, end)
+    data.showAll(start, end, dpi=100)
 
     # 1電極表示
     data.showSingle(32, start, end)
@@ -21,16 +21,16 @@ if __name__ == "__main__":
     data.plotPeaks(32, neg_peak_index, pos_peak_index, volt_min=-2000, volt_max=2000)
 
     # 波形積み上げ表示
-    data.showDetection([i for i in range(1, 65)], start, end)
+    data.showDetection([i for i in range(1, 65)], start, end, dpi=100)
 
     # ラスタプロット
-    data.raster_plot(neg_peak_index, [i for i in range(1, 65)])
+    data.raster_plot(neg_peak_index, [i for i in range(1, 65)], dpi=100)
 
     # ヒストグラム作成
-    data.mkHist(neg_peak_index, [i for i in range(1, 65)])
+    data.mkHist(neg_peak_index, [i for i in range(1, 65)], dpi=100)
 
     # 2Dカラーマップ
-    popts, r2s = data.draw_2d(neg_peak_index, 450)
+    popts, r2s = data.draw_2d(neg_peak_index, 450, dpi=100)
     print(calc_gradient_velocity(popts, 450))
     print(r2s)
 
