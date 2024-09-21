@@ -78,6 +78,29 @@ class Gradient:
 
         plt.show()
 
+    def draw_3d(
+        self,
+        xlabel="",
+        ylabel="",
+        clabel="",
+        dpi=300,
+    ) -> None:
+        fig = plt.figure(dpi=dpi)
+        ax = fig.add_subplot(111, projection="3d")
+        c = ax.plot_surface(
+            self.solver.xx,
+            self.solver.yy,
+            self.solver.z.reshape(self.solver.mesh_num, self.solver.mesh_num),
+            cmap="jet",
+        )
+        bar = fig.colorbar(c)
+        bar.set_label(clabel)
+        plt.xticks(np.arange(0, self.solver.ele_dis * 7 + 1, self.solver.ele_dis))
+        plt.yticks(np.arange(0, self.solver.ele_dis * 7 + 1, self.solver.ele_dis))
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.show()
+
 
 def grad_model(X, p00, p10, p01, p20, p11, p02, p30, p21, p12, p03):
     x, y = X

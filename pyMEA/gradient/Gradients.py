@@ -51,6 +51,16 @@ class Gradients:
         for gradient in self.gradients:
             gradient.draw2d(contour, isQuiver, xlabel, ylabel, clabel, dpi, cmap)
 
+    def draw_3d(
+        self,
+        xlabel="",
+        ylabel="",
+        clabel="",
+        dpi=300,
+    ) -> None:
+        for gradient in self.gradients:
+            gradient.draw_3d(xlabel, ylabel, clabel, dpi)
+
 
 def remove_undetected_ch(
     data: MEA, peak_index: np.ndarray

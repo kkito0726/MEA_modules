@@ -5,7 +5,6 @@ from pyMEA.figure.plot.histogram import mkHist
 from pyMEA.figure.plot.plot import showDetection
 from pyMEA.figure.plot.raster_plot import raster_plot
 from pyMEA.find_peaks.peak_model import Peaks
-from pyMEA.fit_gradient import draw_3d, remove_fit_data
 from pyMEA.gradient.Gradients import Gradients
 from pyMEA.read.MEA import MEA
 from pyMEA.utils.decorators import channel
@@ -244,10 +243,9 @@ class FigMEA:
         cmap="jet",
     ) -> Gradients:
         """
-        カラーマップ描画
-
+        2Dカラーマップ描画
         Args:
-            peak_index: ピークの配列
+            peak_index: ピーク抽出結果
             ele_dis: 電極間距離 (μm)
             mesh_num: mesh_num x mesh_numでデータを生成
             contour: 等高線で表示するかどうか
@@ -268,16 +266,18 @@ class FigMEA:
         ylabel="Y (μm)",
         clabel="Δt (ms)",
         dpi=300,
-    ) -> tuple[ndarray, ndarray]:
-        popts, r2s = remove_fit_data(self.data, peak_index=peak_index, ele_dis=ele_dis)
-        draw_3d(
-            popts=popts,
-            ele_dis=ele_dis,
-            mesh_num=mesh_num,
-            xlabel=xlabel,
-            ylabel=ylabel,
-            clabel=clabel,
-            dpi=dpi,
-        )
-
-        return popts, r2s
+    ) -> Gradients:
+        """
+        3Dカラーマップ描画
+        Args:
+            peak_index: ピーク抽出結果
+            ele_dis: 電極間距離 (μm)
+            mesh_num: mesh_num x mesh_numでデータを生成
+            xlabel: X軸ラベル
+            ylabel: Y軸ラベル
+            clabel: カラーバーラベル
+            dpi: 解像度
+        """
+        grads = Gradients(self.data, peak_index, ele_dis, mesh_num)
+        grads.draw_3d(xlabel, ylabel, clabel, dpi)
+        return grads

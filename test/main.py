@@ -36,4 +36,4 @@ if __name__ == "__main__":
     print(grads.r2s)
 
     # 3Dカラーマップ
-    fm.draw_3d(neg_peak_index, 450)
+    fm.draw_3d(neg_peak_index, 450, dpi=100)
