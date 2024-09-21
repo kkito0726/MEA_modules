@@ -240,6 +240,7 @@ class MEA:
         figsize=(8, 8),
         start=None,
         end=None,
+        dpi=300
     ) -> None:
         start, end = self._set_times(start, end)
         raster_plot(
@@ -250,6 +251,7 @@ class MEA:
             figsize=figsize,
             start=start,
             end=end,
+            dpi=dpi
         )
 
     def mkHist(

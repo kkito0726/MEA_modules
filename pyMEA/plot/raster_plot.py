@@ -13,8 +13,9 @@ def raster_plot(
     figsize=(8, 8),
     start=0,
     end=120,
+    dpi=300
 ) -> None:
-    plt.figure(figsize=figsize, dpi=300)
+    plt.figure(figsize=figsize, dpi=dpi)
     for i, ele in enumerate(eles):
         plt.plot(
             MEA_data[0][peak_index[ele]],
