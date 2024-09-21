@@ -55,8 +55,8 @@ def time_validator(func):
         bound_args.apply_defaults()
 
         # 'start' と 'end' の引数を取得
-        start = bound_args.arguments.get('start')
-        end = bound_args.arguments.get('end')
+        start = bound_args.arguments.get("start")
+        end = bound_args.arguments.get("end")
 
         # バリデーション
         if start < 0 or end < 0:
