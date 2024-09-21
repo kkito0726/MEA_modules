@@ -4,8 +4,8 @@ import numpy as np
 from numpy import ndarray
 from scipy.signal import find_peaks
 
-from pyMEA.read.MEA import MEA
 from pyMEA.find_peaks.peak_model import AllPeaks, NegPeaks, Peaks, PosPeaks
+from pyMEA.read.MEA import MEA
 
 
 # 64電極すべての下ピークを取得

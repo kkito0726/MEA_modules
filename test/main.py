@@ -32,9 +32,8 @@ if __name__ == "__main__":
     fm.mkHist(neg_peak_index, [i for i in range(1, 65)], dpi=100)
 
     # 2Dカラーマップ
-    popts, r2s = fm.draw_2d(neg_peak_index, 450, dpi=100)
-    print(calc_gradient_velocity(popts, 450))
-    print(r2s)
+    grads = fm.draw_2d(neg_peak_index, 450, dpi=100)
+    print(grads.r2s)
 
     # 3Dカラーマップ
     fm.draw_3d(neg_peak_index, 450)

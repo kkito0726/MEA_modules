@@ -5,7 +5,8 @@ from pyMEA.figure.plot.histogram import mkHist
 from pyMEA.figure.plot.plot import showDetection
 from pyMEA.figure.plot.raster_plot import raster_plot
 from pyMEA.find_peaks.peak_model import Peaks
-from pyMEA.fit_gradient import draw_2d, draw_3d, remove_fit_data
+from pyMEA.fit_gradient import draw_3d, remove_fit_data
+from pyMEA.gradient.Gradients import Gradients
 from pyMEA.read.MEA import MEA
 from pyMEA.utils.decorators import channel
 
@@ -241,7 +242,7 @@ class FigMEA:
         isQuiver=True,  # 速度ベクトルを表示するかどうか
         dpi=300,
         cmap="jet",
-    ) -> tuple[ndarray, ndarray]:
+    ) -> Gradients:
         """
         カラーマップ描画
 
@@ -254,18 +255,9 @@ class FigMEA:
             dpi: 解像度
             cmap: カラーセット
         """
-        popts, r2s = remove_fit_data(self.data, peak_index=peak_index, ele_dis=ele_dis)
-        draw_2d(
-            popts=popts,
-            ele_dis=ele_dis,
-            mesh_num=mesh_num,
-            contour=contour,
-            isQuiver=isQuiver,
-            dpi=dpi,
-            cmap=cmap,
-        )
-
-        return popts, r2s
+        grads = Gradients(self.data, peak_index, ele_dis, mesh_num)
+        grads.draw_2d(contour, isQuiver, dpi=dpi, cmap=cmap)
+        return grads
 
     def draw_3d(
         self,

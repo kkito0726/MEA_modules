@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from test.main import neg_peak_index
 
 import numpy as np
 
@@ -58,17 +58,13 @@ class CalculatorTest(unittest.TestCase):
         for i in range(len(cv)):
             self.assertEqual(round(cv[i], 3), round(estimate[i], 3))
 
-    @patch("matplotlib.pyplot.show")
-    def test_速度ベクトルから伝導速度が正しく計算できる(self, mock_show: MagicMock):
-        popts, r2s = self.fm.draw_2d(self.peak_index, 450)
-        cvs = self.calc450.gradient_velocity(popts)
+    def test_速度ベクトルから伝導速度が正しく計算できる(self):
+        cvs = self.calc450.gradient_velocity(neg_peak_index)
 
         for cv in cvs:
             self.assertEqual(cv.shape, (64,))
             for c in cv:
                 self.assertTrue(0 <= c <= 0.4)
-
-        self.assertEqual(mock_show.call_count, 8)
 
     def test_電極番号を1から64の範囲外を指定するとき例外が発生する(self):
         with self.assertRaises(ValueError) as context:

@@ -1,9 +1,9 @@
 import statistics
-from typing import List, Tuple, Any
+from typing import Any, List
 
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy import ndarray, dtype
+from numpy import dtype, ndarray
 from scipy.interpolate import griddata
 
 

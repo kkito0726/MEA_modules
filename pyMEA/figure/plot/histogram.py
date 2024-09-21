@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ndarray
 
-from pyMEA.read.MEA import MEA
 from pyMEA.find_peaks.peak_model import Peaks
+from pyMEA.read.MEA import MEA
 
 
 def peak_flatten(MEA_data: MEA, peak_index: Peaks, eles: list[int]) -> ndarray:

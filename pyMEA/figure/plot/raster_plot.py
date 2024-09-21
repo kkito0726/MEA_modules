@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pyMEA.read.MEA import MEA
 from pyMEA.find_peaks.peak_model import Peaks
+from pyMEA.read.MEA import MEA
 
 
 def raster_plot(
