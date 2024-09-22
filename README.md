@@ -4,13 +4,9 @@ MEA 計測データの読み込み・解析のためのモジュールをまと�
 
 ## 前提条件
 
-- Python のバージョンは 3.5 以上で 3.9.7 以上推奨です。
+- Python のバージョンは 3.12.0 以上推奨です。
 - 必要なライブラリは[requirements.txt](https://github.com/kkito0726/MEA_modules/blob/main/requirements.txt)に記載しています。
-- 以下のライブラリを pip でインストールしておきましょう。
-  - numpy
-  - pandas
-  - matplotlib
-  - scipy
+- pyMEAのインストール同時に必要なライブラリ群がインストールされます。
 
 ## インストール
 
@@ -53,6 +49,8 @@ $ pip install git+https://github.com/kkito0726/MEA_modules.git
 ```python
 from pyMEA import *
 
+hed_path = "/Users/you/MEA_record_example.hed"
+start, end = 0, 5
 # 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
 data = MEA(hed_path, start, end)
 
@@ -73,7 +71,7 @@ data = MEA(hed_path, start, end)
 
 ### 読み込み情報の確認
 
-```python
+```
 data.info
 ```
 
@@ -82,9 +80,13 @@ data.info
 ```python
 from pyMEA import *
 
+hed_path = "/Users/you/MEA_record_example.hed"
+start, end = 0, 5
+
 # 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
-data = MEA(hed_path, start, end)
-data.showAll()
+data = MEA(hed_path, start, end) # MEA計測データの読み込み
+fm = FigMEA(data) # グラフ描画クラスのインスタンス化
+fm.showAll()
 ```
 
 ### 指定の 1 電極表示
@@ -92,10 +94,15 @@ data.showAll()
 ```python
 from pyMEA import *
 
+hed_path = "/Users/you/MEA_record_example.hed"
+start, end = 0, 5
+
 # 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
-data = MEA(hed_path, start, end)
+data = MEA(hed_path, start, end) # MEA計測データの読み込み
+fm = FigMEA(data) # グラフ描画クラスのインスタンス化
+
 ch = 1 # 表示したい電極番号
-data.showSingle(ch)
+fm.showSingle(ch)
 ```
 
 ### 波形とピーク位置を確認
@@ -103,17 +110,22 @@ data.showSingle(ch)
 ```python
 from pyMEA import *
 
+hed_path = "/Users/you/MEA_record_example.hed"
+start, end = 0, 5
+
 # 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
-data = MEA(hed_path, start, end)
+data = MEA(hed_path, start, end) # MEA計測データの読み込み
+fm = FigMEA(data) # グラフ描画クラスのインスタンス化
+
 ch = 1 # 表示したい電極番号
 peak_index_neg = detect_peak_neg(data, 3000)
 peak_index_pos = detect_peak_pos(data, 3000)
 
 # 上下両方のピークをプロットする場合
-data.plotPeaks(ch, peak_index_neg, peak_index_pos)
+fm.plotPeaks(ch, peak_index_neg, peak_index_pos)
 
 # 下のピークをプロットする場合
-data.plotPeaks(ch, peak_index_neg)
+fm.plotPeaks(ch, peak_index_neg)
 ```
 
 ### カラーマップ描画
@@ -121,9 +133,13 @@ data.plotPeaks(ch, peak_index_neg)
 ```python
 from pyMEA import *
 
+hed_path = "/Users/you/MEA_record_example.hed"
+start, end = 0, 5
+
 # 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
-data = MEA(hed_path, start, end)
+data = MEA(hed_path, start, end) # MEA計測データの読み込み
+fm = FigMEA(data) # グラフ描画クラスのインスタンス化
 peak_index = detect_peak_neg(data, 3000)
 
-data.draw_2d(peak_index, 450)
+fm.draw_2d(peak_index, 450)
 ```

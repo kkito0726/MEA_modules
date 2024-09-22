@@ -1,8 +1,7 @@
 import unittest
 
-from pyMEA.find_peaks.peak_detection import detect_peak_pos
-
 from pyMEA import MEA, detect_peak_neg
+from pyMEA.find_peaks.peak_detection import detect_peak_pos
 
 
 class MyTestCase(unittest.TestCase):

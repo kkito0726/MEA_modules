@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pyMEA import MEA
 from pyMEA.find_peaks.peak_model import Peaks
+from pyMEA.read.MEA import MEA
 
 
 def raster_plot(
@@ -13,7 +13,7 @@ def raster_plot(
     figsize=(8, 8),
     start=0,
     end=120,
-    dpi=300
+    dpi=300,
 ) -> None:
     plt.figure(figsize=figsize, dpi=dpi)
     for i, ele in enumerate(eles):

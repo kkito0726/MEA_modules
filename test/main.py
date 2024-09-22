@@ -1,4 +1,5 @@
 from pyMEA import *
+from pyMEA.figure.FigMEA import FigMEA
 
 path = "./public/230615_day2_test_5s_.hed"
 
@@ -6,33 +7,33 @@ start, end = 1, 2
 data = MEA(path, start, end)
 neg_peak_index = detect_peak_neg(data.array)
 pos_peak_index = detect_peak_pos(data.array, height=(0, 500))
+fm = FigMEA(data)
 
 
 if __name__ == "__main__":
     data.info
 
     # 64電極表示
-    data.showAll(start, end, dpi=100)
+    fm.showAll(start, end, dpi=100)
 
     # 1電極表示
-    data.showSingle(32, start, end)
+    fm.showSingle(32, start, end)
 
     # ピーク抽出位置確認
-    data.plotPeaks(32, neg_peak_index, pos_peak_index, volt_min=-2000, volt_max=2000)
+    fm.plotPeaks(32, neg_peak_index, pos_peak_index, volt_min=-2000, volt_max=2000)
 
     # 波形積み上げ表示
-    data.showDetection([i for i in range(1, 65)], start, end, dpi=100)
+    fm.showDetection([i for i in range(1, 65)], start, end, dpi=100)
 
     # ラスタプロット
-    data.raster_plot(neg_peak_index, [i for i in range(1, 65)], dpi=100)
+    fm.raster_plot(neg_peak_index, [i for i in range(1, 65)], dpi=100)
 
     # ヒストグラム作成
-    data.mkHist(neg_peak_index, [i for i in range(1, 65)], dpi=100)
+    fm.mkHist(neg_peak_index, [i for i in range(1, 65)], dpi=100)
 
     # 2Dカラーマップ
-    popts, r2s = data.draw_2d(neg_peak_index, 450, dpi=100)
-    print(calc_gradient_velocity(popts, 450))
-    print(r2s)
+    grads = fm.draw_2d(neg_peak_index, 450, dpi=100)
+    print(grads.r2s)
 
     # 3Dカラーマップ
-    data.draw_3d(neg_peak_index, 450)
+    fm.draw_3d(neg_peak_index, 450, dpi=100)

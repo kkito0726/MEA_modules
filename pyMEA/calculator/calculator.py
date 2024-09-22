@@ -5,8 +5,8 @@ from numpy import dtype, floating, ndarray
 
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
 from pyMEA.find_peaks.peak_model import NegPeaks, Peaks
-from pyMEA.fit_gradient import get_mesh, model
-from pyMEA.MEA import MEA
+from pyMEA.gradient.Gradients import Gradients
+from pyMEA.read.MEA import MEA
 from pyMEA.utils.decorators import ch_validator
 
 
@@ -121,12 +121,12 @@ class Calculator:
             + (ele_dict[ch1][1] - ele_dict[ch2][1]) ** 2
         )
 
-    def gradient_velocity(self, popts: ndarray, mesh_num=8):
+    def gradient_velocity(self, peak_index: Peaks, mesh_num=8):
         """
         速度ベクトルから計算した伝導速度 (m/s)を計算する
         ----------
         Args:
-            popts: フィッティング係数
+            peak_index: ピーク抽出結果
             mesh_num: 何x何で計算するか
 
         Returns:
@@ -134,21 +134,8 @@ class Calculator:
         -------
 
         """
-        xx, yy = get_mesh(self.ele_dis, mesh_num)
-
-        cvs_list = []
-        for popt in popts:
-            z = model([xx, yy], *popt)
-            grady, gradx = np.gradient(
-                z.reshape(mesh_num, mesh_num), np.diff(xx)[0][0] * 10**-6
-            )
-            cx, cy = gradx / (gradx**2 + grady**2), grady / (
-                gradx**2 + grady**2
-            )
-            cvs = np.sqrt(cx**2 + cy**2).ravel()
-            cvs_list.append(cvs)
-
-        return np.array(cvs_list)
+        grads = Gradients(self.data, peak_index, self.ele_dis, mesh_num)
+        return np.array(grads.calc_velocity())
 
     @property
     def data(self):

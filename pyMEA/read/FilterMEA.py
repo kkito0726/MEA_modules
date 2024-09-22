@@ -1,4 +1,4 @@
-from pyMEA.MEA import MEA
+from pyMEA.read.MEA import MEA
 from pyMEA.utils.filter import filter_by_moving_average
 
 

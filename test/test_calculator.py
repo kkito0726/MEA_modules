@@ -1,11 +1,12 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from test.main import neg_peak_index
 
 import numpy as np
 
 from pyMEA import detect_peak_neg
 from pyMEA.calculator.calculator import Calculator
-from pyMEA.MEA import MEA
+from pyMEA.figure.FigMEA import FigMEA
+from pyMEA.read.MEA import MEA
 
 
 class CalculatorTest(unittest.TestCase):
@@ -15,6 +16,7 @@ class CalculatorTest(unittest.TestCase):
         self.peak_index = detect_peak_neg(self.data.array)
         self.calc450 = Calculator(self.data, 450)
         self.calc150 = Calculator(self.data, 150)
+        self.fm = FigMEA(self.data)
 
     def test_ISIが正しく計算できる(self):
         isi = self.calc450.isi(self.peak_index, 32)
@@ -56,17 +58,13 @@ class CalculatorTest(unittest.TestCase):
         for i in range(len(cv)):
             self.assertEqual(round(cv[i], 3), round(estimate[i], 3))
 
-    @patch("matplotlib.pyplot.show")
-    def test_速度ベクトルから伝導速度が正しく計算できる(self, mock_show: MagicMock):
-        popts, r2s = self.data.draw_2d(self.peak_index, 450)
-        cvs = self.calc450.gradient_velocity(popts)
+    def test_速度ベクトルから伝導速度が正しく計算できる(self):
+        cvs = self.calc450.gradient_velocity(neg_peak_index)
 
         for cv in cvs:
             self.assertEqual(cv.shape, (64,))
             for c in cv:
                 self.assertTrue(0 <= c <= 0.4)
-
-        self.assertEqual(mock_show.call_count, 8)
 
     def test_電極番号を1から64の範囲外を指定するとき例外が発生する(self):
         with self.assertRaises(ValueError) as context:
