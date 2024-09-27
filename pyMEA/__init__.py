@@ -1,6 +1,6 @@
 from pyMEA.calculator.calculator import Calculator
 from pyMEA.figure.FigMEA import FigMEA
-from pyMEA.find_peaks.peak_detection import detect_peak_neg, detect_peak_pos
+from pyMEA.find_peaks.peak_detection import detect_peak_neg, detect_peak_pos, detect_peak_all
 from pyMEA.read.CardioAveWave import CardioAveWave
 from pyMEA.read.FilterMEA import FilterMEA
 from pyMEA.read.MEA import MEA
@@ -14,5 +14,6 @@ __all__ = [
     "CardioAveWave",
     "detect_peak_neg",
     "detect_peak_pos",
+    "detect_peak_all",
     "calc_gradient_velocity",
 ]
