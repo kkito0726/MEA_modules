@@ -11,7 +11,7 @@ fm = FigMEA(data)
 
 
 if __name__ == "__main__":
-    data.info
+    print(data.info)
 
     # 64電極表示
     fm.showAll(start, end, dpi=100)

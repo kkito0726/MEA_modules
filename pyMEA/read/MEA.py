@@ -18,7 +18,7 @@ class MEA:
         self.__end: int = end
         self.__time: int = end - start
         self.__SAMPLING_RATE, self.__GAIN = decode_hed(self.__hed_path)
-        self.__array = hed2array(self.__hed_path, self.__start, self.__end)
+        self._array = hed2array(self.__hed_path, self.__start, self.__end)
 
     def __repr__(self):
         return repr(self.array)
@@ -33,16 +33,16 @@ class MEA:
         return self.array + value
 
     def __sub__(self, value):
-        return self.__array - value
+        return self._array - value
 
     def __mul__(self, value):
-        return self.__array * value
+        return self._array * value
 
     def __truediv__(self, value):
-        return self.__array / value
+        return self._array / value
 
     def __floordiv__(self, value):
-        return self.__array // value
+        return self._array // value
 
     @property
     def info(self) -> str:
@@ -80,4 +80,4 @@ class MEA:
 
     @property
     def array(self):
-        return self.__array
+        return self._array
