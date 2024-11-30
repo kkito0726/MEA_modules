@@ -8,7 +8,7 @@ from pyMEA.find_peaks.peak_detection import detect_peak_pos
 class MyTestCase(unittest.TestCase):
     def setUp(self):
         self.path = get_resource_path("230615_day2_test_5s_.hed")
-        self.data = MEA(self.path, 0, 5)
+        self.data = MEA(self.path.__str__(), 0, 5)
         self.neg_peak_index = detect_peak_neg(self.data.array)
         self.pos_peak_index = detect_peak_pos(self.data, height=(200))
 

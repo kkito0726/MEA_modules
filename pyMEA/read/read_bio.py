@@ -4,11 +4,14 @@ from typing import Tuple
 import numpy as np
 from numpy import ndarray
 
+from pyMEA.read.model.BioPath import BioPath
+from pyMEA.read.model.HedPath import HedPath
+
 
 # hedファイルの解読関数
-def decode_hed(hed_path: str) -> Tuple[int, int]:
+def decode_hed(hed_path: HedPath) -> Tuple[int, int]:
     # hedファイルを読み込む。
-    hed_data = np.fromfile(hed_path, dtype="<h", sep="")
+    hed_data = np.fromfile(hed_path.path, dtype="<h", sep="")
 
     # rate（サンプリングレート）、gain（ゲイン）の解読辞書。
     rates = {0: 100000, 1: 50000, 2: 25000, 3: 20000, 4: 10000, 5: 5000}
@@ -30,7 +33,12 @@ def decode_hed(hed_path: str) -> Tuple[int, int]:
 
 # bioファイルを読み込む関数
 def read_bio(
-    bio_path: str, start: int, end: int, sampling_rate=10000, gain=50000, volt_range=100
+    bio_path: BioPath,
+    start: int,
+    end: int,
+    sampling_rate=10000,
+    gain=50000,
+    volt_range=100,
 ) -> ndarray:  # sampling_rate (Hz), volt_range (mV)
     electrode_number = 64
     data_unit_length = electrode_number + 4
@@ -38,7 +46,7 @@ def read_bio(
     bytesize = np.dtype("<h").itemsize
     data = (
         np.fromfile(
-            bio_path,
+            bio_path.path,
             dtype="<h",
             sep="",
             offset=start * sampling_rate * bytesize * data_unit_length,
@@ -64,7 +72,7 @@ def read_bio(
 
 
 # hedファイルの情報からbioファイルを一気に読み込む
-def hed2array(hed_path: str, start: int, end: int) -> ndarray:
+def hed2array(hed_path: HedPath, start: int, end: int) -> ndarray:
     """
     ヘッダーファイルからサンプリングレートとGainを読み取りbioファイルを読み込む\n
     Parameters
@@ -89,5 +97,5 @@ def hed2array(hed_path: str, start: int, end: int) -> ndarray:
     # hedファイルからサンプリングレートとゲインを取得
     samp, gain = decode_hed(hed_path)
 
-    bio_path = os.path.splitext(hed_path)[0] + "0001.bio"
+    bio_path = BioPath(os.path.splitext(hed_path.path)[0] + "0001.bio")
     return read_bio(bio_path, start, end, sampling_rate=samp, gain=gain)

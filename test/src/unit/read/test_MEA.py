@@ -36,6 +36,11 @@ class MEATest(unittest.TestCase):
             MEA(self.path.__str__(), 10, 5)
         self.assertEqual(str(context.exception), "start < endになるように入力してください")
 
+    def test_hedファイル以外のファイルパスを入力する場合_例外発生する(self):
+        with self.assertRaises(ValueError) as context:
+            MEA("/User/your/mea_data.bio")
+        self.assertEqual(str(context.exception), ".hedファイルのパスを入力してください")
+
 
 if __name__ == "__main__":
     unittest.main()

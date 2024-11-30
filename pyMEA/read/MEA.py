@@ -1,5 +1,6 @@
 from numpy import ndarray
 
+from pyMEA.read.model.HedPath import HedPath
 from pyMEA.read.read_bio import decode_hed, hed2array
 from pyMEA.utils.decorators import time_validator
 
@@ -13,7 +14,7 @@ class MEA:
             start: 読み込み開始時間 [s]
             end: 読み込み終了時間[s]
         """
-        self._hed_path: str = hed_path
+        self._hed_path: HedPath = HedPath(hed_path)
         self._start: int = start
         self._end: int = end
         self._time: int = end - start

@@ -92,7 +92,10 @@ def calc_64_ave_waves(data: MEA, neg_peaks: NegPeaks, front=0.05, end=0.3):
     front_frame = int(front * data.SAMPLING_RATE)
     end_frame = int(end * data.SAMPLING_RATE)
     ave_waves = np.array(
-        [[0.0 for _ in range(int(data.SAMPLING_RATE * (front + end)))] for _ in range(65)]
+        [
+            [0.0 for _ in range(int(data.SAMPLING_RATE * (front + end)))]
+            for _ in range(65)
+        ]
     )
 
     for ch in range(1, 65):
