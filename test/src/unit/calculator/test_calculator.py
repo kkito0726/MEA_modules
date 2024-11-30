@@ -1,5 +1,4 @@
 import unittest
-from test.main import neg_peak_index
 
 import numpy as np
 
@@ -7,12 +6,13 @@ from pyMEA import detect_peak_neg
 from pyMEA.calculator.calculator import Calculator
 from pyMEA.figure.FigMEA import FigMEA
 from pyMEA.read.MEA import MEA
+from test.utils import get_resource_path
 
 
 class CalculatorTest(unittest.TestCase):
     def setUp(self):
-        self.path = "./public/230615_day2_test_5s_.hed"
-        self.data = MEA(self.path, 0, 5)
+        self.path = get_resource_path("230615_day2_test_5s_.hed")
+        self.data = MEA(self.path.__str__(), 0, 5)
         self.peak_index = detect_peak_neg(self.data.array)
         self.calc450 = Calculator(self.data, 450)
         self.calc150 = Calculator(self.data, 150)
@@ -59,7 +59,7 @@ class CalculatorTest(unittest.TestCase):
             self.assertEqual(round(cv[i], 3), round(estimate[i], 3))
 
     def test_速度ベクトルから伝導速度が正しく計算できる(self):
-        cvs = self.calc450.gradient_velocity(neg_peak_index)
+        cvs = self.calc450.gradient_velocity(self.peak_index)
 
         for cv in cvs:
             self.assertEqual(cv.shape, (64,))

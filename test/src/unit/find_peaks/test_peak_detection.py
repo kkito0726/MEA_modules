@@ -2,11 +2,12 @@ import unittest
 
 from pyMEA import MEA, detect_peak_neg
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
+from test.utils import get_resource_path
 
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
-        self.path = "./public/230615_day2_test_5s_.hed"
+        self.path = get_resource_path("230615_day2_test_5s_.hed")
         self.data = MEA(self.path, 0, 5)
         self.neg_peak_index = detect_peak_neg(self.data.array)
         self.pos_peak_index = detect_peak_pos(self.data, height=(200))

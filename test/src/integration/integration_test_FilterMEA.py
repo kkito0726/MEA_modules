@@ -1,10 +1,12 @@
-from pyMEA import *
+from pyMEA.read.FilterMEA import FilterMEA
+from pyMEA.find_peaks.peak_detection import detect_peak_pos, detect_peak_neg
 from pyMEA.figure.FigMEA import FigMEA
+from test.utils import get_resource_path
 
-path = "./public/230615_day2_test_5s_.hed"
+path = get_resource_path("230615_day2_test_5s_.hed")
 
 start, end = 1, 2
-data = MEA(path, start, end)
+data = FilterMEA(path.__str__(), start, end)
 neg_peak_index = detect_peak_neg(data.array)
 pos_peak_index = detect_peak_pos(data.array, height=(0, 500))
 fm = FigMEA(data)

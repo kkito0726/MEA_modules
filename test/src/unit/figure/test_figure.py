@@ -6,12 +6,13 @@ import numpy as np
 from pyMEA.figure.FigMEA import FigMEA
 from pyMEA.find_peaks.peak_detection import detect_peak_neg
 from pyMEA.read.MEA import MEA
+from test.utils import get_resource_path
 
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
-        self.path = "./public/230615_day2_test_5s_.hed"
-        self.data = MEA(self.path, 0, 5)
+        self.path = get_resource_path("230615_day2_test_5s_.hed")
+        self.data = MEA(self.path.__str__(), 0, 5)
         self.peak_index = detect_peak_neg(self.data.array)
         self.fm = FigMEA(self.data)
 
