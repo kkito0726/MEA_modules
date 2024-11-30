@@ -1,7 +1,7 @@
 import unittest
+from test.utils import get_resource_path
 
 from pyMEA.read.MEA import MEA
-from test.utils import get_resource_path
 
 
 class MEATest(unittest.TestCase):
@@ -14,7 +14,7 @@ class MEATest(unittest.TestCase):
 
         self.assertEqual(data.SAMPLING_RATE, 10000)  # add assertion here
         self.assertEqual(data.GAIN, 2000)
-        self.assertEqual(data.shape, (65, 10000))
+        self.assertEqual(data.shape, (65, int(data.time * data.SAMPLING_RATE)))
 
         for d in data:
             self.assertEqual(len(d), data.SAMPLING_RATE * data.time)

@@ -1,7 +1,8 @@
-from pyMEA.read.MEA import MEA
-from pyMEA.find_peaks.peak_detection import detect_peak_pos, detect_peak_neg
-from pyMEA.figure.FigMEA import FigMEA
 from test.utils import get_resource_path
+
+from pyMEA.figure.FigMEA import FigMEA
+from pyMEA.find_peaks.peak_detection import detect_peak_neg, detect_peak_pos
+from pyMEA.read.MEA import MEA
 
 path = get_resource_path("230615_day2_test_5s_.hed")
 

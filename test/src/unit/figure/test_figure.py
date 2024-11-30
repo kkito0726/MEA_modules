@@ -1,4 +1,5 @@
 import unittest
+from test.utils import get_resource_path
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -6,7 +7,6 @@ import numpy as np
 from pyMEA.figure.FigMEA import FigMEA
 from pyMEA.find_peaks.peak_detection import detect_peak_neg
 from pyMEA.read.MEA import MEA
-from test.utils import get_resource_path
 
 
 class MyTestCase(unittest.TestCase):

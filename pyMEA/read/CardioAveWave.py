@@ -15,7 +15,8 @@ class CardioAveWave(MEA):
     ) -> None:
         super().__init__(hed_path, start, end)
         neg_peaks = detect_peak_neg(self, distance)
-        super.__array = calc_64_ave_waves(self, neg_peaks, front, back)
+        self._array = calc_64_ave_waves(self, neg_peaks, front, back)
 
-        super.__start = 0
-        super.__end = front + back
+        self._start = 0
+        self._end = front + back
+        self._time = self.end - self.start

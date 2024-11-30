@@ -1,8 +1,8 @@
 import unittest
+from test.utils import get_resource_path
 
 from pyMEA import MEA, detect_peak_neg
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
-from test.utils import get_resource_path
 
 
 class MyTestCase(unittest.TestCase):

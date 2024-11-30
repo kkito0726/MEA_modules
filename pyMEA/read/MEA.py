@@ -13,12 +13,12 @@ class MEA:
             start: 読み込み開始時間 [s]
             end: 読み込み終了時間[s]
         """
-        self.__hed_path: str = hed_path
-        self.__start: int = start
-        self.__end: int = end
-        self.__time: int = end - start
-        self.__SAMPLING_RATE, self.__GAIN = decode_hed(self.__hed_path)
-        self._array = hed2array(self.__hed_path, self.__start, self.__end)
+        self._hed_path: str = hed_path
+        self._start: int = start
+        self._end: int = end
+        self._time: int = end - start
+        self._SAMPLING_RATE, self._GAIN = decode_hed(self._hed_path)
+        self._array = hed2array(self._hed_path, self._start, self._end)
 
     def __repr__(self):
         return repr(self.array)
@@ -56,27 +56,27 @@ class MEA:
 
     @property
     def hed_path(self) -> str:
-        return self.__hed_path
+        return self._hed_path
 
     @property
     def start(self) -> int:
-        return self.__start
+        return self._start
 
     @property
     def end(self) -> int:
-        return self.__end
+        return self._end
 
     @property
     def time(self) -> int:
-        return self.__time
+        return self._time
 
     @property
     def SAMPLING_RATE(self) -> int:
-        return self.__SAMPLING_RATE
+        return self._SAMPLING_RATE
 
     @property
     def GAIN(self) -> int:
-        return self.__GAIN
+        return self._GAIN
 
     @property
     def array(self):

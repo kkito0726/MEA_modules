@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 def get_resource_path(filename: str) -> Path:
     """リソースファイルへの絶対パスを取得"""
     project_root = Path(__file__).resolve().parents[1]

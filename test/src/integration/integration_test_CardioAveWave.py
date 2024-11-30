@@ -1,13 +1,14 @@
 from test.utils import get_resource_path
 
+from pyMEA import CardioAveWave
 from pyMEA.figure.FigMEA import FigMEA
 from pyMEA.find_peaks.peak_detection import detect_peak_neg, detect_peak_pos
-from pyMEA.read.FilterMEA import FilterMEA
 
 path = get_resource_path("230615_day2_test_5s_.hed")
 
-start, end = 1, 2
-data = FilterMEA(path.__str__(), start, end)
+start, end = 0, 5
+front, back = 0.05, 0.3
+data = CardioAveWave(path.__str__(), start, end, front, back)
 neg_peak_index = detect_peak_neg(data.array)
 pos_peak_index = detect_peak_pos(data.array, height=(0, 500))
 fm = FigMEA(data)
@@ -20,7 +21,7 @@ if __name__ == "__main__":
     fm.showAll(start, end, dpi=100)
 
     # 1電極表示
-    fm.showSingle(32, start, end)
+    fm.showSingle(32, 0, front + back)
 
     # ピーク抽出位置確認
     fm.plotPeaks(32, neg_peak_index, pos_peak_index, volt_min=-2000, volt_max=2000)

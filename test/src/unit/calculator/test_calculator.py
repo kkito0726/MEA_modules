@@ -1,4 +1,5 @@
 import unittest
+from test.utils import get_resource_path
 
 import numpy as np
 
@@ -6,7 +7,6 @@ from pyMEA import detect_peak_neg
 from pyMEA.calculator.calculator import Calculator
 from pyMEA.figure.FigMEA import FigMEA
 from pyMEA.read.MEA import MEA
-from test.utils import get_resource_path
 
 
 class CalculatorTest(unittest.TestCase):
