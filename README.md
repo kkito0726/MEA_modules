@@ -38,7 +38,7 @@ cal = Calculator(data, 450)
 ch = 3 # electrode number
 
 # Calculate Inter Spike Interval (ISI) (sec)
-isi = cal.isi(peak_index_neg)
+isi = cal.isi(peak_index_neg, ch)
 
 # Calculate Field Potential Duration (FPD) (sec)
 fpd = cal.fpd(peak_index_neg, ch)
