@@ -143,3 +143,9 @@ peak_index = detect_peak_neg(data, 3000)
 
 fm.draw_2d(peak_index, 450)
 ```
+
+## Article
+[K.Kito *et al* (2024) *Biophysics and Physicobiology*, e210026](https://doi.org/10.2142/biophysico.bppb-v21.0026)
+
+## Language
+[English](./README.md)
