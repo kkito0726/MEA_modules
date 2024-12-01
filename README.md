@@ -35,11 +35,12 @@ peak_index_pos = detect_peak_pos(data) # Detect negative peaks
 electrode_distance = 450 # Distance between electrodes (μm)
 cal = Calculator(data, 450)
 
+ch = 3 # electrode number
+
 # Calculate Inter Spike Interval (ISI) (sec)
 isi = cal.isi(peak_index_neg)
 
 # Calculate Field Potential Duration (FPD) (sec)
-ch = 3 # electrode number
 fpd = cal.fpd(peak_index_neg, ch)
 
 # Calculate Conduction velocity between electrodes (m/s)
