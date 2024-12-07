@@ -10,7 +10,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_MEA計測データから移動平均を算出したインスタンスが生成できる(self):
         data = FilterMEA(self.path.__str__(), 0, 5)
-        self.assertEqual(data.shape, (65, int(data.time * data.SAMPLING_RATE)))
+        self.assertEqual((65, int(data.time * data.SAMPLING_RATE)), data.shape)
 
 
 if __name__ == "__main__":

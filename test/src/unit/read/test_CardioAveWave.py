@@ -13,7 +13,7 @@ class MyTestCase(unittest.TestCase):
     def test_心筋細胞の波形データから平均波形を算出する(self):
         data = CardioAveWave(self.path.__str__(), 0, 5)
         self.assertEqual(
-            data.shape, (65, int((self.front + self.back) * data.SAMPLING_RATE))
+            (65, int((self.front + self.back) * data.SAMPLING_RATE)), data.shape
         )
 
 
