@@ -1,6 +1,8 @@
 import unittest
 from test.utils import get_resource_path
 
+import numpy as np
+
 from pyMEA.read.MEA import MEA
 
 
@@ -23,26 +25,36 @@ class MEATest(unittest.TestCase):
 GAIN           : {data.GAIN}""",
             data.info,
         )
-
+        # data[0]に時刻データが入っていること
+        for diff in np.diff(data[0]):
+            self.assertEqual(1 / data.SAMPLING_RATE, round(diff, 4))
         for d in data:
             self.assertEqual(data.SAMPLING_RATE * data.time, len(d))
 
     def test_読み込み時刻が不正な場合例外が発生する(self):
         with self.assertRaises(ValueError) as context:
             MEA(self.path.__str__(), -1, 5)
-        self.assertEqual("startとendは0以上のの整数で入力してください", str(context.exception))
+        self.assertEqual(
+            "startとendは0以上のの整数で入力してください", str(context.exception)
+        )
 
         with self.assertRaises(ValueError) as context:
             MEA(self.path.__str__(), 0, -5)
-        self.assertEqual("startとendは0以上のの整数で入力してください", str(context.exception))
+        self.assertEqual(
+            "startとendは0以上のの整数で入力してください", str(context.exception)
+        )
 
         with self.assertRaises(ValueError) as context:
             MEA(self.path.__str__(), -1, -5)
-        self.assertEqual("startとendは0以上のの整数で入力してください", str(context.exception))
+        self.assertEqual(
+            "startとendは0以上のの整数で入力してください", str(context.exception)
+        )
 
         with self.assertRaises(ValueError) as context:
             MEA(self.path.__str__(), 10, 5)
-        self.assertEqual("start < endになるように入力してください", str(context.exception))
+        self.assertEqual(
+            "start < endになるように入力してください", str(context.exception)
+        )
 
     def test_hedファイル以外のファイルパスを入力する場合_例外発生する(self):
         with self.assertRaises(ValueError) as context:

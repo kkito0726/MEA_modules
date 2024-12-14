@@ -10,7 +10,7 @@ class MyTestCase(unittest.TestCase):
         self.path = get_resource_path("230615_day2_test_5s_.hed")
         self.data = MEA(self.path.__str__(), 0, 5)
         self.neg_peak_index = detect_peak_neg(self.data.array)
-        self.pos_peak_index = detect_peak_pos(self.data, height=(200))
+        self.pos_peak_index = detect_peak_pos(self.data, height=(200, 50000))
 
     def test_下方向のピークを抽出できる(self):
         for i in range(1, 65):
