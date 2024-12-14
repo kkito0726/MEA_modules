@@ -32,7 +32,7 @@ class Gradients:
     def r2s(self) -> list[float]:
         return [grad.r2 for grad in self.gradients]
 
-    def calc_velocity(self):
+    def calc_velocity(self) -> list[np.ndarray[float]]:
         cvs = []
         for gradient in self.gradients:
             cvs.append(gradient.calc_velocity())

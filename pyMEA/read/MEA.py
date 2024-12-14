@@ -56,7 +56,7 @@ class MEA:
         return self.array.shape
 
     @property
-    def hed_path(self) -> str:
+    def hed_path(self) -> HedPath:
         return self._hed_path
 
     @property
