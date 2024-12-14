@@ -104,12 +104,8 @@ class Gradient:
 
 def grad_model(X, p00, p10, p01, p20, p11, p02, p30, p21, p12, p03):
     x, y = X
-    grad_x = (
-        p10 + 2 * p20 * x + p11 * y + 3 * p30 * x**2 + 2 * p21 * x * y + p12 * y**2
-    )
-    grad_y = (
-        p01 + p11 * x + 2 * p02 * y + p21 * x**2 + 2 * p12 * x * y + 3 * p03 * y**2
-    )
+    grad_x = p10 + 2 * p20 * x + p11 * y + 3 * p30 * x**2 + 2 * p21 * x * y + p12 * y**2
+    grad_y = p01 + p11 * x + 2 * p02 * y + p21 * x**2 + 2 * p12 * x * y + 3 * p03 * y**2
     return grad_x, grad_y
 
 

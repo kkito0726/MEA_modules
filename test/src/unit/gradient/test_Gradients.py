@@ -1,9 +1,9 @@
 import unittest
+from test.utils import get_resource_path
 
 from pyMEA import detect_peak_neg
 from pyMEA.gradient.Gradients import Gradients
 from pyMEA.read.MEA import MEA
-from test.utils import  get_resource_path
 
 
 class MyTestCase(unittest.TestCase):
@@ -34,5 +34,5 @@ class MyTestCase(unittest.TestCase):
             self.assertEqual((100, 100), gradient.vy.shape)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

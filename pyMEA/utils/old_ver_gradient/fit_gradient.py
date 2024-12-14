@@ -132,9 +132,7 @@ def draw_2d(
 
         # 電極上の勾配を算出する
         z_ele = model([ex, ey], *popt)
-        grady, gradx = np.gradient(
-            z_ele.reshape(8, 8), ele_dis * 7 / (8 - 1) * 10**-6
-        )
+        grady, gradx = np.gradient(z_ele.reshape(8, 8), ele_dis * 7 / (8 - 1) * 10**-6)
         cx, cy = gradx / (gradx**2 + grady**2), grady / (gradx**2 + grady**2)
 
         # グラフにプロットする
