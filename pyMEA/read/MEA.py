@@ -47,7 +47,13 @@ class MEA:
 
     @property
     def info(self) -> str:
-        info = f"読み込み開始時間  : {self.start} s\n読み込み終了時間  : {self.end} s\n読み込み合計時間  : {self.time} s\nサンプリングレート: {self.SAMPLING_RATE} Hz\nGAIN           : {self.GAIN}"
+        info = (
+            f"読み込み開始時間  : {self.start} s\n"
+            f"読み込み終了時間  : {self.end} s\n"
+            f"読み込み合計時間  : {self.time} s\n"
+            f"サンプリングレート: {self.SAMPLING_RATE} Hz\n"
+            f"GAIN           : {self.GAIN}"
+        )
         print(info)
         return info
 
