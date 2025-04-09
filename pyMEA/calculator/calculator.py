@@ -21,6 +21,7 @@ class Calculator:
         data: MEAデータ (MEAクラスのインスタンス)
         ele_dis: 電極間距離 (μm)
     """
+
     data: MEA
     ele_dis: int
 
@@ -41,9 +42,7 @@ class Calculator:
         return np.diff(peak_index[ch]) / self.data.SAMPLING_RATE
 
     @ch_validator
-    def fpd(
-        self, neg_peak_index: NegPeaks64, ch: int, peak_range=(30, 110)
-    ) -> FPD:
+    def fpd(self, neg_peak_index: NegPeaks64, ch: int, peak_range=(30, 110)) -> FPD:
         """
         FPD (s) 細胞外電位継続時間を計算する
         ----------
@@ -80,7 +79,12 @@ class Calculator:
             # 範囲外FPDの場合スルー
             else:
                 continue
-        return FPD(ch, neg_peaks=neg_peak_index[ch], pos_peaks=PosPeaks(np.array(pos_peaks)), fpds=np.array(fpds))
+        return FPD(
+            ch,
+            neg_peaks=neg_peak_index[ch],
+            pos_peaks=PosPeaks(np.array(pos_peaks)),
+            fpds=np.array(fpds),
+        )
 
     @ch_validator
     def conduction_velocity(self, peak_index: Peaks64, ch1: int, ch2: int) -> ndarray:

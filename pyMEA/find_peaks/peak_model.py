@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from typing import Sequence
 
-from numpy import ndarray, array_equal
+from numpy import array_equal, ndarray
 from numpy._typing import NDArray
 
 from pyMEA.utils.decorators import ch_validator
+
 
 # 1つの電極で取得したピーク
 @dataclass(frozen=True)
@@ -55,13 +56,16 @@ class Peaks:
     def __ge__(self, other):
         return self.peak_index >= other
 
+
 # 1つの電極のマイナス方向のピーク
 class NegPeaks(Peaks):
     pass
 
+
 # 1つの電極のプラス方向のピーク
 class PosPeaks(Peaks):
     pass
+
 
 # 64電極分のピークをまとめたオブジェクト
 class Peaks64:
@@ -70,7 +74,6 @@ class Peaks64:
             raise ValueError(f"peak_indexの要素数エラー 要素数: {len(peak_index)}")
 
         self.peaks = {ch: peak_index[ch] for ch in range(1, 65)}
-
 
     @ch_validator
     def __getitem__(self, ch) -> Peaks:

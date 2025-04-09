@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from numpy import ndarray
 
 from pyMEA.figure.plot.histogram import mkHist
@@ -8,7 +9,7 @@ from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.gradient.Gradients import Gradients
 from pyMEA.read.MEA import MEA
 from pyMEA.utils.decorators import channel
-import numpy as np
+
 
 class FigMEA:
     def __init__(self, data: MEA):
