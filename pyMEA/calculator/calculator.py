@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
@@ -10,17 +11,17 @@ from pyMEA.read.MEA import MEA
 from pyMEA.utils.decorators import ch_validator
 
 
+@dataclass(frozen=True)
 class Calculator:
-    def __init__(self, data: MEA, ele_dis: int):
-        """
-        ISI, FPD, Conduction Velocityを計算するクラス
-        ----------
-        Args:
-            data: MEAデータ (MEAクラスのインスタンス)
-            ele_dis: 電極間距離 (μm)
-        """
-        self.__data = data
-        self.ele_dis = ele_dis
+    """
+    ISI, FPD, Conduction Velocityを計算するクラス
+    ----------
+    Args:
+        data: MEAデータ (MEAクラスのインスタンス)
+        ele_dis: 電極間距離 (μm)
+    """
+    data: MEA
+    ele_dis: int
 
     @ch_validator
     def isi(self, peak_index: Peaks64, ch) -> ndarray[Any, dtype[floating[Any]]]:
@@ -55,21 +56,22 @@ class Calculator:
         -------
 
         """
+        data = self.data.array.copy()
         # 1st peak付近のデータを0に変換
         for p in neg_peak_index[ch]:
-            self.data[ch][p - 200 : p + 200] = 0
+            data[ch][p - 200 : p + 200] = 0
 
         # 各拍動周期で2nd peakを抽出
         fpds = []
         for p in neg_peak_index[ch]:
-            tmp = self.data[:, p + 200 : p + 5000]  # 2nd peak付近のデータを抽出
+            tmp = data[:, p + 200 : p + 5000]  # 2nd peak付近のデータを抽出
             pos_peak = detect_peak_pos(tmp, height=peak_range, distance=3000)
             # ピークが見つからなかったら飛ばして次の拍動周期
             if len(pos_peak[ch]) == 0:
                 continue
 
             pos_time = tmp[0][pos_peak[ch]]
-            fpd = pos_time[0] - self.data[0][p]
+            fpd = pos_time[0] - data[0][p]
             if 0.1 < fpd < 0.4:
                 fpds.append(fpd)
             # 範囲外FPDの場合スルー
@@ -136,10 +138,6 @@ class Calculator:
         """
         grads = Gradients(self.data, peak_index, self.ele_dis, mesh_num)
         return np.array(grads.calc_velocity())
-
-    @property
-    def data(self):
-        return self.__data
 
     def __ele_dict(self) -> dict[int, tuple[int, ...]]:
         ele_dict = {}
