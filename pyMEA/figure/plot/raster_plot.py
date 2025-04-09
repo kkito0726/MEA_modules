@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pyMEA.find_peaks.peak_model import Peaks
+from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.read.MEA import MEA
 
 
 def raster_plot(
     MEA_data: MEA,
-    peak_index: Peaks,
+    peak_index: Peaks64,
     eles: list[int],
     tick_ch=1,
     figsize=(8, 8),

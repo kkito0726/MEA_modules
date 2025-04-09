@@ -13,11 +13,11 @@ import numpy as np
 from numpy import ndarray
 
 from pyMEA import MEA
-from pyMEA.find_peaks.peak_model import Peaks
+from pyMEA.find_peaks.peak_model import Peaks64
 
 
 # 64電極のpeak_indexを一次元の配列にまとめる。
-def peak_flatten(data: MEA, peak_index: Peaks) -> ndarray:
+def peak_flatten(data: MEA, peak_index: Peaks64) -> ndarray:
     detect_time = [data[0][peak_index[i]] for i in range(1, 65)]
     detect_time = list(itertools.chain.from_iterable(detect_time))
 
@@ -27,7 +27,7 @@ def peak_flatten(data: MEA, peak_index: Peaks) -> ndarray:
 # 同期バースト発火検出
 def sbf_detection(
     data: MEA,
-    peak_index: Peaks,
+    peak_index: Peaks64,
     max_isi=0.004,
     min_spikes=20,
     min_ibi=0.06,
@@ -69,7 +69,7 @@ def sbf_detection(
 # 1電極バースト発火検出
 def sbf_single(
     data: MEA,
-    peak_index: Peaks,
+    peak_index: Peaks64,
     ch: int,
     max_isi=0.175,
     min_spikes=5,

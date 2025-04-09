@@ -4,7 +4,7 @@ import numpy as np
 from numpy import dtype, floating, ndarray
 
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
-from pyMEA.find_peaks.peak_model import NegPeaks, Peaks
+from pyMEA.find_peaks.peak_model import NegPeaks64, Peaks64
 from pyMEA.gradient.Gradients import Gradients
 from pyMEA.read.MEA import MEA
 from pyMEA.utils.decorators import ch_validator
@@ -23,7 +23,7 @@ class Calculator:
         self.ele_dis = ele_dis
 
     @ch_validator
-    def isi(self, peak_index: Peaks, ch) -> ndarray[Any, dtype[floating[Any]]]:
+    def isi(self, peak_index: Peaks64, ch) -> ndarray[Any, dtype[floating[Any]]]:
         """
         ISI (s) 拍動間隔を計算する
         ----------
@@ -40,7 +40,7 @@ class Calculator:
 
     @ch_validator
     def fpd(
-        self, neg_peak_index: NegPeaks, ch: int, peak_range=(30, 110)
+        self, neg_peak_index: NegPeaks64, ch: int, peak_range=(30, 110)
     ) -> ndarray[float, dtype[float]]:
         """
         FPD (s) 細胞外電位継続時間を計算する
@@ -79,7 +79,7 @@ class Calculator:
         return np.array(fpds)
 
     @ch_validator
-    def conduction_velocity(self, peak_index: Peaks, ch1: int, ch2: int) -> ndarray:
+    def conduction_velocity(self, peak_index: Peaks64, ch1: int, ch2: int) -> ndarray:
         """
         伝導速度 (m/s)を計算する
         ----------
@@ -121,7 +121,7 @@ class Calculator:
             + (ele_dict[ch1][1] - ele_dict[ch2][1]) ** 2
         )
 
-    def gradient_velocity(self, peak_index: Peaks, mesh_num=8):
+    def gradient_velocity(self, peak_index: Peaks64, mesh_num=8):
         """
         速度ベクトルから計算した伝導速度 (m/s)を計算する
         ----------

@@ -4,11 +4,11 @@ from numpy import ndarray
 from pyMEA.figure.plot.histogram import mkHist
 from pyMEA.figure.plot.plot import showDetection
 from pyMEA.figure.plot.raster_plot import raster_plot
-from pyMEA.find_peaks.peak_model import Peaks
+from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.gradient.Gradients import Gradients
 from pyMEA.read.MEA import MEA
 from pyMEA.utils.decorators import channel
-
+import numpy as np
 
 class FigMEA:
     def __init__(self, data: MEA):
@@ -107,7 +107,7 @@ class FigMEA:
     def plotPeaks(
         self,
         ch: int,
-        *peak_indexes: Peaks,
+        *peak_indexes: Peaks64,
         start: int = None,
         end: int = None,
         volt_min=-200,
@@ -189,7 +189,7 @@ class FigMEA:
 
     def raster_plot(
         self,
-        peak_index: Peaks,
+        peak_index: Peaks64,
         eles: list[int],
         tick_ch=1,
         figsize=(8, 8),
@@ -211,7 +211,7 @@ class FigMEA:
 
     def mkHist(
         self,
-        peak_index: Peaks,
+        peak_index: Peaks64,
         eles: list[int],
         figsize=(20, 6),
         bin_duration=0.05,
@@ -234,7 +234,7 @@ class FigMEA:
 
     def draw_2d(
         self,
-        peak_index: Peaks,
+        peak_index: Peaks64,
         ele_dis=450,  # 電極間距離 (μm)
         mesh_num=100,  # mesh_num x mesh_numでデータを生成
         contour=False,  # 等高線で表示するかどうか
@@ -259,7 +259,7 @@ class FigMEA:
 
     def draw_3d(
         self,
-        peak_index: Peaks,
+        peak_index: Peaks64,
         ele_dis=450,
         mesh_num=100,
         xlabel="X (μm)",

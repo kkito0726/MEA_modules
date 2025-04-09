@@ -1,7 +1,7 @@
 import numpy as np
 
 from pyMEA.find_peaks.peak_detection import detect_peak_neg
-from pyMEA.find_peaks.peak_model import NegPeaks
+from pyMEA.find_peaks.peak_model import NegPeaks64
 from pyMEA.read.MEA import MEA
 
 
@@ -30,14 +30,14 @@ class CardioAveWave(MEA):
 
 
 # 1電極の平均波形を算出
-def calc_average_wave(data: MEA, neg_peaks: NegPeaks, ele: int, front=500, end=3000):
+def calc_average_wave(data: MEA, neg_peaks: NegPeaks64, ele: int, front=500, end=3000):
     waves = np.array([data[ele][p - front : p + end] for p in neg_peaks[ele][1:-1]])
     ave_wave = [waves[:, i].mean() for i in range(len(waves[0]))]
     return np.array(ave_wave)
 
 
 # 全64電極の平均波形を算出
-def calc_64_ave_waves(data: MEA, neg_peaks: NegPeaks, front=0.05, end=0.3):
+def calc_64_ave_waves(data: MEA, neg_peaks: NegPeaks64, front=0.05, end=0.3):
     front_frame = int(front * data.SAMPLING_RATE)
     end_frame = int(end * data.SAMPLING_RATE)
     ave_waves = np.array(
