@@ -1,14 +1,15 @@
+from dataclasses import dataclass
 from typing import Sequence
 
-from numpy import ndarray
+from numpy import ndarray, array_equal
 from numpy._typing import NDArray
 
 from pyMEA.utils.decorators import ch_validator
 
 # 1つの電極で取得したピーク
+@dataclass(frozen=True)
 class Peaks:
-    def __init__(self, peak_index: ndarray):
-        self.peak_index = peak_index
+    peak_index: ndarray
 
     def __getitem__(self, ch: int):
         return self.peak_index[ch]
@@ -35,7 +36,9 @@ class Peaks:
         return self.peak_index // value
 
     def __eq__(self, other):
-        return self.peak_index == other
+        if isinstance(other, Peaks):
+            return array_equal(self.peak_index, other.peak_index)
+        return False
 
     def __ne__(self, other):
         return self.peak_index != other
@@ -54,14 +57,11 @@ class Peaks:
 
 # 1つの電極のマイナス方向のピーク
 class NegPeaks(Peaks):
-    def __init__(self, neg_peaks: NDArray[Peaks]):
-        super().__init__(neg_peaks)
+    pass
 
 # 1つの電極のプラス方向のピーク
 class PosPeaks(Peaks):
-    def __init__(self, pos_peaks: NDArray[Peaks]):
-        super().__init__(pos_peaks)
-
+    pass
 
 # 64電極分のピークをまとめたオブジェクト
 class Peaks64:
