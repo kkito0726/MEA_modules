@@ -4,8 +4,9 @@ from typing import Any
 import numpy as np
 from numpy import dtype, floating, ndarray
 
+from pyMEA.calculator.FPD import FPD
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
-from pyMEA.find_peaks.peak_model import NegPeaks64, Peaks64
+from pyMEA.find_peaks.peak_model import NegPeaks64, Peaks64, PosPeaks
 from pyMEA.gradient.Gradients import Gradients
 from pyMEA.read.MEA import MEA
 from pyMEA.utils.decorators import ch_validator
@@ -42,7 +43,7 @@ class Calculator:
     @ch_validator
     def fpd(
         self, neg_peak_index: NegPeaks64, ch: int, peak_range=(30, 110)
-    ) -> ndarray[float, dtype[float]]:
+    ) -> FPD:
         """
         FPD (s) 細胞外電位継続時間を計算する
         ----------
@@ -52,7 +53,7 @@ class Calculator:
             peak_range: 2ndピークの電位範囲
 
         Returns:
-           float: FPD (s)
+            FPD
         -------
 
         """
@@ -63,6 +64,7 @@ class Calculator:
 
         # 各拍動周期で2nd peakを抽出
         fpds = []
+        pos_peaks = []
         for p in neg_peak_index[ch]:
             tmp = data[:, p + 200 : p + 5000]  # 2nd peak付近のデータを抽出
             pos_peak = detect_peak_pos(tmp, height=peak_range, distance=3000)
@@ -74,11 +76,11 @@ class Calculator:
             fpd = pos_time[0] - data[0][p]
             if 0.1 < fpd < 0.4:
                 fpds.append(fpd)
+                pos_peaks.append(pos_peak[ch][0])
             # 範囲外FPDの場合スルー
             else:
                 continue
-
-        return np.array(fpds)
+        return FPD(ch, neg_peaks=neg_peak_index[ch], pos_peaks=PosPeaks(np.array(pos_peaks)), fpds=np.array(fpds))
 
     @ch_validator
     def conduction_velocity(self, peak_index: Peaks64, ch1: int, ch2: int) -> ndarray:

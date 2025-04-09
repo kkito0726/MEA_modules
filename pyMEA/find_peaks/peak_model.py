@@ -87,10 +87,18 @@ class NegPeaks64(Peaks64):
     def __init__(self, peak_index: NDArray[NegPeaks]):
         super().__init__(peak_index)
 
+    @ch_validator
+    def __getitem__(self, ch) -> NegPeaks:
+        return NegPeaks(self.peaks[ch])
+
 
 class PosPeaks64(Peaks64):
     def __init__(self, peak_index: NDArray[PosPeaks]):
         super().__init__(peak_index)
+
+    @ch_validator
+    def __getitem__(self, ch) -> PosPeaks:
+        return PosPeaks(self.peaks[ch])
 
 
 class AllPeaks64(Peaks64):
