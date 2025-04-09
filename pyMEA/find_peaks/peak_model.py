@@ -72,7 +72,6 @@ class Peaks64:
     def __init__(self, peak_index: Sequence[Peaks]):
         if len(peak_index) != 65:
             raise ValueError(f"peak_indexの要素数エラー 要素数: {len(peak_index)}")
-
         self.peaks = {ch: peak_index[ch] for ch in range(1, 65)}
 
     @ch_validator
@@ -92,7 +91,7 @@ class NegPeaks64(Peaks64):
 
     @ch_validator
     def __getitem__(self, ch) -> NegPeaks:
-        return NegPeaks(self.peaks[ch])
+        return super().__getitem__(ch)
 
 
 class PosPeaks64(Peaks64):
@@ -101,7 +100,8 @@ class PosPeaks64(Peaks64):
 
     @ch_validator
     def __getitem__(self, ch) -> PosPeaks:
-        return PosPeaks(self.peaks[ch])
+        return super().__getitem__(ch)
+
 
 
 class AllPeaks64(Peaks64):
