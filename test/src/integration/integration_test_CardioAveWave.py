@@ -1,6 +1,6 @@
 from test.utils import get_resource_path
 
-from pyMEA import CardioAveWave, Calculator
+from pyMEA import Calculator, CardioAveWave
 from pyMEA.figure.FigMEA import FigMEA
 from pyMEA.find_peaks.peak_detection import detect_peak_neg, detect_peak_pos
 

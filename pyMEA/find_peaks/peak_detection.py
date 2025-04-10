@@ -8,6 +8,7 @@ from pyMEA.find_peaks.peak_model import (
     AllPeaks64,
     NegPeaks,
     NegPeaks64,
+    Peaks,
     PosPeaks,
     PosPeaks64,
 )
@@ -113,7 +114,7 @@ def detect_peak_all(
             prominence=prominence,
         )
 
-        peak_index[i] = np.append(peak_pos, peak_neg)
+        peak_index[i] = np.append(Peaks(peak_pos), Peaks(peak_neg))
         peak_index[i] = np.sort(peak_index[i])
 
     peak_index[0] = np.array([])
