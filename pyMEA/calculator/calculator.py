@@ -42,7 +42,14 @@ class Calculator:
         return np.diff(peak_index[ch]) / self.data.SAMPLING_RATE
 
     @ch_validator
-    def fpd(self, neg_peak_index: NegPeaks64, ch: int, peak_range=(30, 110)) -> FPD:
+    def fpd(
+        self,
+        neg_peak_index: NegPeaks64,
+        ch: int,
+        peak_range=(30, 110),
+        stroke_time=0.02,
+        fpd_range=(0.1, 0.4),
+    ) -> FPD:
         """
         FPD (s) 細胞外電位継続時間を計算する
         ----------
@@ -50,22 +57,29 @@ class Calculator:
             neg_peak_index: 1stピークの抽出結果
             ch: 電極番号
             peak_range: 2ndピークの電位範囲
+            stroke_time: ピークに達するまでの時間 (s)
+            fpd_range: 許容するFPDの範囲
 
         Returns:
             FPD
         -------
 
+        Parameters
+        ----------
         """
+        stroke_frame = int(stroke_time * self.data.SAMPLING_RATE)
         data = self.data.array.copy()
         # 1st peak付近のデータを0に変換
         for p in neg_peak_index[ch]:
-            data[ch][p - 200 : p + 200] = 0
+            data[ch][p - stroke_frame : p + stroke_frame] = 0
 
-        # 各拍動周期で2nd peakを抽出
         fpds = []
         pos_peaks = []
+        max_fpd_frame = int(0.5 * self.data.SAMPLING_RATE)
+        # 各拍動周期で2nd peakを抽出
         for p in neg_peak_index[ch]:
-            tmp = data[:, p + 200 : p + 5000]  # 2nd peak付近のデータを抽出
+            tmp = data[:, p + stroke_frame : p + max_fpd_frame]
+            # 2nd peak付近のデータを抽出
             pos_peak = detect_peak_pos(tmp, height=peak_range, distance=3000)
             # ピークが見つからなかったら飛ばして次の拍動周期
             if len(pos_peak[ch]) == 0:
@@ -73,9 +87,9 @@ class Calculator:
 
             pos_time = tmp[0][pos_peak[ch]]
             fpd = pos_time[0] - data[0][p]
-            if 0.1 < fpd < 0.4:
+            if fpd_range[0] < fpd < fpd_range[1]:
                 fpds.append(fpd)
-                pos_peaks.append(pos_peak[ch][0])
+                pos_peaks.append(p + stroke_frame + pos_peak[ch][0])
             # 範囲外FPDの場合スルー
             else:
                 continue

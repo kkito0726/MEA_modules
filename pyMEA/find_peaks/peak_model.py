@@ -103,7 +103,6 @@ class PosPeaks64(Peaks64):
         return super().__getitem__(ch)
 
 
-
 class AllPeaks64(Peaks64):
     def __init__(self, peak_index: NDArray[Peaks]):
         super().__init__(peak_index)

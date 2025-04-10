@@ -70,8 +70,8 @@ class FPD:
         plt.figure(dpi=dpi)
 
         plt.plot(data[0], data[self.ch])
-        plt.plot(data[0][self.neg_peaks], data[self.ch][self.neg_peaks], ".")
-        plt.plot(data[0][self.pos_peaks], data[self.ch][self.pos_peaks], ".")
+        plt.plot(data[0][self.neg_peaks], data[self.ch][self.neg_peaks], ".", c="r")
+        plt.plot(data[0][self.pos_peaks], data[self.ch][self.pos_peaks], ".", c="r")
 
         if start is not None and end is not None:
             plt.xlim(start, end)
