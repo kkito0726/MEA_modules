@@ -1,7 +1,7 @@
 import unittest
 from test.utils import get_resource_path
 
-from pyMEA import MEA, detect_peak_neg
+from pyMEA import MEA, detect_peak_all, detect_peak_neg
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
 
 
@@ -11,6 +11,7 @@ class MyTestCase(unittest.TestCase):
         self.data = MEA(self.path.__str__(), 0, 5)
         self.neg_peak_index = detect_peak_neg(self.data.array)
         self.pos_peak_index = detect_peak_pos(self.data, height=(200, 50000))
+        self.all_peak_index = detect_peak_all(self.data)
 
     def test_下方向のピークを抽出できる(self):
         for i in range(1, 65):

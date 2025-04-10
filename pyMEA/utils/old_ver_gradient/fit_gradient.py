@@ -6,12 +6,12 @@ import numpy as np
 from numpy import ndarray
 from scipy.optimize import curve_fit
 
-from pyMEA.find_peaks.peak_model import Peaks
+from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.read.MEA import MEA
 
 
 def remove_undetected_ch(
-    data: MEA, peak_index: Peaks
+    data: MEA, peak_index: Peaks64
 ) -> tuple[list[list[ndarray[Any, Any]]], list[int]]:
     # ピークの時刻 (s)を取得
     time = [data[0][peak_index[i]] for i in range(1, 65)]
@@ -98,7 +98,7 @@ def fit_data(
 
 
 def remove_fit_data(
-    data: MEA, peak_index: Peaks, ele_dis: int
+    data: MEA, peak_index: Peaks64, ele_dis: int
 ) -> tuple[ndarray, ndarray]:
     # ピーク抽出できなかった電極のデータは除去する
     times, remove_ch = remove_undetected_ch(data, peak_index)

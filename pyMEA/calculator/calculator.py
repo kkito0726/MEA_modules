@@ -1,29 +1,32 @@
+from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
 from numpy import dtype, floating, ndarray
 
+from pyMEA.calculator.FPD import FPD
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
-from pyMEA.find_peaks.peak_model import NegPeaks, Peaks
+from pyMEA.find_peaks.peak_model import NegPeaks64, Peaks64, PosPeaks
 from pyMEA.gradient.Gradients import Gradients
 from pyMEA.read.MEA import MEA
 from pyMEA.utils.decorators import ch_validator
 
 
+@dataclass(frozen=True)
 class Calculator:
-    def __init__(self, data: MEA, ele_dis: int):
-        """
-        ISI, FPD, Conduction Velocityを計算するクラス
-        ----------
-        Args:
-            data: MEAデータ (MEAクラスのインスタンス)
-            ele_dis: 電極間距離 (μm)
-        """
-        self.__data = data
-        self.ele_dis = ele_dis
+    """
+    ISI, FPD, Conduction Velocityを計算するクラス
+    ----------
+    Args:
+        data: MEAデータ (MEAクラスのインスタンス)
+        ele_dis: 電極間距離 (μm)
+    """
+
+    data: MEA
+    ele_dis: int
 
     @ch_validator
-    def isi(self, peak_index: Peaks, ch) -> ndarray[Any, dtype[floating[Any]]]:
+    def isi(self, peak_index: Peaks64, ch) -> ndarray[Any, dtype[floating[Any]]]:
         """
         ISI (s) 拍動間隔を計算する
         ----------
@@ -40,8 +43,13 @@ class Calculator:
 
     @ch_validator
     def fpd(
-        self, neg_peak_index: NegPeaks, ch: int, peak_range=(30, 110)
-    ) -> ndarray[float, dtype[float]]:
+        self,
+        neg_peak_index: NegPeaks64,
+        ch: int,
+        peak_range=(30, 110),
+        stroke_time=0.02,
+        fpd_range=(0.1, 0.4),
+    ) -> FPD:
         """
         FPD (s) 細胞外電位継続時間を計算する
         ----------
@@ -49,37 +57,51 @@ class Calculator:
             neg_peak_index: 1stピークの抽出結果
             ch: 電極番号
             peak_range: 2ndピークの電位範囲
+            stroke_time: ピークに達するまでの時間 (s)
+            fpd_range: 許容するFPDの範囲
 
         Returns:
-           float: FPD (s)
+            FPD
         -------
 
+        Parameters
+        ----------
         """
+        stroke_frame = int(stroke_time * self.data.SAMPLING_RATE)
+        data = self.data.array.copy()
         # 1st peak付近のデータを0に変換
         for p in neg_peak_index[ch]:
-            self.data[ch][p - 200 : p + 200] = 0
+            data[ch][p - stroke_frame : p + stroke_frame] = 0
 
-        # 各拍動周期で2nd peakを抽出
         fpds = []
+        pos_peaks = []
+        max_fpd_frame = int(0.5 * self.data.SAMPLING_RATE)
+        # 各拍動周期で2nd peakを抽出
         for p in neg_peak_index[ch]:
-            tmp = self.data[:, p + 200 : p + 5000]  # 2nd peak付近のデータを抽出
+            tmp = data[:, p + stroke_frame : p + max_fpd_frame]
+            # 2nd peak付近のデータを抽出
             pos_peak = detect_peak_pos(tmp, height=peak_range, distance=3000)
             # ピークが見つからなかったら飛ばして次の拍動周期
             if len(pos_peak[ch]) == 0:
                 continue
 
             pos_time = tmp[0][pos_peak[ch]]
-            fpd = pos_time[0] - self.data[0][p]
-            if 0.1 < fpd < 0.4:
+            fpd = pos_time[0] - data[0][p]
+            if fpd_range[0] < fpd < fpd_range[1]:
                 fpds.append(fpd)
+                pos_peaks.append(p + stroke_frame + pos_peak[ch][0])
             # 範囲外FPDの場合スルー
             else:
                 continue
-
-        return np.array(fpds)
+        return FPD(
+            ch,
+            neg_peaks=neg_peak_index[ch],
+            pos_peaks=PosPeaks(np.array(pos_peaks)),
+            fpds=np.array(fpds),
+        )
 
     @ch_validator
-    def conduction_velocity(self, peak_index: Peaks, ch1: int, ch2: int) -> ndarray:
+    def conduction_velocity(self, peak_index: Peaks64, ch1: int, ch2: int) -> ndarray:
         """
         伝導速度 (m/s)を計算する
         ----------
@@ -121,7 +143,7 @@ class Calculator:
             + (ele_dict[ch1][1] - ele_dict[ch2][1]) ** 2
         )
 
-    def gradient_velocity(self, peak_index: Peaks, mesh_num=8):
+    def gradient_velocity(self, peak_index: Peaks64, mesh_num=8):
         """
         速度ベクトルから計算した伝導速度 (m/s)を計算する
         ----------
@@ -136,10 +158,6 @@ class Calculator:
         """
         grads = Gradients(self.data, peak_index, self.ele_dis, mesh_num)
         return np.array(grads.calc_velocity())
-
-    @property
-    def data(self):
-        return self.__data
 
     def __ele_dict(self) -> dict[int, tuple[int, ...]]:
         ele_dict = {}
