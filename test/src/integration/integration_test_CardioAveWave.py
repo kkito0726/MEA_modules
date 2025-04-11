@@ -10,8 +10,8 @@ start, end = 0, 5
 front, back = 0.05, 0.3
 data = CardioAveWave(path.__str__(), start, end, front, back)
 cal = Calculator(data, 450)
-neg_peak_index = detect_peak_neg(data.array)
-pos_peak_index = detect_peak_pos(data.array, height=(0, 500))
+neg_peak_index = detect_peak_neg(data)
+pos_peak_index = detect_peak_pos(data, height=(0, 500))
 fm = FigMEA(data)
 
 
