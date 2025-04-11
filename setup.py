@@ -9,7 +9,7 @@ def parse_requirements(filename):
 
 setup(
     name="pyMEA",  # パッケージ名（pip listで表示される）
-    version="3.0.0",  # バージョン
+    version="3.1.0",  # バージョン
     description="MEA計測データを読み込み・解析するためのモジュール",  # 説明
     author="kentaro kito",  # 作者名
     packages=find_packages(exclude=["test", "test.*"]),
