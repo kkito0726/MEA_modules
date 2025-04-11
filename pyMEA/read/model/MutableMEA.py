@@ -14,12 +14,12 @@ class MutableMEA:
             start: 読み込み開始時間 [s]
             end: 読み込み終了時間[s]
         """
-        self._hed_path: HedPath = HedPath(hed_path)
-        self._start: int = start
-        self._end: int = end
-        self._time: int = end - start
-        self._SAMPLING_RATE, self._GAIN = decode_hed(self._hed_path)
-        self._array = hed2array(self._hed_path, self._start, self._end)
+        self.hed_path: HedPath = HedPath(hed_path)
+        self.start: int = start
+        self.end: int = end
+        self.time: int = end - start
+        self.SAMPLING_RATE, self.GAIN = decode_hed(self.hed_path)
+        self.array = hed2array(self.hed_path, self.start, self.end)
 
     def __repr__(self):
         return repr(self.array)
@@ -34,16 +34,16 @@ class MutableMEA:
         return self.array + value
 
     def __sub__(self, value):
-        return self._array - value
+        return self.array - value
 
     def __mul__(self, value):
-        return self._array * value
+        return self.array * value
 
     def __truediv__(self, value):
-        return self._array / value
+        return self.array / value
 
     def __floordiv__(self, value):
-        return self._array // value
+        return self.array // value
 
     @property
     def info(self) -> str:
@@ -60,31 +60,3 @@ class MutableMEA:
     @property
     def shape(self) -> tuple[int, ...]:
         return self.array.shape
-
-    @property
-    def hed_path(self) -> HedPath:
-        return self._hed_path
-
-    @property
-    def start(self) -> int:
-        return self._start
-
-    @property
-    def end(self) -> int:
-        return self._end
-
-    @property
-    def time(self) -> int:
-        return self._time
-
-    @property
-    def SAMPLING_RATE(self) -> int:
-        return self._SAMPLING_RATE
-
-    @property
-    def GAIN(self) -> int:
-        return self._GAIN
-
-    @property
-    def array(self):
-        return self._array
