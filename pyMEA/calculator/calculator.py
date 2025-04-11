@@ -8,7 +8,7 @@ from pyMEA.calculator.FPD import FPD
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
 from pyMEA.find_peaks.peak_model import NegPeaks64, Peaks64, PosPeaks
 from pyMEA.gradient.Gradients import Gradients
-from pyMEA.read.MEA import MEA
+from pyMEA.read.model.MEA import MEA
 from pyMEA.utils.decorators import ch_validator
 
 

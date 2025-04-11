@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ndarray
 
-from pyMEA.read.MEA import MEA
+from pyMEA.read.model.MEA import MEA
 
 circuit_eles = [
     1,

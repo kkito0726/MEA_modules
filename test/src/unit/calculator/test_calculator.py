@@ -6,14 +6,14 @@ import numpy as np
 from pyMEA import detect_peak_neg
 from pyMEA.calculator.calculator import Calculator
 from pyMEA.figure.FigMEA import FigMEA
-from pyMEA.read.MEA import MEA
+from pyMEA.read.model.MEA import MEA
 
 
 class CalculatorTest(unittest.TestCase):
     def setUp(self):
         self.path = get_resource_path("230615_day2_test_5s_.hed")
         self.data = MEA(self.path.__str__(), 0, 5)
-        self.peak_index = detect_peak_neg(self.data.array)
+        self.peak_index = detect_peak_neg(self.data)
         self.calc450 = Calculator(self.data, 450)
         self.calc150 = Calculator(self.data, 150)
         self.fm = FigMEA(self.data)

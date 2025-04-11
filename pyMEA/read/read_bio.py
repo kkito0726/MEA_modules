@@ -6,6 +6,7 @@ from numpy import ndarray
 
 from pyMEA.read.model.BioPath import BioPath
 from pyMEA.read.model.HedPath import HedPath
+from pyMEA.utils.decorators import time_validator
 
 
 # hedファイルの解読関数
@@ -72,6 +73,7 @@ def read_bio(
 
 
 # hedファイルの情報からbioファイルを一気に読み込む
+@time_validator
 def hed2array(hed_path: HedPath, start: int, end: int) -> ndarray:
     """
     ヘッダーファイルからサンプリングレートとGainを読み取りbioファイルを読み込む\n

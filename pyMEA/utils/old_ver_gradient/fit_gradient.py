@@ -7,7 +7,7 @@ from numpy import ndarray
 from scipy.optimize import curve_fit
 
 from pyMEA.find_peaks.peak_model import Peaks64
-from pyMEA.read.MEA import MEA
+from pyMEA.read.model.MEA import MEA
 
 
 def remove_undetected_ch(

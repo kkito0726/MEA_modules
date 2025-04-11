@@ -3,7 +3,7 @@ from test.utils import get_resource_path
 
 import numpy as np
 
-from pyMEA.read.MEA import MEA
+from pyMEA.read.model.MEA import MEA
 
 
 class MEATest(unittest.TestCase):
@@ -58,7 +58,7 @@ GAIN           : {data.GAIN}""",
 
     def test_hedファイル以外のファイルパスを入力する場合_例外発生する(self):
         with self.assertRaises(ValueError) as context:
-            MEA("/User/your/mea_data.bio")
+            MEA("/User/your/mea_data.bio", 0, 5)
         self.assertEqual(".hedファイルのパスを入力してください", str(context.exception))
 
 

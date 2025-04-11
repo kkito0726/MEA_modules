@@ -12,7 +12,7 @@ from pyMEA.find_peaks.peak_model import (
     PosPeaks,
     PosPeaks64,
 )
-from pyMEA.read.MEA import MEA
+from pyMEA.read.model.MEA import MEA
 
 
 # 64電極すべての下ピークを取得

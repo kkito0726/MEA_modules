@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pyMEA.find_peaks.peak_model import Peaks64
-from pyMEA.read.MEA import MEA
+from pyMEA.read.model.MEA import MEA
 
 
 def raster_plot(

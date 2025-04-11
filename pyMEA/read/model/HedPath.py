@@ -1,14 +1,13 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(frozen=True)
 class HedPath:
-    path: str = field(init=False)
+    path: str  # init=True がデフォルトなので明示しなくてOK
 
-    def __init__(self, hed_path: str):
-        if not hed_path.endswith(".hed"):
+    def __post_init__(self):
+        if not self.path.endswith(".hed"):
             raise ValueError(".hedファイルのパスを入力してください")
-        self.path = hed_path
 
     def __repr__(self) -> str:
         return self.path

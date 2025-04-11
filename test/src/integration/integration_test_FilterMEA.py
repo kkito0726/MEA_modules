@@ -8,8 +8,8 @@ path = get_resource_path("230615_day2_test_5s_.hed")
 
 start, end = 1, 2
 data = FilterMEA(path.__str__(), start, end)
-neg_peak_index = detect_peak_neg(data.array)
-pos_peak_index = detect_peak_pos(data.array, height=(0, 500))
+neg_peak_index = detect_peak_neg(data)
+pos_peak_index = detect_peak_pos(data, height=(0, 500))
 fm = FigMEA(data)
 
 

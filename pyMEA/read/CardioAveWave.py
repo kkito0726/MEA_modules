@@ -1,27 +1,23 @@
 import numpy as np
+from black.cache import dataclass
 
 from pyMEA.find_peaks.peak_detection import detect_peak_neg
 from pyMEA.find_peaks.peak_model import NegPeaks64
-from pyMEA.read.MEA import MEA
+from pyMEA.read.model.MEA import MEA
 
 
+@dataclass(frozen=True)
 class CardioAveWave(MEA):
-    def __init__(
-        self,
-        hed_path: str,
-        start: int = 0,
-        end: int = 120,
-        front=0.05,
-        back=0.3,
-        distance=3000,
-    ) -> None:
-        super().__init__(hed_path, start, end)
-        neg_peaks = detect_peak_neg(self, distance)
-        self._array = calc_64_ave_waves(self, neg_peaks, front, back)
+    front: float = 0.05
+    back: float = 0.3
+    distance: int = 3000
 
-        self._start = 0
-        self._end = front + back
-        self._time = self.end - self.start
+    def __post_init__(self):
+        super().__post_init__()
+        neg_peaks = detect_peak_neg(self, self.distance)
+        object.__setattr__(
+            self, "array", calc_64_ave_waves(self, neg_peaks, self.front, self.back)
+        )
 
 
 """
