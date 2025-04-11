@@ -7,7 +7,7 @@ from pyMEA.figure.plot.plot import showDetection
 from pyMEA.figure.plot.raster_plot import raster_plot
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.gradient.Gradients import Gradients
-from pyMEA.read.MEA import MEA
+from pyMEA.read.model.MEA import MEA
 from pyMEA.utils.decorators import channel
 
 

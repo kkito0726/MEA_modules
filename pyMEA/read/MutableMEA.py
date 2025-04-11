@@ -5,7 +5,7 @@ from pyMEA.read.read_bio import decode_hed, hed2array
 from pyMEA.utils.decorators import time_validator
 
 
-class MEA:
+class MutableMEA:
     @time_validator
     def __init__(self, hed_path: str, start: int = 0, end: int = 120) -> None:
         """

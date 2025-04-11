@@ -7,7 +7,7 @@ from pyMEA.find_peaks.peak_detection import (
 )
 from pyMEA.read.CardioAveWave import CardioAveWave
 from pyMEA.read.FilterMEA import FilterMEA
-from pyMEA.read.MEA import MEA
+from pyMEA.read.model import MEA
 from pyMEA.utils.old_ver_gradient.fit_gradient import calc_gradient_velocity
 
 __all__ = [

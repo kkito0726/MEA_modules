@@ -4,7 +4,7 @@ import numpy as np
 from numpy import dtype, floating, ndarray
 
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
-from pyMEA.read.MEA import MEA
+from pyMEA.read.model.MEA import MEA
 
 
 # バゼット (Bazett's)とFredericia (フレデリシア)の補正式で補正しFredericia (たものも計算)で補正しFredericia (たものも計算)で補正したものも計算

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from numpy import array_equal, ndarray
 
 from pyMEA.find_peaks.peak_model import NegPeaks, PosPeaks
-from pyMEA.read.MEA import MEA
+from pyMEA.read.model.MEA import MEA
 
 
 @dataclass(frozen=True)
