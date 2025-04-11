@@ -10,8 +10,8 @@ from pyMEA.read.read_bio import decode_hed, hed2array
 @dataclass(frozen=True)
 class MEA:
     hed_path: str
-    start: int
-    end: int
+    start: int = 0
+    end: int = 120
     SAMPLING_RATE: int = field(init=False)
     GAIN: int = field(init=False)
     array: ndarray[Any, dtype] = field(init=False)
