@@ -1,23 +1,39 @@
 import statistics
+from dataclasses import dataclass, field
+from functools import cached_property
 from typing import Any
 
 import numpy as np
+from numpy import float64
+from numpy._typing import NDArray
 
+from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.gradient.Gradient import Gradient
 from pyMEA.gradient.Solver import Solver
 from pyMEA.read.model.MEA import MEA
 
 
+@dataclass(frozen=True)
 class Gradients:
-    def __init__(self, data: MEA, peak_index, ele_dis=450, mesh_num=100) -> None:
-        self.gradients: list[Gradient] = []
-        times, remove_ch = remove_undetected_ch(data, peak_index)
+    data: MEA
+    peak_index: Peaks64
+    ele_dis: int = 450
+    mesh_num: int = 100
+    times: NDArray[float64] = field(init=False)
+    remove_ch: list[int] = field(init=False)
 
+    def __post_init__(self):
+        times, remove_ch = remove_undetected_ch(self.data, self.peak_index)
+        object.__setattr__(self, "times", times)
+        object.__setattr__(self, "remove_ch", remove_ch)
+
+    @cached_property
+    def gradients(self) -> list[Gradient]:
         # 全拍動周期について勾配を計算していく
-        for time in times:
-            solver = Solver(time, remove_ch, ele_dis, mesh_num)
-            self.gradients.append(Gradient(solver))
-        pass
+        return [
+            Gradient(Solver(time, self.remove_ch, self.ele_dis, self.mesh_num))
+            for time in self.times
+        ]
 
     def __repr__(self) -> list[Gradient]:
         return repr(self.gradients)
@@ -28,7 +44,10 @@ class Gradients:
     def __len__(self) -> int:
         return len(self.gradients)
 
-    @property
+    def __iter__(self):
+        return iter(self.gradients)
+
+    @cached_property
     def r2s(self) -> list[float]:
         return [grad.r2 for grad in self.gradients]
 
