@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 from numpy import ndarray
 
 from pyMEA.figure.plot.histogram import mkHist
