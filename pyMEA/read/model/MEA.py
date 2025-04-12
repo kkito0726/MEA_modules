@@ -9,6 +9,15 @@ from pyMEA.read.read_bio import decode_hed, hed2array
 
 @dataclass(frozen=True)
 class MEA:
+    """
+    MEA計測データの読み込み
+    ----------
+    Args:
+        hed_path: ヘッダーファイルのパス
+        start: 読み込み開始時間 (s)
+        end: 読み込み終了時間 (s)
+    """
+
     hed_path: str
     start: int = 0
     end: int = 120
