@@ -51,11 +51,8 @@ class Gradients:
     def r2s(self) -> list[float]:
         return [grad.r2 for grad in self.gradients]
 
-    def calc_velocity(self) -> list[np.ndarray[float]]:
-        cvs = []
-        for gradient in self.gradients:
-            cvs.append(gradient.calc_velocity())
-        return cvs
+    def calc_velocity(self) -> list[NDArray[float64]]:
+        return [gradient.calc_velocity() for gradient in self.gradients]
 
     def draw_2d(
         self,
@@ -82,7 +79,7 @@ class Gradients:
 
 
 def remove_undetected_ch(
-    data: MEA, peak_index: np.ndarray
+    data: MEA, peak_index: Peaks64
 ) -> tuple[list[list[np.ndarray[Any, Any]]], list[int]]:
     # ピークの時刻 (s)を取得
     time = [data[0][peak_index[i]] for i in range(1, 65)]

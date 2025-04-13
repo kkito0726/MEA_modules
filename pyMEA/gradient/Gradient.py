@@ -34,7 +34,7 @@ class Gradient:
     def r2(self) -> float:
         return self.solver.r2
 
-    def calc_velocity(self):
+    def calc_velocity(self) -> NDArray[float64]:
         return np.sqrt(self.vx**2 + self.vy**2).ravel() * 10**-6  # μm/s -> m/sに変換
 
     def draw2d(
