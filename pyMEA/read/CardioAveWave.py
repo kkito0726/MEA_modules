@@ -8,6 +8,13 @@ from pyMEA.read.model.MEA import MEA
 
 @dataclass(frozen=True)
 class CardioAveWave(MEA):
+    """
+    心筋波形の平均を取ってノイズを除去する
+    ----------
+    Args:
+        data: MEAデータ (MEAクラスのインスタンス)
+    """
+
     front: float = 0.05
     back: float = 0.3
     distance: int = 3000
@@ -18,11 +25,6 @@ class CardioAveWave(MEA):
         object.__setattr__(
             self, "array", calc_64_ave_waves(self, neg_peaks, self.front, self.back)
         )
-
-
-"""
-心筋波形の平均を取ってノイズを除去する
-"""
 
 
 # 1電極の平均波形を算出

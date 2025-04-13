@@ -1,8 +1,8 @@
 import os
-from typing import Tuple
 
 import numpy as np
-from numpy import ndarray
+from numpy import float64
+from numpy._typing import NDArray
 
 from pyMEA.read.model.BioPath import BioPath
 from pyMEA.read.model.HedPath import HedPath
@@ -10,7 +10,7 @@ from pyMEA.utils.decorators import time_validator
 
 
 # hedファイルの解読関数
-def decode_hed(hed_path: HedPath) -> Tuple[int, int]:
+def decode_hed(hed_path: HedPath) -> tuple[int, int]:
     # hedファイルを読み込む。
     hed_data = np.fromfile(hed_path.path, dtype="<h", sep="")
 
@@ -40,7 +40,7 @@ def read_bio(
     sampling_rate=10000,
     gain=50000,
     volt_range=100,
-) -> ndarray:  # sampling_rate (Hz), volt_range (mV)
+) -> NDArray[float64]:  # sampling_rate (Hz), volt_range (mV)
     electrode_number = 64
     data_unit_length = electrode_number + 4
 
@@ -74,7 +74,7 @@ def read_bio(
 
 # hedファイルの情報からbioファイルを一気に読み込む
 @time_validator
-def hed2array(hed_path: HedPath, start: int, end: int) -> ndarray:
+def hed2array(hed_path: HedPath, start: int, end: int) -> NDArray[float64]:
     """
     ヘッダーファイルからサンプリングレートとGainを読み取りbioファイルを読み込む\n
     Parameters

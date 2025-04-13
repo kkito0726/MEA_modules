@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Sequence
 
-from numpy import array_equal, ndarray
+from numpy import array_equal, int64
 from numpy._typing import NDArray
 
 from pyMEA.utils.decorators import ch_validator
@@ -10,7 +10,7 @@ from pyMEA.utils.decorators import ch_validator
 # 1つの電極で取得したピーク
 @dataclass(frozen=True)
 class Peaks:
-    peak_index: ndarray
+    peak_index: NDArray[int64]
 
     def __getitem__(self, ch: int):
         return self.peak_index[ch]
@@ -20,6 +20,9 @@ class Peaks:
 
     def __len__(self):
         return len(self.peak_index)
+
+    def __iter__(self):
+        return iter(self.peak_index)
 
     def __add__(self, value):
         return self.peak_index + value
@@ -84,9 +87,12 @@ class Peaks64:
     def __len__(self) -> int:
         return len(self.peaks)
 
+    def __iter__(self):
+        return iter(self.peaks)
+
 
 class NegPeaks64(Peaks64):
-    def __init__(self, peak_index: NDArray[NegPeaks]):
+    def __init__(self, peak_index: Sequence[NegPeaks]):
         super().__init__(peak_index)
 
     @ch_validator
@@ -95,7 +101,7 @@ class NegPeaks64(Peaks64):
 
 
 class PosPeaks64(Peaks64):
-    def __init__(self, peak_index: NDArray[PosPeaks]):
+    def __init__(self, peak_index: Sequence[PosPeaks]):
         super().__init__(peak_index)
 
     @ch_validator
@@ -104,5 +110,5 @@ class PosPeaks64(Peaks64):
 
 
 class AllPeaks64(Peaks64):
-    def __init__(self, peak_index: NDArray[Peaks]):
+    def __init__(self, peak_index: Sequence[Peaks]):
         super().__init__(peak_index)

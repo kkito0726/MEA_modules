@@ -1,29 +1,54 @@
-from typing import Any, Tuple, Union
+from dataclasses import dataclass, field
+from functools import cached_property
+from typing import Any, Union
 
 import numpy as np
-from numpy import dtype, ndarray
+from numpy import float64
+from numpy._typing import NDArray
 from scipy.optimize import curve_fit
 
 
+@dataclass(frozen=True)
 class Solver:
-    def __init__(self, time, remove_ch: list[int], ele_dis: int, mesh_num=100) -> None:
-        """
-        Args:
-            time: 波形のピーク時刻
-            remove_ch: ピーク抽出できなかった電極
-            ele_dis: 電極間距離
-            mesh_num: 何x何のグリッドでデータを補間するか
-        """
-        self.time = time
-        self.remove_ch = remove_ch
-        self.ele_dis = ele_dis
-        self.mesh_num = mesh_num
-        self.popt, self.r2 = self.fit_data()
-        self.xx, self.yy = get_mesh(self.ele_dis, self.mesh_num)
-        self.z = self.calc_z()
-        pass
+    """
+    Args:
+        time: 波形のピーク時刻
+        remove_ch: ピーク抽出できなかった電極
+        ele_dis: 電極間距離
+        mesh_num: 何x何のグリッドでデータを補間するか
+    """
 
-    def fit_data(self) -> tuple[ndarray[Any, dtype[Any]], Union[int, Any]]:
+    time: list[float64]
+    remove_ch: list[int]
+    ele_dis: int
+    mesh_num: int = 100
+    popt: NDArray[float64] = field(init=False)
+    r2: Union[int, Any] = field(init=False)
+    xx: NDArray[float64] = field(init=False)
+    yy: NDArray[float64] = field(init=False)
+
+    def __post_init__(self):
+        popt, r2 = self.fit_data()
+        xx, yy = get_mesh(self.ele_dis, self.mesh_num)
+        object.__setattr__(self, "popt", self.freeze_array(popt))
+        object.__setattr__(self, "r2", r2)
+        object.__setattr__(self, "xx", self.freeze_array(xx))
+        object.__setattr__(self, "yy", self.freeze_array(yy))
+
+    @staticmethod
+    def freeze_array(arr: NDArray[Any]) -> NDArray[Any]:
+        arr.setflags(write=False)
+        return arr
+
+    @cached_property
+    def z(self) -> NDArray[float64]:
+        z = model((self.xx, self.yy), *self.popt)
+        z -= np.min(z)  # 発火起点を0 sとする
+        z *= 1000  # 単位をmsに変更
+
+        return z
+
+    def fit_data(self) -> tuple[NDArray[float64], Union[int, Any]]:
         """
         MEAの計測データからmodel式にデータをフィッティングする
 
@@ -44,15 +69,8 @@ class Solver:
 
         return np.array(popt), r2
 
-    def calc_z(self):
-        z = model((self.xx, self.yy), *self.popt)
-        z -= np.min(z)  # 発火起点を0 sとする
-        z *= 1000  # 単位をmsに変更
 
-        return z
-
-
-def get_mesh(ele_dis: int, mesh_num: int):
+def get_mesh(ele_dis: int, mesh_num: int) -> tuple[NDArray[float64], NDArray[float64]]:
     """
     グリッド配列を取得するメソッド
     """
@@ -73,7 +91,19 @@ def get_mesh(ele_dis: int, mesh_num: int):
     return xx, yy
 
 
-def model(X, p00, p10, p01, p20, p11, p02, p30, p21, p12, p03):
+def model(
+    X: tuple[NDArray[float64], NDArray[float64]],
+    p00,
+    p10,
+    p01,
+    p20,
+    p11,
+    p02,
+    p30,
+    p21,
+    p12,
+    p03,
+) -> NDArray[float64]:
     x, y = X
     z = (
         p00

@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
+from functools import cached_property
 from typing import Any
 
-from numpy import dtype, ndarray
+from numpy import float64, ndarray
+from numpy._typing import NDArray
 
 from pyMEA.read.model.HedPath import HedPath
 from pyMEA.read.read_bio import decode_hed, hed2array
@@ -9,12 +11,21 @@ from pyMEA.read.read_bio import decode_hed, hed2array
 
 @dataclass(frozen=True)
 class MEA:
+    """
+    MEA計測データの読み込み
+    ----------
+    Args:
+        hed_path: ヘッダーファイルのパス
+        start: 読み込み開始時間 (s)
+        end: 読み込み終了時間 (s)
+    """
+
     hed_path: str
     start: int = 0
     end: int = 120
     SAMPLING_RATE: int = field(init=False)
     GAIN: int = field(init=False)
-    array: ndarray[Any, dtype] = field(init=False)
+    array: NDArray[float64] = field(init=False)
 
     def __post_init__(self):
         hed_path = HedPath(self.hed_path)
@@ -31,7 +42,7 @@ class MEA:
         arr.setflags(write=False)
         return arr
 
-    @property
+    @cached_property
     def time(self):
         return self.end - self.start
 
@@ -43,6 +54,9 @@ class MEA:
 
     def __len__(self) -> int:
         return len(self.array)
+
+    def __iter__(self):
+        return iter(self.array)
 
     def __add__(self, value):
         return self.array + value
