@@ -1,7 +1,9 @@
 import unittest
+from test.src.unit.test_utils.utils import truncate
 from test.utils import get_resource_path
 
 import numpy as np
+import pandas as pd
 
 from pyMEA import detect_peak_neg
 from pyMEA.calculator.calculator import Calculator
@@ -12,6 +14,9 @@ from pyMEA.read.model.MEA import MEA
 class CalculatorTest(unittest.TestCase):
     def setUp(self):
         self.path = get_resource_path("230615_day2_test_5s_.hed")
+        self.expect_gradient_velocity_path = get_resource_path(
+            "expects/gradient_velocity.csv"
+        )
         self.data = MEA(self.path.__str__(), 0, 5)
         self.peak_index = detect_peak_neg(self.data)
         self.calc450 = Calculator(self.data, 450)
@@ -60,11 +65,12 @@ class CalculatorTest(unittest.TestCase):
 
     def test_速度ベクトルから伝導速度が正しく計算できる(self):
         cvs = self.calc450.gradient_velocity(self.peak_index)
+        expects = pd.read_csv(self.expect_gradient_velocity_path)
 
-        for cv in cvs:
+        for i, cv in enumerate(cvs):
             self.assertEqual(cv.shape, (64,))
-            for c in cv:
-                self.assertTrue(0 <= c <= 0.4)
+            for j, c in enumerate(cv):
+                self.assertEqual(truncate(expects[str(i)][j], 10), truncate(c, 10))
 
     def test_電極番号を1から64の範囲外を指定するとき例外が発生する(self):
         with self.assertRaises(ValueError) as context:
