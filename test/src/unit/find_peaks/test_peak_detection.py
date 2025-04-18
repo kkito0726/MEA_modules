@@ -47,5 +47,6 @@ class MyTestCase(unittest.TestCase):
             for i, index in enumerate(self.all_peak_index[ch]):
                 self.assertEqual(expects[str(ch)][i], index)
 
+
 if __name__ == "__main__":
     unittest.main()
