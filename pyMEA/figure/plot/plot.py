@@ -3,9 +3,9 @@ from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy import ndarray
-from scipy.interpolate import interp1d
 from matplotlib.collections import LineCollection
+from numpy import ndarray
+from scipy.interpolate import interp1d, splev, splprep
 
 from pyMEA.core.Electrode import Electrode
 from pyMEA.find_peaks.peak_model import Peaks64
@@ -140,7 +140,9 @@ def showDetection(
     # plt.show()
 
 
-def draw_line_conduction(data: MEA, ele_dis, peak_index: Peaks64, chs: list[int]):
+def draw_line_conduction(
+    data: MEA, ele_dis, peak_index: Peaks64, chs: list[int], isLoop=True, dpi=300
+):
     times, chs = remove_undetected_ch(data, peak_index, chs)
     # 各拍動周期について処理していく
     for time in times:
@@ -148,21 +150,10 @@ def draw_line_conduction(data: MEA, ele_dis, peak_index: Peaks64, chs: list[int]
         t = t * 10**3  # 単位をmsに変換
 
         electrode = Electrode(ele_dis)
-        x = np.array([electrode.get_coordinate(ch)[0] for ch in chs])
-        y = np.array([electrode.get_coordinate(ch)[1] for ch in chs])
 
-        # === 通過順ベースの補間 ===
-        s = np.linspace(0, 1, len(x))  # parametric distance
-        num_interp = 300
-        s_fine = np.linspace(0, 1, num_interp)
-
-        fx = interp1d(s, x, kind="linear")
-        fy = interp1d(s, y, kind="linear")
-        ft = interp1d(s, t, kind="linear")  # 色付け用の補間
-
-        x_fine = fx(s_fine)
-        y_fine = fy(s_fine)
-        t_fine = ft(s_fine)
+        x_fine, y_fine, t_fine = linear_interpolation_path(
+            chs, t, electrode, isLoop=isLoop
+        )
 
         # === 線分生成 ===
         points = np.array([x_fine, y_fine]).T.reshape(-1, 1, 2)
@@ -175,7 +166,8 @@ def draw_line_conduction(data: MEA, ele_dis, peak_index: Peaks64, chs: list[int]
         lc.set_linewidth(3)
 
         # === 描画 ===
-        fig, ax = plt.subplots()
+        fig = plt.figure(dpi=dpi)
+        ax = fig.add_subplot(111)
         line = ax.add_collection(lc)
         fig.colorbar(line, ax=ax, label="Δt (ms)")
 
@@ -195,6 +187,31 @@ def draw_line_conduction(data: MEA, ele_dis, peak_index: Peaks64, chs: list[int]
         plt.xticks(np.arange(0, electrode.ele_dis * 7 + 1, electrode.ele_dis))
         plt.yticks(np.arange(0, electrode.ele_dis * 7 + 1, electrode.ele_dis))
         plt.show()
+
+
+def linear_interpolation_path(
+    chs, t, electrode: Electrode, num_points=300, isLoop=False
+):
+    if isLoop:
+        chs = chs + [chs[0]]
+        t = list(t) + [t[0]]
+
+    coords = np.array([electrode.get_coordinate(ch) for ch in chs])
+    x, y = coords[:, 0], coords[:, 1]
+    t = np.array(t)
+
+    # 通過距離を計算してパラメータ化
+    d = np.cumsum(
+        np.sqrt(np.diff(x, prepend=x[0]) ** 2 + np.diff(y, prepend=y[0]) ** 2)
+    )
+    d -= d[0]
+    d_fine = np.linspace(0, d[-1], num_points)
+
+    x_fine = np.interp(d_fine, d, x)
+    y_fine = np.interp(d_fine, d, y)
+    t_fine = np.interp(d_fine, d, t)
+
+    return x_fine, y_fine, t_fine
 
 
 def remove_undetected_ch(data: MEA, peak_index: Peaks64, chs: list[int]):
