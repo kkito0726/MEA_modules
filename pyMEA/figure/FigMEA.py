@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from numpy import ndarray
 
 from pyMEA.figure.plot.histogram import mkHist
-from pyMEA.figure.plot.plot import showDetection
+from pyMEA.figure.plot.plot import showDetection, draw_line_conduction
 from pyMEA.figure.plot.raster_plot import raster_plot
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.gradient.Gradients import Gradients
@@ -283,3 +283,6 @@ class FigMEA:
         grads = Gradients(self.data, peak_index, ele_dis, mesh_num)
         grads.draw_3d(xlabel, ylabel, clabel, dpi)
         return grads
+
+    def draw_line_conduction(self, peak_index: Peaks64, ele_dis, chs: list[int]):
+        draw_line_conduction(self.data, ele_dis, peak_index, chs)
