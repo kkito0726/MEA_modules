@@ -1,9 +1,14 @@
+import statistics
 from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.collections import LineCollection
 from numpy import ndarray
+from scipy.interpolate import interp1d, splev, splprep
 
+from pyMEA.core.Electrode import Electrode
+from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.read.model.MEA import MEA
 
 circuit_eles = [
@@ -133,3 +138,101 @@ def showDetection(
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     # plt.show()
+
+
+def draw_line_conduction(
+    data: MEA, ele_dis, peak_index: Peaks64, chs: list[int], isLoop=True, dpi=300
+):
+    times, chs = remove_undetected_ch(data, peak_index, chs)
+    # 各拍動周期について処理していく
+    for time in times:
+        t = time - time.min()
+        t = t * 10**3  # 単位をmsに変換
+
+        electrode = Electrode(ele_dis)
+
+        x_fine, y_fine, t_fine = linear_interpolation_path(
+            chs, t, electrode, isLoop=isLoop
+        )
+
+        # === 線分生成 ===
+        points = np.array([x_fine, y_fine]).T.reshape(-1, 1, 2)
+        segments = np.concatenate([points[:-1], points[1:]], axis=1)
+
+        # === グラデーション表示 ===
+        norm = plt.Normalize(t.min(), t.max())
+        lc = LineCollection(segments, cmap="jet", norm=norm, zorder=5)
+        lc.set_array(t_fine[:-1])
+        lc.set_linewidth(3)
+
+        # === 描画 ===
+        fig = plt.figure(dpi=dpi)
+        ax = fig.add_subplot(111)
+        line = ax.add_collection(lc)
+        fig.colorbar(line, ax=ax, label="Δt (ms)")
+
+        # === メッシュ表示 ===
+        mx, my = electrode.get_mesh
+        plt.scatter(mx, my, marker=",", color="grey", zorder=10)
+
+        ele_range = electrode.ele_dis * 7
+        margin_ratio = 0.05
+
+        ax.set_xlim(0 - ele_range * margin_ratio, ele_range + ele_range * margin_ratio)
+        ax.set_ylim(0 - ele_range * margin_ratio, ele_range + ele_range * margin_ratio)
+
+        ax.set_aspect("equal")
+        plt.xlabel("X (μm)")
+        plt.ylabel("Y (μm)")
+        plt.xticks(np.arange(0, electrode.ele_dis * 7 + 1, electrode.ele_dis))
+        plt.yticks(np.arange(0, electrode.ele_dis * 7 + 1, electrode.ele_dis))
+        plt.show()
+
+
+def linear_interpolation_path(
+    chs, t, electrode: Electrode, num_points=300, isLoop=False
+):
+    if isLoop:
+        chs = chs + [chs[0]]
+        t = list(t) + [t[0]]
+
+    coords = np.array([electrode.get_coordinate(ch) for ch in chs])
+    x, y = coords[:, 0], coords[:, 1]
+    t = np.array(t)
+
+    # 通過距離を計算してパラメータ化
+    d = np.cumsum(
+        np.sqrt(np.diff(x, prepend=x[0]) ** 2 + np.diff(y, prepend=y[0]) ** 2)
+    )
+    d -= d[0]
+    d_fine = np.linspace(0, d[-1], num_points)
+
+    x_fine = np.interp(d_fine, d, x)
+    y_fine = np.interp(d_fine, d, y)
+    t_fine = np.interp(d_fine, d, t)
+
+    return x_fine, y_fine, t_fine
+
+
+def remove_undetected_ch(data: MEA, peak_index: Peaks64, chs: list[int]):
+    # ピークの時刻 (s)を取得
+    time = [data[0][peak_index[ch]] for ch in chs]
+
+    # 各電極の取得ピーク数の最頻値以外の電極は削除
+    peaks = [len(peak_index[ch]) for ch in chs]
+    remove_ch_index = []
+    for i in range(len(time)):
+        if len(time[i]) != statistics.mode(peaks):
+            remove_ch_index.append(i)
+
+    # ピークを正しく検出できていないchのデータを削除
+    for ch in sorted(remove_ch_index, reverse=True):
+        time.pop(ch)
+        chs.pop(ch)
+    print("弾いた電極番号: ", np.array(remove_ch_index))
+
+    times = []
+    for j in range(len(time[0])):
+        times.append([time[i][j] for i in range(len(time))])
+
+    return np.array(times), chs

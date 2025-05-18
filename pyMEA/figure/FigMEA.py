@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from numpy import ndarray
 
 from pyMEA.figure.plot.histogram import mkHist
-from pyMEA.figure.plot.plot import showDetection
+from pyMEA.figure.plot.plot import draw_line_conduction, showDetection
 from pyMEA.figure.plot.raster_plot import raster_plot
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.gradient.Gradients import Gradients
@@ -283,3 +283,23 @@ class FigMEA:
         grads = Gradients(self.data, peak_index, ele_dis, mesh_num)
         grads.draw_3d(xlabel, ylabel, clabel, dpi)
         return grads
+
+    def draw_line_conduction(
+        self, peak_index: Peaks64, ele_dis, chs: list[int], isLoop=True, dpi=300
+    ):
+        """
+        ライン状心筋細胞ネットワークのカラーマップ描画
+        電極番号の配列の順番は経路がつながっている順番になるようにすること
+        ----------
+        Parameters
+            data: MEA計測データ
+            ele_dis: 電極間距離 (μm)
+            peak_index: ピーク抽出結果
+            chs: 電極番号の配列
+            isLoop: 経路が環状かどうか
+            dpi: 解像度
+
+        -------
+
+        """
+        draw_line_conduction(self.data, ele_dis, peak_index, chs, isLoop, dpi)
