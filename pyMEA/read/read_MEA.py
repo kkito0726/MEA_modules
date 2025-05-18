@@ -14,7 +14,7 @@ def read_MEA(
     front=0.05,
     back=0.3,
     distance=3000,
-):
+) -> PyMEA:
     if filter_type == FilterType.NONE:
         data = MEA(hed_path, start, end)
     elif filter_type == FilterType.CARDIO_AVE_WAVE:
