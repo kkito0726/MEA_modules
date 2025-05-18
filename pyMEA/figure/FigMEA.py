@@ -1,6 +1,9 @@
+from dataclasses import dataclass
+
 import matplotlib.pyplot as plt
 from numpy import ndarray
 
+from pyMEA.core.Electrode import Electrode
 from pyMEA.figure.plot.histogram import mkHist
 from pyMEA.figure.plot.plot import draw_line_conduction, showDetection
 from pyMEA.figure.plot.raster_plot import raster_plot
@@ -10,9 +13,10 @@ from pyMEA.read.model.MEA import MEA
 from pyMEA.utils.decorators import channel
 
 
+@dataclass(frozen=True)
 class FigMEA:
-    def __init__(self, data: MEA):
-        self.data = data
+    data: MEA
+    electrode: Electrode
 
     def _set_times(self, start, end) -> tuple[int, int]:
         # 時間の設定がなければ読み込み時間全体をプロットするようにする。
@@ -237,7 +241,6 @@ class FigMEA:
     def draw_2d(
         self,
         peak_index: Peaks64,
-        ele_dis=450,  # 電極間距離 (μm)
         mesh_num=100,  # mesh_num x mesh_numでデータを生成
         contour=False,  # 等高線で表示するかどうか
         isQuiver=True,  # 速度ベクトルを表示するかどうか
@@ -248,21 +251,19 @@ class FigMEA:
         2Dカラーマップ描画
         Args:
             peak_index: ピーク抽出結果
-            ele_dis: 電極間距離 (μm)
             mesh_num: mesh_num x mesh_numでデータを生成
             contour: 等高線で表示するかどうか
             isQuiver: 速度ベクトルを表示するかどうか
             dpi: 解像度
             cmap: カラーセット
         """
-        grads = Gradients(self.data, peak_index, ele_dis, mesh_num)
+        grads = Gradients(self.data, peak_index, self.electrode.ele_dis, mesh_num)
         grads.draw_2d(contour, isQuiver, dpi=dpi, cmap=cmap)
         return grads
 
     def draw_3d(
         self,
         peak_index: Peaks64,
-        ele_dis=450,
         mesh_num=100,
         xlabel="X (μm)",
         ylabel="Y (μm)",
@@ -273,19 +274,18 @@ class FigMEA:
         3Dカラーマップ描画
         Args:
             peak_index: ピーク抽出結果
-            ele_dis: 電極間距離 (μm)
             mesh_num: mesh_num x mesh_numでデータを生成
             xlabel: X軸ラベル
             ylabel: Y軸ラベル
             clabel: カラーバーラベル
             dpi: 解像度
         """
-        grads = Gradients(self.data, peak_index, ele_dis, mesh_num)
+        grads = Gradients(self.data, peak_index, self.electrode.ele_dis, mesh_num)
         grads.draw_3d(xlabel, ylabel, clabel, dpi)
         return grads
 
     def draw_line_conduction(
-        self, peak_index: Peaks64, ele_dis, chs: list[int], isLoop=True, dpi=300
+        self, peak_index: Peaks64, chs: list[int], isLoop=True, dpi=300
     ):
         """
         ライン状心筋細胞ネットワークのカラーマップ描画
@@ -293,7 +293,6 @@ class FigMEA:
         ----------
         Parameters
             data: MEA計測データ
-            ele_dis: 電極間距離 (μm)
             peak_index: ピーク抽出結果
             chs: 電極番号の配列
             isLoop: 経路が環状かどうか
@@ -302,4 +301,4 @@ class FigMEA:
         -------
 
         """
-        draw_line_conduction(self.data, ele_dis, peak_index, chs, isLoop, dpi)
+        draw_line_conduction(self.data, self.electrode, peak_index, chs, isLoop, dpi)

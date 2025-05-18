@@ -13,9 +13,9 @@ class Electrode:
     ele_dis: int
 
     @cached_property
-    def get_mesh(self) -> tuple[NDArray[float64], NDArray[float64]]:
+    def get_electrode_mesh(self) -> tuple[NDArray[float64], NDArray[float64]]:
         """
-        グリッド配列を取得するメソッド
+        電極のグリッド配列 (8 x 8)を取得するメソッド
         """
         # データ範囲を取得
         x_min, x_max = 0, self.ele_dis * 7
@@ -35,7 +35,7 @@ class Electrode:
 
     @ch_validator
     def get_coordinate(self, ch: int) -> tuple[NDArray[float64], NDArray[float64]]:
-        mesh = self.get_mesh
+        mesh = self.get_electrode_mesh
         x = mesh[0][(ch - 1) // 8][(ch - 1) % 8]
         y = mesh[1][(ch - 1) // 8][(ch - 1) % 8]
         return x, y

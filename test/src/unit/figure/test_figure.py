@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 
+from pyMEA.core.Electrode import Electrode
 from pyMEA.figure.FigMEA import FigMEA
 from pyMEA.find_peaks.peak_detection import detect_peak_neg
 from pyMEA.read.model.MEA import MEA
@@ -14,7 +15,7 @@ class MyTestCase(unittest.TestCase):
         self.path = get_resource_path("230615_day2_test_5s_.hed")
         self.data = MEA(self.path.__str__(), 0, 5)
         self.peak_index = detect_peak_neg(self.data)
-        self.fm = FigMEA(self.data)
+        self.fm = FigMEA(self.data, Electrode(450))
 
     @patch("matplotlib.pyplot.show")
     @patch("matplotlib.pyplot.plot")

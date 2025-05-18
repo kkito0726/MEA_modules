@@ -141,15 +141,18 @@ def showDetection(
 
 
 def draw_line_conduction(
-    data: MEA, ele_dis, peak_index: Peaks64, chs: list[int], isLoop=True, dpi=300
+    data: MEA,
+    electrode: Electrode,
+    peak_index: Peaks64,
+    chs: list[int],
+    isLoop=True,
+    dpi=300,
 ):
     times, chs = remove_undetected_ch(data, peak_index, chs)
     # 各拍動周期について処理していく
     for time in times:
         t = time - time.min()
         t = t * 10**3  # 単位をmsに変換
-
-        electrode = Electrode(ele_dis)
 
         x_fine, y_fine, t_fine = linear_interpolation_path(
             chs, t, electrode, isLoop=isLoop
@@ -172,7 +175,7 @@ def draw_line_conduction(
         fig.colorbar(line, ax=ax, label="Δt (ms)")
 
         # === メッシュ表示 ===
-        mx, my = electrode.get_mesh
+        mx, my = electrode.get_electrode_mesh
         plt.scatter(mx, my, marker=",", color="grey", zorder=10)
 
         ele_range = electrode.ele_dis * 7
