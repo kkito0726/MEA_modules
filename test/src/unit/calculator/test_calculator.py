@@ -7,6 +7,7 @@ import pandas as pd
 
 from pyMEA import detect_peak_neg
 from pyMEA.calculator.calculator import Calculator
+from pyMEA.core.Electrode import Electrode
 from pyMEA.figure.FigMEA import FigMEA
 from pyMEA.read.model.MEA import MEA
 
@@ -21,7 +22,6 @@ class CalculatorTest(unittest.TestCase):
         self.peak_index = detect_peak_neg(self.data)
         self.calc450 = Calculator(self.data, 450)
         self.calc150 = Calculator(self.data, 150)
-        self.fm = FigMEA(self.data)
 
     def test_ISIが正しく計算できる(self):
         isi = self.calc450.isi(self.peak_index, 32)

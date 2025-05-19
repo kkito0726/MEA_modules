@@ -51,8 +51,11 @@ from pyMEA import *
 
 hed_path = "/Users/you/MEA_record_example.hed"
 start, end = 0, 5
+electrode_distance = 450
 # 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
-data = MEA(hed_path, start, end)
+mea = read_MEA(hed_path, start, end, electrode_distance) # フィルターかけない場合
+mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.CARDIO_AVE_WAVE) # 心筋細胞の平均波形
+mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.FILTER_MEA) # 神経用 移動平均をかける 
 
 '''
 データには以下の二次元配列が返る
@@ -72,7 +75,7 @@ data = MEA(hed_path, start, end)
 ### 読み込み情報の確認
 
 ```
-data.info
+mea.data.info
 ```
 
 ### ６４電極の波形をすべて表示
@@ -82,11 +85,11 @@ from pyMEA import *
 
 hed_path = "/Users/you/MEA_record_example.hed"
 start, end = 0, 5
+electrode_distance = 450
 
 # 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
-data = MEA(hed_path, start, end) # MEA計測データの読み込み
-fm = FigMEA(data) # グラフ描画クラスのインスタンス化
-fm.showAll()
+mea = read_MEA(hed_path, start, end, electrode_distance) # MEA計測データの読み込み
+mea.fig.showAll()
 ```
 
 ### 指定の 1 電極表示
@@ -96,13 +99,13 @@ from pyMEA import *
 
 hed_path = "/Users/you/MEA_record_example.hed"
 start, end = 0, 5
+electrode_distance = 450
 
 # 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
-data = MEA(hed_path, start, end) # MEA計測データの読み込み
-fm = FigMEA(data) # グラフ描画クラスのインスタンス化
+mea = read_MEA(hed_path, start, end, electrode_distance) # MEA計測データの読み込み
 
 ch = 1 # 表示したい電極番号
-fm.showSingle(ch)
+mea.fig.showSingle(ch)
 ```
 
 ### 波形とピーク位置を確認
@@ -112,20 +115,20 @@ from pyMEA import *
 
 hed_path = "/Users/you/MEA_record_example.hed"
 start, end = 0, 5
+electrode_distance = 450
 
 # 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
-data = MEA(hed_path, start, end) # MEA計測データの読み込み
-fm = FigMEA(data) # グラフ描画クラスのインスタンス化
+mea = read_MEA(hed_path, start, end, electrode_distance) # MEA計測データの読み込み
 
 ch = 1 # 表示したい電極番号
-peak_index_neg = detect_peak_neg(data, 3000)
-peak_index_pos = detect_peak_pos(data, 3000)
+peak_index_neg = detect_peak_neg(mea.data, 3000)
+peak_index_pos = detect_peak_pos(mea.data, 3000)
 
 # 上下両方のピークをプロットする場合
-fm.plotPeaks(ch, peak_index_neg, peak_index_pos)
+mea.fig.plotPeaks(ch, peak_index_neg, peak_index_pos)
 
 # 下のピークをプロットする場合
-fm.plotPeaks(ch, peak_index_neg)
+mea.fig.plotPeaks(ch, peak_index_neg)
 ```
 
 ### カラーマップ描画
@@ -135,13 +138,17 @@ from pyMEA import *
 
 hed_path = "/Users/you/MEA_record_example.hed"
 start, end = 0, 5
+electrode_distance = 450
 
 # 引数はヘッダーファイルのパス, 読み込み開始時間, 読み込み終了時間
-data = MEA(hed_path, start, end) # MEA計測データの読み込み
-fm = FigMEA(data) # グラフ描画クラスのインスタンス化
-peak_index = detect_peak_neg(data, 3000)
+mea = read_MEA(hed_path, start, end, electrode_distance) # MEA計測データの読み込み
+peak_index = detect_peak_neg(mea.data, 3000)
 
-fm.draw_2d(peak_index, 450)
+mea.fig.draw_2d(peak_index)
+
+# AMC経路でのカラーマップ描画
+chs = [9, 10, 11, 12, 13, 14, 15, 16] # 経路の電極リスト
+mea.fig.draw_line_conduction(peak_index, chs, isLoop=False) # 環状経路の場合isLoop = True
 ```
 
 ## Article
