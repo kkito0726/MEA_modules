@@ -15,6 +15,24 @@ def read_MEA(
     back=0.3,
     distance=3000,
 ) -> PyMEA:
+    """
+
+    Args:
+        hed_path: .hedファイルのパス
+        start: 読み込み開始地点 (s)
+        end: 読み込み終了地点 (s)
+        electrode_distance: 電極間距離 (μm)
+        filter_type
+        #### 以降はCardioAveWaveを使用する用
+        front: ピークの前 (s)
+        back: ピークの後 (s)
+        distance: ピークを取得するデータ数の間隔
+
+    Returns:
+        PyMEA
+    -------
+
+    """
     if filter_type == FilterType.NONE:
         data = MEA(hed_path, start, end)
     elif filter_type == FilterType.CARDIO_AVE_WAVE:
