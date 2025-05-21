@@ -5,11 +5,8 @@ from test.utils import get_resource_path
 import numpy as np
 import pandas as pd
 
-from pyMEA import detect_peak_neg
+from pyMEA import detect_peak_neg, read_MEA
 from pyMEA.calculator.calculator import Calculator
-from pyMEA.core.Electrode import Electrode
-from pyMEA.figure.FigMEA import FigMEA
-from pyMEA.read.model.MEA import MEA
 
 
 class CalculatorTest(unittest.TestCase):
@@ -18,10 +15,10 @@ class CalculatorTest(unittest.TestCase):
         self.expect_gradient_velocity_path = get_resource_path(
             "expects/gradient_velocity.csv"
         )
-        self.data = MEA(self.path.__str__(), 0, 5)
-        self.peak_index = detect_peak_neg(self.data)
-        self.calc450 = Calculator(self.data, 450)
-        self.calc150 = Calculator(self.data, 150)
+        self.mea = read_MEA(self.path.__str__(), 0, 5, 450)
+        self.peak_index = detect_peak_neg(self.mea.data)
+        self.calc450 = Calculator(self.mea.data, 450)
+        self.calc150 = Calculator(self.mea.data, 150)
 
     def test_ISIが正しく計算できる(self):
         isi = self.calc450.isi(self.peak_index, 32)

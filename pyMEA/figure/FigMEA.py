@@ -7,6 +7,7 @@ from pyMEA.core.Electrode import Electrode
 from pyMEA.figure.plot.histogram import mkHist
 from pyMEA.figure.plot.plot import draw_line_conduction, showDetection
 from pyMEA.figure.plot.raster_plot import raster_plot
+from pyMEA.find_peaks.peak_detection import detect_peak_neg
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.gradient.Gradients import Gradients
 from pyMEA.read.model.MEA import MEA
@@ -302,3 +303,10 @@ class FigMEA:
 
         """
         draw_line_conduction(self.data, self.electrode, peak_index, chs, isLoop, dpi)
+
+    def draw_line_conduction_from_base_ch(
+        self, peak_index: Peaks64, chs: list[int], base_ch: int, isLoop=True, dpi=300
+    ):
+        for divided_data in self.data.divide_data_to_beat_period(peak_index, base_ch):
+            peak = detect_peak_neg(divided_data)
+            draw_line_conduction(divided_data, self.electrode, peak, chs)

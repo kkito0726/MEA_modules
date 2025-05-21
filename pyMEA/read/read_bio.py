@@ -5,12 +5,13 @@ from numpy import float64
 from numpy._typing import NDArray
 
 from pyMEA.read.model.BioPath import BioPath
+from pyMEA.read.model.HedData import HedData
 from pyMEA.read.model.HedPath import HedPath
 from pyMEA.utils.decorators import time_validator
 
 
 # hedファイルの解読関数
-def decode_hed(hed_path: HedPath) -> tuple[int, int]:
+def decode_hed(hed_path: HedPath) -> HedData:
     # hedファイルを読み込む。
     hed_data = np.fromfile(hed_path.path, dtype="<h", sep="")
 
@@ -29,7 +30,7 @@ def decode_hed(hed_path: HedPath) -> tuple[int, int]:
 
     # サンプリングレートとゲインを返す。
     # hed_dataの要素16がrate、要素3がgainのキーとなる。
-    return rates[int(hed_data[16])], gains[int(hed_data[3])]
+    return HedData(SAMPLING_RATE=rates[int(hed_data[16])], GAIN=gains[int(hed_data[3])])
 
 
 # bioファイルを読み込む関数
@@ -97,7 +98,9 @@ def hed2array(hed_path: HedPath, start: int, end: int) -> NDArray[float64]:
         ]
     """
     # hedファイルからサンプリングレートとゲインを取得
-    samp, gain = decode_hed(hed_path)
+    hed_data = decode_hed(hed_path)
 
     bio_path = BioPath(os.path.splitext(hed_path.path)[0] + "0001.bio")
-    return read_bio(bio_path, start, end, sampling_rate=samp, gain=gain)
+    return read_bio(
+        bio_path, start, end, sampling_rate=hed_data.SAMPLING_RATE, gain=hed_data.GAIN
+    )

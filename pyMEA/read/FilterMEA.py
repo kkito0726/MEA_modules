@@ -2,20 +2,6 @@ import numpy as np
 
 from pyMEA.read.model.MEA import MEA
 
-
-class FilterMEA(MEA):
-    power_noise_freq: int = 50
-    steps: int = 10
-
-    def __post_init__(self):
-        super().__post_init__()
-        object.__setattr__(
-            self,
-            "array",
-            filter_by_moving_average(self, self.power_noise_freq, self.steps),
-        )
-
-
 """
 移動平均によってノイズ除去
 """
