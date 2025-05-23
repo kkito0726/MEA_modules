@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import cached_property
 from typing import Any
 
@@ -79,7 +79,7 @@ class MEA:
     def shape(self) -> tuple[int, ...]:
         return self.array.shape
 
-    def divide_data_to_beat_period(
+    def divide_data_to_beat_cycle(
         self, peak_index: Peaks64, base_ch: int, margin_time: float = 0.25
     ):
         result = []

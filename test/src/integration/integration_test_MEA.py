@@ -42,13 +42,16 @@ if __name__ == "__main__":
 
     # 2Dカラーマップ
     grads = mea.fig.draw_2d(neg_peak_index, dpi=100)
-    print(grads.r2s)
+    print([grad.r2 for grad in grads])
+    grads = mea.fig.draw_2d(neg_peak_index, 6, dpi=100)
+    print([grad.r2 for grad in grads])
 
     # 3Dカラーマップ
     mea.fig.draw_3d(neg_peak_index, dpi=100)
 
     # AMC経路カラーマップ
     mea.fig.draw_line_conduction(neg_peak_index, circuit_eles, isLoop=True, dpi=dpi)
+    mea.fig.draw_line_conduction(neg_peak_index, circuit_eles, 7, isLoop=True, dpi=dpi)
     mea.fig.draw_line_conduction(
         neg_peak_index, [9, 10, 11, 12, 13, 14, 15, 16], isLoop=False, dpi=dpi
     )

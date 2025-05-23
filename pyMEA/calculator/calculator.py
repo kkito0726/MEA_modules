@@ -5,8 +5,9 @@ import numpy as np
 from numpy import dtype, floating, ndarray
 
 from pyMEA.calculator.FPD import FPD
-from pyMEA.find_peaks.peak_detection import detect_peak_pos
+from pyMEA.find_peaks.peak_detection import detect_peak_neg, detect_peak_pos
 from pyMEA.find_peaks.peak_model import NegPeaks64, Peaks64, PosPeaks
+from pyMEA.gradient.Gradient import Gradient
 from pyMEA.gradient.Gradients import Gradients
 from pyMEA.read.model.MEA import MEA
 from pyMEA.utils.decorators import ch_validator
@@ -143,12 +144,13 @@ class Calculator:
             + (ele_dict[ch1][1] - ele_dict[ch2][1]) ** 2
         )
 
-    def gradient_velocity(self, peak_index: Peaks64, mesh_num=8):
+    def gradient_velocity(self, peak_index: Peaks64, base_ch=None, mesh_num=8):
         """
         速度ベクトルから計算した伝導速度 (m/s)を計算する
         ----------
         Args:
             peak_index: ピーク抽出結果
+            base_ch: 基準電極
             mesh_num: 何x何で計算するか
 
         Returns:
@@ -156,8 +158,19 @@ class Calculator:
         -------
 
         """
-        grads = Gradients(self.data, peak_index, self.ele_dis, mesh_num)
-        return np.array(grads.calc_velocity())
+        if base_ch:
+            # 基準電極が指定されていたらその電極の拍動周期ごとにピーク抽出する
+            results: list[Gradient] = []
+            for divided_data in self.data.divide_data_to_beat_cycle(
+                peak_index, base_ch
+            ):
+                peak = detect_peak_neg(divided_data)
+                grads = Gradients(self.data, peak, self.ele_dis, mesh_num)
+                results.append(*grads.gradients)
+            return np.array([result.calc_velocity() for result in results])
+        else:
+            grads = Gradients(self.data, peak_index, self.ele_dis, mesh_num)
+            return np.array(grads.calc_velocity())
 
     def __ele_dict(self) -> dict[int, tuple[int, ...]]:
         ele_dict = {}

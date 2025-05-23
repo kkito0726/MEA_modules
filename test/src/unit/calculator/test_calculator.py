@@ -69,6 +69,17 @@ class CalculatorTest(unittest.TestCase):
             for j, c in enumerate(cv):
                 self.assertEqual(truncate(expects[str(i)][j], 10), truncate(c, 10))
 
+    def test_速度ベクトルから伝導速度が正しく計算できる_拍動周期ごとにピーク抽出(self):
+        cvs = self.calc450.gradient_velocity(self.peak_index, 5)
+        expects = pd.read_csv(self.expect_gradient_velocity_path)
+        e_range = 1 * 10**-4
+        for i, cv in enumerate(cvs):
+            self.assertEqual(cv.shape, (64,))
+            for j, c in enumerate(cv):
+                diff = abs(truncate(expects[str(i)][j], 10) - truncate(c, 10))
+
+                self.assertTrue(diff < e_range)
+
     def test_電極番号を1から64の範囲外を指定するとき例外が発生する(self):
         with self.assertRaises(ValueError) as context:
             self.calc450.isi(self.peak_index, 65)
