@@ -6,8 +6,6 @@ from pyMEA.find_peaks.peak_detection import (
     detect_peak_neg,
     detect_peak_pos,
 )
-from pyMEA.read.CardioAveWave import CardioAveWave
-from pyMEA.read.FilterMEA import FilterMEA
 from pyMEA.read.model.MEA import MEA
 from pyMEA.read.model.MutableMEA import MutableMEA
 from pyMEA.read.read_MEA import read_MEA
@@ -20,8 +18,6 @@ __all__ = [
     "MutableMEA",
     "FigMEA",
     "Calculator",
-    "FilterMEA",
-    "CardioAveWave",
     "detect_peak_neg",
     "detect_peak_pos",
     "detect_peak_all",

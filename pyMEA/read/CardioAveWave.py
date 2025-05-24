@@ -6,27 +6,6 @@ from pyMEA.find_peaks.peak_model import NegPeaks64
 from pyMEA.read.model.MEA import MEA
 
 
-@dataclass(frozen=True)
-class CardioAveWave(MEA):
-    """
-    心筋波形の平均を取ってノイズを除去する
-    ----------
-    Args:
-        data: MEAデータ (MEAクラスのインスタンス)
-    """
-
-    front: float = 0.05
-    back: float = 0.3
-    distance: int = 3000
-
-    def __post_init__(self):
-        super().__post_init__()
-        neg_peaks = detect_peak_neg(self, self.distance)
-        object.__setattr__(
-            self, "array", calc_64_ave_waves(self, neg_peaks, self.front, self.back)
-        )
-
-
 # 1電極の平均波形を算出
 def calc_average_wave(data: MEA, neg_peaks: NegPeaks64, ele: int, front=500, end=3000):
     waves = np.array([data[ele][p - front : p + end] for p in neg_peaks[ele][1:-1]])
@@ -55,3 +34,12 @@ def calc_64_ave_waves(data: MEA, neg_peaks: NegPeaks64, front=0.05, end=0.3):
     ave_waves[0] = np.arange(len(ave_waves[1])) / data.SAMPLING_RATE
 
     return ave_waves
+
+
+# 心筋細胞の平均波形を出力
+def cardio_ave_wave_factory(data: MEA, front: float, back: float, distance: int) -> MEA:
+    neg_peaks = detect_peak_neg(data, distance)
+    ave_waves = calc_64_ave_waves(data, neg_peaks, front, back)
+    return MEA(
+        data.hed_path, data.start, data.end, data.SAMPLING_RATE, data.GAIN, ave_waves
+    )

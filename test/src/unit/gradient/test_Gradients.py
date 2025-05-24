@@ -1,9 +1,8 @@
 import unittest
 from test.utils import get_resource_path
 
-from pyMEA import detect_peak_neg
+from pyMEA import detect_peak_neg, read_MEA
 from pyMEA.gradient.Gradients import Gradients
-from pyMEA.read.model.MEA import MEA
 
 
 class MyTestCase(unittest.TestCase):
@@ -12,11 +11,11 @@ class MyTestCase(unittest.TestCase):
 
     def test_Gradientsが正しくインスタンス化される(self):
         start, end = 1, 2
-        data = MEA(self.path.__str__(), start, end)
-        peak_index = detect_peak_neg(data)
+        mea = read_MEA(self.path.__str__(), start, end, 450)
+        peak_index = detect_peak_neg(mea.data)
         ele_dis = 450
 
-        gradients = Gradients(data, peak_index, ele_dis)
+        gradients = Gradients(mea.data, peak_index, ele_dis)
 
         # 決定係数が計算されている
         for r2 in gradients.r2s:

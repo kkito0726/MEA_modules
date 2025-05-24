@@ -3,9 +3,8 @@ from test.utils import get_resource_path
 
 import pandas as pd
 
-from pyMEA import detect_peak_all, detect_peak_neg
+from pyMEA import detect_peak_all, detect_peak_neg, read_MEA
 from pyMEA.find_peaks.peak_detection import detect_peak_pos
-from pyMEA.read.model.MEA import MEA
 
 
 class MyTestCase(unittest.TestCase):
@@ -20,17 +19,17 @@ class MyTestCase(unittest.TestCase):
         self.expect_all_peak_index_path = get_resource_path(
             "expects/all_peak_index.csv"
         )
-        self.data = MEA(self.path.__str__(), 0, 5)
-        self.neg_peak_index = detect_peak_neg(self.data)
-        self.pos_peak_index = detect_peak_pos(self.data, height=(200, 50000))
-        self.all_peak_index = detect_peak_all(self.data)
+        self.mea = read_MEA(self.path.__str__(), 0, 5, 450)
+        self.neg_peak_index = detect_peak_neg(self.mea.data)
+        self.pos_peak_index = detect_peak_pos(self.mea.data, height=(200, 50000))
+        self.all_peak_index = detect_peak_all(self.mea.data)
 
     def test_下方向のピークを抽出できる(self):
         expects = pd.read_csv(self.expect_neg_peak_index_path)
         for ch in range(1, 65):
             for i, index in enumerate(self.neg_peak_index[ch]):
                 self.assertEqual(expects[str(ch)][i], index)
-            for value in self.data[ch][self.neg_peak_index[ch]]:
+            for value in self.mea.data[ch][self.neg_peak_index[ch]]:
                 self.assertTrue(value < -200)
 
     def test_上方向のピークを抽出できる(self):
@@ -38,7 +37,7 @@ class MyTestCase(unittest.TestCase):
         for ch in range(1, 65):
             for i, index in enumerate(self.pos_peak_index[ch]):
                 self.assertEqual(expects[str(ch)][i], index)
-            for value in self.data[ch][self.pos_peak_index[ch]]:
+            for value in self.mea.data[ch][self.pos_peak_index[ch]]:
                 self.assertTrue(value > 200)
 
     def test_上下両方向のピークを抽出できる(self):

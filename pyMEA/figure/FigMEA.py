@@ -7,8 +7,11 @@ from pyMEA.core.Electrode import Electrode
 from pyMEA.figure.plot.histogram import mkHist
 from pyMEA.figure.plot.plot import draw_line_conduction, showDetection
 from pyMEA.figure.plot.raster_plot import raster_plot
+from pyMEA.find_peaks.peak_detection import detect_peak_neg
 from pyMEA.find_peaks.peak_model import Peaks64
-from pyMEA.gradient.Gradients import Gradients
+from pyMEA.gradient.Gradient import Gradient
+from pyMEA.gradient.Gradients import Gradients, remove_undetected_ch
+from pyMEA.gradient.Solver import Solver
 from pyMEA.read.model.MEA import MEA
 from pyMEA.utils.decorators import channel
 
@@ -241,25 +244,40 @@ class FigMEA:
     def draw_2d(
         self,
         peak_index: Peaks64,
+        base_ch: int | None = None,
         mesh_num=100,  # mesh_num x mesh_numでデータを生成
         contour=False,  # 等高線で表示するかどうか
         isQuiver=True,  # 速度ベクトルを表示するかどうか
         dpi=300,
         cmap="jet",
-    ) -> Gradients:
+    ) -> list[Gradient]:
         """
         2Dカラーマップ描画
         Args:
             peak_index: ピーク抽出結果
+            base_ch: 基準電極
             mesh_num: mesh_num x mesh_numでデータを生成
             contour: 等高線で表示するかどうか
             isQuiver: 速度ベクトルを表示するかどうか
             dpi: 解像度
             cmap: カラーセット
         """
-        grads = Gradients(self.data, peak_index, self.electrode.ele_dis, mesh_num)
-        grads.draw_2d(contour, isQuiver, dpi=dpi, cmap=cmap)
-        return grads
+        if base_ch:
+            # 基準電極が指定されていたらその電極の拍動周期ごとにピーク抽出する
+            result = []
+            for divided_data in self.data.from_beat_cycles(peak_index, base_ch):
+                peak = detect_peak_neg(divided_data)
+                times, remove_ch = remove_undetected_ch(self.data, peak)
+                grad = Gradient(
+                    Solver(times[0], remove_ch, self.electrode.ele_dis, mesh_num)
+                )
+                grad.draw2d(contour, isQuiver, dpi=dpi, cmap=cmap)
+                result.append(grad)
+            return result
+        else:
+            grads = Gradients(self.data, peak_index, self.electrode.ele_dis, mesh_num)
+            grads.draw_2d(contour, isQuiver, dpi=dpi, cmap=cmap)
+            return grads.gradients
 
     def draw_3d(
         self,
@@ -285,20 +303,38 @@ class FigMEA:
         return grads
 
     def draw_line_conduction(
-        self, peak_index: Peaks64, chs: list[int], isLoop=True, dpi=300
-    ):
+        self,
+        peak_index: Peaks64,
+        chs: list[int],
+        base_ch: int | None = None,
+        isLoop=True,
+        dpi=300,
+    ) -> None:
         """
         ライン状心筋細胞ネットワークのカラーマップ描画
         電極番号の配列の順番は経路がつながっている順番になるようにすること
         ----------
         Parameters
-            data: MEA計測データ
             peak_index: ピーク抽出結果
-            chs: 電極番号の配列
+            chs: AMCの電極番号配列
+            base_ch: 基準電極
             isLoop: 経路が環状かどうか
             dpi: 解像度
 
         -------
 
         """
-        draw_line_conduction(self.data, self.electrode, peak_index, chs, isLoop, dpi)
+        if base_ch:
+            # 基準電極が指定されていたらその電極の拍動周期ごとにピーク抽出する
+            if not base_ch in chs:
+                raise ValueError("基準電極はAMC内の電極から選択してください")
+
+            for divided_data in self.data.from_beat_cycles(peak_index, base_ch):
+                peak = detect_peak_neg(divided_data)
+                draw_line_conduction(
+                    divided_data, self.electrode, peak, chs, isLoop, dpi
+                )
+        else:
+            draw_line_conduction(
+                self.data, self.electrode, peak_index, chs, isLoop, dpi
+            )

@@ -5,11 +5,8 @@ from test.utils import get_resource_path
 import numpy as np
 import pandas as pd
 
-from pyMEA import detect_peak_neg
+from pyMEA import detect_peak_neg, read_MEA
 from pyMEA.calculator.calculator import Calculator
-from pyMEA.core.Electrode import Electrode
-from pyMEA.figure.FigMEA import FigMEA
-from pyMEA.read.model.MEA import MEA
 
 
 class CalculatorTest(unittest.TestCase):
@@ -18,10 +15,10 @@ class CalculatorTest(unittest.TestCase):
         self.expect_gradient_velocity_path = get_resource_path(
             "expects/gradient_velocity.csv"
         )
-        self.data = MEA(self.path.__str__(), 0, 5)
-        self.peak_index = detect_peak_neg(self.data)
-        self.calc450 = Calculator(self.data, 450)
-        self.calc150 = Calculator(self.data, 150)
+        self.mea = read_MEA(self.path.__str__(), 0, 5, 450)
+        self.peak_index = detect_peak_neg(self.mea.data)
+        self.calc450 = Calculator(self.mea.data, 450)
+        self.calc150 = Calculator(self.mea.data, 150)
 
     def test_ISIが正しく計算できる(self):
         isi = self.calc450.isi(self.peak_index, 32)
@@ -71,6 +68,17 @@ class CalculatorTest(unittest.TestCase):
             self.assertEqual(cv.shape, (64,))
             for j, c in enumerate(cv):
                 self.assertEqual(truncate(expects[str(i)][j], 10), truncate(c, 10))
+
+    def test_速度ベクトルから伝導速度が正しく計算できる_拍動周期ごとにピーク抽出(self):
+        cvs = self.calc450.gradient_velocity(self.peak_index, 5)
+        expects = pd.read_csv(self.expect_gradient_velocity_path)
+        e_range = 1 * 10**-4
+        for i, cv in enumerate(cvs):
+            self.assertEqual(cv.shape, (64,))
+            for j, c in enumerate(cv):
+                diff = abs(truncate(expects[str(i)][j], 10) - truncate(c, 10))
+
+                self.assertTrue(diff < e_range)
 
     def test_電極番号を1から64の範囲外を指定するとき例外が発生する(self):
         with self.assertRaises(ValueError) as context:

@@ -1,7 +1,7 @@
 import unittest
 from test.utils import get_resource_path
 
-from pyMEA import CardioAveWave
+from pyMEA import FilterType, read_MEA
 
 
 class MyTestCase(unittest.TestCase):
@@ -11,9 +11,9 @@ class MyTestCase(unittest.TestCase):
         self.back = 0.3
 
     def test_心筋細胞の波形データから平均波形を算出する(self):
-        data = CardioAveWave(self.path.__str__(), 0, 5)
+        mea = read_MEA(self.path.__str__(), 0, 5, 450, FilterType.CARDIO_AVE_WAVE)
         self.assertEqual(
-            (65, int((self.front + self.back) * data.SAMPLING_RATE)), data.shape
+            (65, int((self.front + self.back) * mea.data.SAMPLING_RATE)), mea.data.shape
         )
 
 

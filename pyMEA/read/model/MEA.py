@@ -1,12 +1,12 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import cached_property
 from typing import Any
 
 from numpy import float64, ndarray
 from numpy._typing import NDArray
 
+from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.read.model.HedPath import HedPath
-from pyMEA.read.read_bio import decode_hed, hed2array
 
 
 @dataclass(frozen=True)
@@ -20,25 +20,20 @@ class MEA:
         end: 読み込み終了時間 (s)
     """
 
-    hed_path: str
-    start: int = 0
-    end: int = 120
-    SAMPLING_RATE: int = field(init=False)
-    GAIN: int = field(init=False)
-    array: NDArray[float64] = field(init=False)
+    hed_path: HedPath
+    start: int
+    end: int
+    SAMPLING_RATE: int
+    GAIN: int
+    array: NDArray[float64]
 
     def __post_init__(self):
-        hed_path = HedPath(self.hed_path)
-        SAMPLING_RATE, GAIN = decode_hed(hed_path)
-        array = hed2array(hed_path, self.start, self.end)
-        object.__setattr__(self, "SAMPLING_RATE", SAMPLING_RATE)
-        object.__setattr__(self, "GAIN", GAIN)
-
-        # object.__setattr__ を使って frozen dataclass の内部を書き換える
-        object.__setattr__(self, "array", self._freeze_array(array))
+        self.array.setflags(write=False)
+        # self.array に対して副作用を与えないようコピーして freeze
+        object.__setattr__(self, "array", self._freeze_array(self.array.copy()))
 
     @staticmethod
-    def _freeze_array(arr: ndarray[Any]) -> ndarray[Any]:
+    def _freeze_array(arr) -> ndarray[Any]:
         arr.setflags(write=False)
         return arr
 
@@ -88,3 +83,40 @@ class MEA:
     @property
     def shape(self) -> tuple[int, ...]:
         return self.array.shape
+
+    def from_slice(self, start_frame: int | float, end_frame: int | float):
+        return MEA(
+            self.hed_path,
+            self.start,
+            self.end,
+            self.SAMPLING_RATE,
+            self.GAIN,
+            self.array[:, int(start_frame) : int(end_frame)],
+        )
+
+    def from_beat_cycles(
+        self, peak_index: Peaks64, base_ch: int, margin_time: float = 0.25
+    ):
+        """
+        拍動周期ごとのデータに分割してMEAクラスのリストとして返す
+        Parameters
+        ----------
+        peak_index: 読み込みデータ全体のピーク抽出結果
+        base_ch: 基準電極
+        margin_time: ピークの前後何秒を拍動周期とするか
+
+        Returns list[MEA]
+        -------
+
+        """
+        result: list[MEA] = []
+        half_window = int(margin_time * self.SAMPLING_RATE)
+        base_peaks = peak_index[base_ch]
+        total_frames = self.array.shape[1]
+
+        for peak in base_peaks:
+            start = max(0, peak - half_window)
+            end = min(total_frames, peak + half_window)
+            result.append(self.from_slice(start, end))
+
+        return result
