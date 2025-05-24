@@ -161,7 +161,7 @@ class Calculator:
         if base_ch:
             # 基準電極が指定されていたらその電極の拍動周期ごとにピーク抽出する
             results: list[Gradient] = []
-            for divided_data in self.data.divide_data_to_beat_cycle(
+            for divided_data in self.data.from_beat_cycles(
                 peak_index, base_ch
             ):
                 peak = detect_peak_neg(divided_data)

@@ -27,8 +27,13 @@ class MEA:
     GAIN: int
     array: NDArray[float64]
 
+    def __post_init__(self):
+        self.array.setflags(write=False)
+        # self.array に対して副作用を与えないようコピーして freeze
+        object.__setattr__(self, 'array', self._freeze_array(self.array.copy()))
+
     @staticmethod
-    def _freeze_array(arr: ndarray[Any]) -> ndarray[Any]:
+    def _freeze_array(arr) -> ndarray[Any]:
         arr.setflags(write=False)
         return arr
 
@@ -79,10 +84,32 @@ class MEA:
     def shape(self) -> tuple[int, ...]:
         return self.array.shape
 
-    def divide_data_to_beat_cycle(
+    def from_slice(self, start_frame: int | float, end_frame: int | float):
+        return MEA(
+            self.hed_path,
+            self.start,
+            self.end,
+            self.SAMPLING_RATE,
+            self.GAIN,
+            self.array[:, int(start_frame) : int(end_frame)],
+        )
+
+    def from_beat_cycles(
         self, peak_index: Peaks64, base_ch: int, margin_time: float = 0.25
     ):
-        result = []
+        """
+        拍動周期ごとのデータに分割してMEAクラスのリストとして返す
+        Parameters
+        ----------
+        peak_index: 読み込みデータ全体のピーク抽出結果
+        base_ch: 基準電極
+        margin_time: ピークの前後何秒を拍動周期とするか
+
+        Returns list[MEA]
+        -------
+
+        """
+        result: list[MEA] = []
         half_window = int(margin_time * self.SAMPLING_RATE)
         base_peaks = peak_index[base_ch]
         total_frames = self.array.shape[1]
@@ -90,15 +117,6 @@ class MEA:
         for peak in base_peaks:
             start = max(0, peak - half_window)
             end = min(total_frames, peak + half_window)
-            result.append(
-                MEA(
-                    self.hed_path,
-                    self.start,
-                    self.end,
-                    self.SAMPLING_RATE,
-                    self.GAIN,
-                    self.array[:, start:end],
-                )
-            )
+            result.append(self.from_slice(start, end))
 
         return result

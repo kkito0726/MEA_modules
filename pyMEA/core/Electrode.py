@@ -35,6 +35,16 @@ class Electrode:
 
     @ch_validator
     def get_coordinate(self, ch: int) -> tuple[NDArray[float64], NDArray[float64]]:
+        """
+        指定した電極の座標を取得するメソッド
+        Parameters
+        ----------
+        ch: 電極番号
+
+        Returns
+        -------
+
+        """
         mesh = self.get_electrode_mesh
         x = mesh[0][(ch - 1) // 8][(ch - 1) % 8]
         y = mesh[1][(ch - 1) // 8][(ch - 1) % 8]

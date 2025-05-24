@@ -265,7 +265,7 @@ class FigMEA:
         if base_ch:
             # 基準電極が指定されていたらその電極の拍動周期ごとにピーク抽出する
             result = []
-            for divided_data in self.data.divide_data_to_beat_cycle(
+            for divided_data in self.data.from_beat_cycles(
                 peak_index, base_ch
             ):
                 peak = detect_peak_neg(divided_data)
@@ -280,7 +280,6 @@ class FigMEA:
             grads = Gradients(self.data, peak_index, self.electrode.ele_dis, mesh_num)
             grads.draw_2d(contour, isQuiver, dpi=dpi, cmap=cmap)
             return grads.gradients
-
 
     def draw_3d(
         self,
@@ -332,7 +331,7 @@ class FigMEA:
             if not base_ch in chs:
                 raise ValueError("基準電極はAMC内の電極から選択してください")
 
-            for divided_data in self.data.divide_data_to_beat_cycle(
+            for divided_data in self.data.from_beat_cycles(
                 peak_index, base_ch
             ):
                 peak = detect_peak_neg(divided_data)
