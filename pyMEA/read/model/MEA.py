@@ -30,7 +30,7 @@ class MEA:
     def __post_init__(self):
         self.array.setflags(write=False)
         # self.array に対して副作用を与えないようコピーして freeze
-        object.__setattr__(self, 'array', self._freeze_array(self.array.copy()))
+        object.__setattr__(self, "array", self._freeze_array(self.array.copy()))
 
     @staticmethod
     def _freeze_array(arr) -> ndarray[Any]:
