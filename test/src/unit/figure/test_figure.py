@@ -1,8 +1,4 @@
 import unittest
-
-from pyMEA.read.model.MEA import MEA
-
-from pyMEA.figure.plot.plot import circuit_eles
 from test.utils import get_resource_path
 from unittest.mock import MagicMock, patch
 
@@ -11,7 +7,9 @@ import numpy as np
 from pyMEA import read_MEA
 from pyMEA.core.Electrode import Electrode
 from pyMEA.figure.FigMEA import FigMEA
+from pyMEA.figure.plot.plot import circuit_eles
 from pyMEA.find_peaks.peak_detection import detect_peak_neg
+from pyMEA.read.model.MEA import MEA
 
 
 class MyTestCase(unittest.TestCase):
@@ -48,24 +46,34 @@ class MyTestCase(unittest.TestCase):
 
     @patch("matplotlib.pyplot.show")
     def test_AMC経路のカラーマップ描画(self, mock_show: MagicMock):
-        original_method = self.fm.data.divide_data_to_beat_cycle
-        with patch.object(MEA, "divide_data_to_beat_cycle", side_effect=original_method) as mock_method:
+        original_method = self.fm.data.from_beat_cycles
+        with patch.object(
+            MEA, "from_beat_cycles", side_effect=original_method
+        ) as mock_method:
             self.fm.draw_line_conduction(self.peak_index, circuit_eles)
         mock_method.assert_not_called()
         mock_show.assert_called_once()
 
     @patch("matplotlib.pyplot.show")
-    def test_AMC経路のカラーマップ描画_拍動周期ごとにピーク抽出(self, mock_show: MagicMock):
-        original_method = self.fm.data.divide_data_to_beat_cycle
-        with patch.object(MEA, "divide_data_to_beat_cycle", side_effect=original_method) as mock_method:
+    def test_AMC経路のカラーマップ描画_拍動周期ごとにピーク抽出(
+        self, mock_show: MagicMock
+    ):
+        original_method = self.fm.data.from_beat_cycles
+        with patch.object(
+            MEA, "from_beat_cycles", side_effect=original_method
+        ) as mock_method:
             self.fm.draw_line_conduction(self.peak_index, circuit_eles, 8)
         mock_method.assert_called()
         mock_show.assert_called_once()
 
-    def test_AMC経路のカラーマップ描画するときにAMC電極以外の電極が基準電極に指定される時エラーになる(self):
+    def test_AMC経路のカラーマップ描画するときにAMC電極以外の電極が基準電極に指定される時エラーになる(
+        self,
+    ):
         with self.assertRaises(ValueError) as context:
             self.fm.draw_line_conduction(self.peak_index, circuit_eles, 18)
-        self.assertEqual("基準電極はAMC内の電極から選択してください", str(context.exception))
+        self.assertEqual(
+            "基準電極はAMC内の電極から選択してください", str(context.exception)
+        )
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ from pyMEA import read_MEA
 class MEATest(unittest.TestCase):
     def setUp(self):
         self.path = get_resource_path("230615_day2_test_5s_.hed")
+        self.mea = read_MEA(self.path.__str__(), 0, 5, 450)
 
     def test_hedファイルからMEA計測データの読み込みができる(self):
         start, end = 1, 2
@@ -62,6 +63,19 @@ GAIN           : {mea.data.GAIN}""",
         with self.assertRaises(ValueError) as context:
             read_MEA("/User/your/mea_data.bio", 0, 5, 450)
         self.assertEqual(".hedファイルのパスを入力してください", str(context.exception))
+
+    def test_電位データを書き換えようとする場合_例外を発生する(self):
+        with self.assertRaises(ValueError) as context:
+            self.mea.data.array[5][200:300] = 0
+        self.assertEqual("assignment destination is read-only", str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            self.mea.data[16][200:300] = 0
+        self.assertEqual("assignment destination is read-only", str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            self.mea[58][200:300] = 0
+        self.assertEqual("assignment destination is read-only", str(context.exception))
 
 
 if __name__ == "__main__":
