@@ -1,5 +1,3 @@
-from pyMEA.read.read_MEA import read_MEA
-
 # MEA_modules
 A Python library for analyzing recording data acquired with multi electrode array (MEA) system
 
