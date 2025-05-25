@@ -1,3 +1,4 @@
+import io
 from dataclasses import dataclass, field
 from functools import cached_property
 
@@ -7,6 +8,7 @@ from numpy import float64
 from numpy._typing import NDArray
 
 from pyMEA.gradient.Solver import Solver
+from pyMEA.utils.decorators import output_buf
 
 
 @dataclass(frozen=True)
@@ -37,6 +39,7 @@ class Gradient:
     def calc_velocity(self) -> NDArray[float64]:
         return np.sqrt(self.vx**2 + self.vy**2).ravel() * 10**-6  # μm/s -> m/sに変換
 
+    @output_buf
     def draw2d(
         self,
         contour=False,
@@ -46,7 +49,8 @@ class Gradient:
         clabel="Δt (ms)",
         dpi=300,
         cmap="jet",
-    ) -> None:
+        isBuf=False,
+    ):
         # グラフにプロットする
         fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(111)
@@ -92,15 +96,8 @@ class Gradient:
         plt.xticks(np.arange(0, self.solver.ele_dis * 7 + 1, self.solver.ele_dis))
         plt.yticks(np.arange(0, self.solver.ele_dis * 7 + 1, self.solver.ele_dis))
 
-        plt.show()
-
-    def draw_3d(
-        self,
-        xlabel="",
-        ylabel="",
-        clabel="",
-        dpi=300,
-    ) -> None:
+    @output_buf
+    def draw_3d(self, xlabel="", ylabel="", clabel="", dpi=300, isBuf=False):
         fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(111, projection="3d")
         c = ax.plot_surface(
@@ -115,7 +112,6 @@ class Gradient:
         plt.yticks(np.arange(0, self.solver.ele_dis * 7 + 1, self.solver.ele_dis))
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
-        plt.show()
 
 
 def grad_model(

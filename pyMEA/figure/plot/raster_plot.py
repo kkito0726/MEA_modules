@@ -3,8 +3,10 @@ import numpy as np
 
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.read.model.MEA import MEA
+from pyMEA.utils.decorators import output_buf
 
 
+@output_buf
 def raster_plot(
     MEA_data: MEA,
     peak_index: Peaks64,
@@ -14,7 +16,8 @@ def raster_plot(
     start=0,
     end=120,
     dpi=300,
-) -> None:
+    isBuf=False,
+):
     plt.figure(figsize=figsize, dpi=dpi)
     for i, ele in enumerate(eles):
         plt.plot(
@@ -36,4 +39,3 @@ def raster_plot(
     plt.xlabel("Time (s)")
     plt.ylabel("Electrode Number")
     plt.tight_layout()
-    plt.show()

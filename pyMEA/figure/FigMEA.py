@@ -1,3 +1,4 @@
+import io
 from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
@@ -13,7 +14,7 @@ from pyMEA.gradient.Gradient import Gradient
 from pyMEA.gradient.Gradients import Gradients, remove_undetected_ch
 from pyMEA.gradient.Solver import Solver
 from pyMEA.read.model.MEA import MEA
-from pyMEA.utils.decorators import channel
+from pyMEA.utils.decorators import channel, output_buf
 
 
 @dataclass(frozen=True)
@@ -30,8 +31,16 @@ class FigMEA:
 
         return start, end
 
+    @output_buf
     def showAll(
-        self, start=None, end=5, volt_min=-200, volt_max=200, figsize=(8, 8), dpi=300
+        self,
+        start=None,
+        end=5,
+        volt_min=-200,
+        volt_max=200,
+        figsize=(8, 8),
+        dpi=300,
+        isBuf=False,
     ) -> None:
         """
         64電極すべての波形を描画する
@@ -43,6 +52,7 @@ class FigMEA:
             volt_max: プラス電位 [μV]
             figsize: figのアスペクト比
             dpi: 解像度
+            isBuf: グラフ画像を返すかどうか
         """
         # 時間の設定がない場合はデータの最初から5秒間をプロットする。
         if start is None:
@@ -63,9 +73,8 @@ class FigMEA:
             )
             plt.ylim(volt_min, volt_max)
 
-        plt.show()
-
     @channel
+    @output_buf
     def showSingle(
         self,
         ch: int,
@@ -77,7 +86,8 @@ class FigMEA:
         dpi=None,
         xlabel="Time (s)",
         ylabel="Voltage (μV)",
-    ) -> None:
+        isBuf=False,
+    ):
         """
         1電極の波形を描画する
 
@@ -91,6 +101,7 @@ class FigMEA:
             dpi: 解像度
             xlabel: X軸ラベル
             ylabel: Y軸ラベル
+            isBuf: グラフ画像を返すかどうか
         """
         start, end = self._set_times(start, end)
 
@@ -108,9 +119,8 @@ class FigMEA:
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
 
-        plt.show()
-
     @channel
+    @output_buf
     def plotPeaks(
         self,
         ch: int,
@@ -123,6 +133,7 @@ class FigMEA:
         dpi=None,
         xlabel="Time (s)",
         ylabel="Voltage (μV)",
+        isBuf=False
     ) -> None:
         """
         1電極の波形とピークの位置をプロット
@@ -138,6 +149,7 @@ class FigMEA:
             dpi: 解像度
             xlabel: X軸ラベル
             ylabel: Y軸ラベル
+            isBuf: グラフ画像を返すかどうか
         """
         start, end = self._set_times(start, end)
 
@@ -165,8 +177,6 @@ class FigMEA:
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
 
-        plt.show()
-
     def showDetection(
         self,
         eles: list[int],
@@ -177,12 +187,13 @@ class FigMEA:
         xlabel="Time (s)",
         ylabel="Electrode Number",
         dpi=300,
-    ) -> None:
+        isBuf=False,
+    ) -> io.BytesIO | None:
         start, end = self._set_times(start, end)
         # 読み込み開始時間が途中からの場合のズレを解消する
         start = abs(start - self.data.start)
         end = abs(end - self.data.start)
-        showDetection(
+        buf: io.BytesIO = showDetection(
             MEA_raw=self.data,
             eles=eles,
             start=start,
@@ -194,7 +205,10 @@ class FigMEA:
             xlabel=xlabel,
             ylabel=ylabel,
             dpi=dpi,
+            isBuf=isBuf,
         )
+
+        return buf
 
     def raster_plot(
         self,
@@ -205,9 +219,10 @@ class FigMEA:
         start=None,
         end=None,
         dpi=300,
-    ) -> None:
+        isBuf=False,
+    ) -> io.BytesIO | None:
         start, end = self._set_times(start, end)
-        raster_plot(
+        return raster_plot(
             MEA_data=self.data,
             peak_index=peak_index,
             eles=eles,
@@ -216,6 +231,7 @@ class FigMEA:
             start=start,
             end=end,
             dpi=dpi,
+            isBuf=isBuf,
         )
 
     def mkHist(
@@ -227,7 +243,8 @@ class FigMEA:
         start=None,
         end=None,
         dpi=300,
-    ) -> ndarray:
+        isBuf=False,
+    ) -> io.BytesIO | ndarray:
         start, end = self._set_times(start, end)
         return mkHist(
             MEA_data=self.data,
@@ -239,6 +256,7 @@ class FigMEA:
             start=start,
             end=end,
             dpi=dpi,
+            isBuf=isBuf,
         )
 
     def draw_2d(
@@ -250,7 +268,8 @@ class FigMEA:
         isQuiver=True,  # 速度ベクトルを表示するかどうか
         dpi=300,
         cmap="jet",
-    ) -> list[Gradient]:
+        isBuf=False,
+    ) -> list[io.BytesIO | Gradient]:
         """
         2Dカラーマップ描画
         Args:
@@ -261,6 +280,7 @@ class FigMEA:
             isQuiver: 速度ベクトルを表示するかどうか
             dpi: 解像度
             cmap: カラーセット
+            isBuf: グラフ画像を返すかどうか
         """
         if base_ch:
             # 基準電極が指定されていたらその電極の拍動周期ごとにピーク抽出する
@@ -271,13 +291,24 @@ class FigMEA:
                 grad = Gradient(
                     Solver(times[0], remove_ch, self.electrode.ele_dis, mesh_num)
                 )
-                grad.draw2d(contour, isQuiver, dpi=dpi, cmap=cmap)
-                result.append(grad)
+                buf: io.BytesIO = grad.draw2d(
+                    contour, isQuiver, dpi=dpi, cmap=cmap, isBuf=isBuf
+                )
+
+                if isBuf:
+                    result.append(buf)
+                else:
+                    result.append(grad)
             return result
+
         else:
             grads = Gradients(self.data, peak_index, self.electrode.ele_dis, mesh_num)
-            grads.draw_2d(contour, isQuiver, dpi=dpi, cmap=cmap)
-            return grads.gradients
+            buf_list = grads.draw_2d(contour, isQuiver, dpi=dpi, cmap=cmap, isBuf=isBuf)
+
+            if isBuf:
+                return buf_list
+            else:
+                return grads.gradients
 
     def draw_3d(
         self,
@@ -287,7 +318,8 @@ class FigMEA:
         ylabel="Y (μm)",
         clabel="Δt (ms)",
         dpi=300,
-    ) -> Gradients:
+        isBuf=False,
+    ) -> list[io.BytesIO] | Gradients:
         """
         3Dカラーマップ描画
         Args:
@@ -297,10 +329,15 @@ class FigMEA:
             ylabel: Y軸ラベル
             clabel: カラーバーラベル
             dpi: 解像度
+            isBuf: グラフ画像を返すかどうか
         """
         grads = Gradients(self.data, peak_index, self.electrode.ele_dis, mesh_num)
-        grads.draw_3d(xlabel, ylabel, clabel, dpi)
-        return grads
+        buf_list = grads.draw_3d(xlabel, ylabel, clabel, dpi, isBuf=isBuf)
+
+        if isBuf:
+            return buf_list
+        else:
+            return grads
 
     def draw_line_conduction(
         self,
@@ -309,7 +346,8 @@ class FigMEA:
         base_ch: int | None = None,
         isLoop=True,
         dpi=300,
-    ) -> None:
+        isBuf=False,
+    ) -> list[list[io.BytesIO]] | list[io.BytesIO] | None:
         """
         ライン状心筋細胞ネットワークのカラーマップ描画
         電極番号の配列の順番は経路がつながっている順番になるようにすること
@@ -320,6 +358,7 @@ class FigMEA:
             base_ch: 基準電極
             isLoop: 経路が環状かどうか
             dpi: 解像度
+            isBuf: グラフ画像を返すかどうか
 
         -------
 
@@ -329,12 +368,26 @@ class FigMEA:
             if not base_ch in chs:
                 raise ValueError("基準電極はAMC内の電極から選択してください")
 
+            result = []
             for divided_data in self.data.from_beat_cycles(peak_index, base_ch):
                 peak = detect_peak_neg(divided_data)
-                draw_line_conduction(
-                    divided_data, self.electrode, peak, chs, isLoop, dpi
+                result.append(
+                    draw_line_conduction(
+                        divided_data,
+                        self.electrode,
+                        peak,
+                        chs,
+                        isLoop,
+                        dpi,
+                        isBuf=isBuf,
+                    )
                 )
+            if isBuf:
+                return result
         else:
-            draw_line_conduction(
-                self.data, self.electrode, peak_index, chs, isLoop, dpi
+            buf_list = draw_line_conduction(
+                self.data, self.electrode, peak_index, chs, isLoop, dpi, isBuf=isBuf
             )
+
+            if isBuf:
+                return buf_list
