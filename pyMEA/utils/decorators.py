@@ -1,5 +1,8 @@
 import inspect
+import io
 from functools import wraps
+
+import matplotlib.pyplot as plt
 
 
 def channel(func):
@@ -10,38 +13,43 @@ def channel(func):
             ch = args[1]
         print(f"ch {ch}")
 
-        func(*args, **kwargs)
+        result = func(*args, **kwargs)
 
         print("=====================")
+        return result
 
     return wrapper
 
 
 def ch_validator(func):
     def wrapper(*args, **kwargs):
-        # 関数のシグネチャを取得
-        sig = inspect.signature(func)
-        params = sig.parameters
+        ch = get_argument(func, args, kwargs, "ch")
 
-        # 位置引数とキーワード引数の両方で 'ch' で始まる引数を探す
-        param_names = list(params.keys())
-        for i, param_name in enumerate(param_names):
-            if param_name.startswith("ch"):
-                # キーワード引数として存在するか確認
-                ch = kwargs.get(param_name)
-
-                # 位置引数として存在するか確認
-                if ch is None and i < len(args):
-                    ch = args[i]
-
-                # 'ch' のバリデーション
-                if ch is not None:
-                    if not (1 <= ch <= 64):
-                        raise ValueError(f"{param_name}は1-64の整数で入力してください")
+        # 'ch' のバリデーション
+        if ch is not None:
+            if not (1 <= ch <= 64):
+                raise ValueError(f"chは1-64の整数で入力してください")
 
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def get_argument(func, args, kwargs, arg_name):
+    sig = inspect.signature(func)
+    params = list(sig.parameters.keys())
+
+    if arg_name in kwargs:
+        return kwargs[arg_name]
+
+    try:
+        index = params.index(arg_name)
+        if index < len(args):
+            return args[index]
+    except ValueError:
+        pass
+
+    return None
 
 
 def time_validator(func):
@@ -66,5 +74,25 @@ def time_validator(func):
 
         # 条件を満たしていれば関数を実行
         return func(*args, **kwargs)
+
+    return wrapper
+
+
+def output_buf(func):
+    def wrapper(*args, **kwargs):
+        isBuf = get_argument(func, args, kwargs, "isBuf")
+        # 描画実行
+        result = func(*args, **kwargs)
+
+        if isBuf:
+            buf = io.BytesIO()
+            plt.savefig(buf, format="png", bbox_inches='tight')
+            buf.seek(0)
+            plt.close()
+            return buf
+        else:
+            plt.show()
+            plt.close()
+            return result
 
     return wrapper

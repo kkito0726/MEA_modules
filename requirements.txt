@@ -9,6 +9,7 @@ debugpy
 decorator
 executing
 fonttools
+imageio
 importlib-metadata
 importlib-resources
 ipykernel

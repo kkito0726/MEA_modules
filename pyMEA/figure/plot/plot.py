@@ -1,3 +1,4 @@
+import io
 import statistics
 from typing import List
 
@@ -10,6 +11,7 @@ from scipy.interpolate import interp1d, splev, splprep
 from pyMEA.core.Electrode import Electrode
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.read.model.MEA import MEA
+from pyMEA.utils.decorators import output_buf
 
 circuit_eles = [
     1,
@@ -100,6 +102,7 @@ def circuit(
 
 
 # 任意の電極データを一つのグラフに表示
+@output_buf
 def showDetection(
     MEA_raw: MEA,
     eles: List[int],
@@ -112,7 +115,8 @@ def showDetection(
     xlabel="Time (s)",
     ylabel="Electrode Number",
     dpi=300,
-) -> None:
+    isBuf=False,
+):
     MEA_data = []
     for ele in eles:
         MEA_data.append(MEA_raw[ele])
@@ -137,7 +141,6 @@ def showDetection(
     plt.ylim(-1, len(eles))
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    # plt.show()
 
 
 def draw_line_conduction(
@@ -147,49 +150,57 @@ def draw_line_conduction(
     chs: list[int],
     isLoop=True,
     dpi=300,
-):
+    isBuf=False,
+) -> list[io.BytesIO] | None:
     times, chs = remove_undetected_ch(data, peak_index, chs)
     # 各拍動周期について処理していく
-    for time in times:
-        t = time - time.min()
-        t = t * 10**3  # 単位をmsに変換
+    buf_list: list[io.BytesIO | None] = [
+        draw_line(time, chs, electrode, isLoop, dpi, isBuf=isBuf) for time in times
+    ]
+    if isBuf:
+        return buf_list
 
-        x_fine, y_fine, t_fine = linear_interpolation_path(
-            chs, t, electrode, isLoop=isLoop
-        )
 
-        # === 線分生成 ===
-        points = np.array([x_fine, y_fine]).T.reshape(-1, 1, 2)
-        segments = np.concatenate([points[:-1], points[1:]], axis=1)
+@output_buf
+def draw_line(
+    time, chs: list[int], electrode: Electrode, isLoop: bool, dpi: int, isBuf=False
+):
+    t = time - time.min()
+    t = t * 10**3  # 単位をmsに変換
 
-        # === グラデーション表示 ===
-        norm = plt.Normalize(t.min(), t.max())
-        lc = LineCollection(segments, cmap="jet", norm=norm, zorder=5)
-        lc.set_array(t_fine[:-1])
-        lc.set_linewidth(3)
+    x_fine, y_fine, t_fine = linear_interpolation_path(chs, t, electrode, isLoop=isLoop)
 
-        # === 描画 ===
-        fig = plt.figure(dpi=dpi)
-        ax = fig.add_subplot(111)
-        line = ax.add_collection(lc)
-        fig.colorbar(line, ax=ax, label="Δt (ms)")
+    # === 線分生成 ===
+    points = np.array([x_fine, y_fine]).T.reshape(-1, 1, 2)
+    segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
-        # === メッシュ表示 ===
-        mx, my = electrode.get_electrode_mesh
-        plt.scatter(mx, my, marker=",", color="grey", zorder=10)
+    # === グラデーション表示 ===
+    norm = plt.Normalize(t.min(), t.max())
+    lc = LineCollection(segments, cmap="jet", norm=norm, zorder=5)
+    lc.set_array(t_fine[:-1])
+    lc.set_linewidth(3)
 
-        ele_range = electrode.ele_dis * 7
-        margin_ratio = 0.05
+    # === 描画 ===
+    fig = plt.figure(dpi=dpi)
+    ax = fig.add_subplot(111)
+    line = ax.add_collection(lc)
+    fig.colorbar(line, ax=ax, label="Δt (ms)")
 
-        ax.set_xlim(0 - ele_range * margin_ratio, ele_range + ele_range * margin_ratio)
-        ax.set_ylim(0 - ele_range * margin_ratio, ele_range + ele_range * margin_ratio)
+    # === メッシュ表示 ===
+    mx, my = electrode.get_electrode_mesh
+    plt.scatter(mx, my, marker=",", color="grey", zorder=10)
 
-        ax.set_aspect("equal")
-        plt.xlabel("X (μm)")
-        plt.ylabel("Y (μm)")
-        plt.xticks(np.arange(0, electrode.ele_dis * 7 + 1, electrode.ele_dis))
-        plt.yticks(np.arange(0, electrode.ele_dis * 7 + 1, electrode.ele_dis))
-        plt.show()
+    ele_range = electrode.ele_dis * 7
+    margin_ratio = 0.05
+
+    ax.set_xlim(0 - ele_range * margin_ratio, ele_range + ele_range * margin_ratio)
+    ax.set_ylim(0 - ele_range * margin_ratio, ele_range + ele_range * margin_ratio)
+
+    ax.set_aspect("equal")
+    plt.xlabel("X (μm)")
+    plt.ylabel("Y (μm)")
+    plt.xticks(np.arange(0, electrode.ele_dis * 7 + 1, electrode.ele_dis))
+    plt.yticks(np.arange(0, electrode.ele_dis * 7 + 1, electrode.ele_dis))
 
 
 def linear_interpolation_path(

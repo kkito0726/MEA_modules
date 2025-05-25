@@ -5,6 +5,7 @@ from numpy import array_equal, ndarray
 
 from pyMEA.find_peaks.peak_model import NegPeaks, PosPeaks
 from pyMEA.read.model.MEA import MEA
+from pyMEA.utils.decorators import output_buf
 
 
 @dataclass(frozen=True)
@@ -58,6 +59,7 @@ class FPD:
     def __ge__(self, other):
         return self.fpds >= other
 
+    @output_buf
     def show(
         self,
         data: MEA,
@@ -66,6 +68,7 @@ class FPD:
         volt_min=None,
         volt_max=None,
         dpi=None,
+        isBuf=False,
     ) -> None:
         plt.figure(dpi=dpi)
 
@@ -79,4 +82,5 @@ class FPD:
         if volt_min is not None and volt_max is not None:
             plt.ylim(volt_min, volt_max)
 
-        plt.show()
+        plt.xlabel("Time (s)")
+        plt.ylabel("Voltage (μV)")
