@@ -81,3 +81,6 @@ class FPD:
 
         if volt_min is not None and volt_max is not None:
             plt.ylim(volt_min, volt_max)
+
+        plt.xlabel("Time (s)")
+        plt.ylabel("Voltage (μV)")
