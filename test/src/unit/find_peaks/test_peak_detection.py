@@ -21,8 +21,8 @@ class MyTestCase(unittest.TestCase):
         )
         self.mea = read_MEA(self.path.__str__(), 0, 5, 450)
         self.neg_peak_index = detect_peak_neg(self.mea.data)
-        self.pos_peak_index = detect_peak_pos(self.mea.data, height=(200, 50000))
-        self.all_peak_index = detect_peak_all(self.mea.data)
+        self.pos_peak_index = detect_peak_pos(self.mea.data, threshold=2)
+        self.all_peak_index = detect_peak_all(self.mea.data, threshold=(2, 1))
 
     def test_下方向のピークを抽出できる(self):
         expects = pd.read_csv(self.expect_neg_peak_index_path)
@@ -38,7 +38,7 @@ class MyTestCase(unittest.TestCase):
             for i, index in enumerate(self.pos_peak_index[ch]):
                 self.assertEqual(expects[str(ch)][i], index)
             for value in self.mea.data[ch][self.pos_peak_index[ch]]:
-                self.assertTrue(value > 200)
+                self.assertTrue(value > 50)
 
     def test_上下両方向のピークを抽出できる(self):
         expects = pd.read_csv(self.expect_all_peak_index_path)

@@ -5,7 +5,7 @@ import numpy as np
 from numpy import dtype, floating, ndarray
 
 from pyMEA.calculator.FPD import FPD
-from pyMEA.find_peaks.peak_detection import detect_peak_neg, detect_peak_pos
+from pyMEA.find_peaks.peak_detection import detect_cardio_second_peak, detect_peak_neg
 from pyMEA.find_peaks.peak_model import NegPeaks64, Peaks64, PosPeaks
 from pyMEA.gradient.Gradient import Gradient
 from pyMEA.gradient.Gradients import Gradients
@@ -81,7 +81,7 @@ class Calculator:
         for p in neg_peak_index[ch]:
             tmp = data[:, p + stroke_frame : p + max_fpd_frame]
             # 2nd peak付近のデータを抽出
-            pos_peak = detect_peak_pos(tmp, height=peak_range, distance=3000)
+            pos_peak = detect_cardio_second_peak(tmp, height=peak_range, distance=3000)
             # ピークが見つからなかったら飛ばして次の拍動周期
             if len(pos_peak[ch]) == 0:
                 continue
