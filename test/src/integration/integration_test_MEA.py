@@ -10,7 +10,7 @@ path = get_resource_path("230615_day2_test_5s_.hed")
 start, end = 1, 2
 mea = read_MEA(path.__str__(), start, end, 450)
 neg_peak_index = detect_peak_neg(mea.data)
-pos_peak_index = detect_peak_pos(mea.data, height=(0, 500))
+pos_peak_index = detect_peak_pos(mea.data)
 all_peak_index = detect_peak_all(mea.data)
 dpi = 100
 

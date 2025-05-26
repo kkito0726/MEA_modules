@@ -86,7 +86,7 @@ def output_buf(func):
 
         if isBuf:
             buf = io.BytesIO()
-            plt.savefig(buf, format="png", bbox_inches='tight')
+            plt.savefig(buf, format="png", bbox_inches="tight")
             buf.seek(0)
             plt.close()
             return buf
