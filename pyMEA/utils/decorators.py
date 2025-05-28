@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 
 def channel(func):
     def wrapper(*args, **kwargs):
+        isBuf = get_argument(func, args, kwargs, "isBuf")
+        if isBuf:
+            return func(*args, **kwargs)
         if kwargs.get("ch"):
             ch = kwargs.get("ch")
         else:
@@ -28,7 +31,7 @@ def ch_validator(func):
         # 'ch' のバリデーション
         if ch is not None:
             if not (1 <= ch <= 64):
-                raise ValueError(f"chは1-64の整数で入力してください")
+                raise ValueError("chは1-64の整数で入力してください")
 
         return func(*args, **kwargs)
 
@@ -86,7 +89,8 @@ def output_buf(func):
 
         if isBuf:
             buf = io.BytesIO()
-            plt.savefig(buf, format="png", bbox_inches="tight")
+            plt.tight_layout()
+            plt.savefig(buf, format="png")
             buf.seek(0)
             plt.close()
             return buf
