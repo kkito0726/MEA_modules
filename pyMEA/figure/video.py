@@ -3,9 +3,9 @@ import os
 from dataclasses import dataclass
 from functools import cached_property
 
-from PIL import Image as PILImage
 import imageio
 from IPython.display import Image, display
+from PIL import Image as PILImage
 
 
 @dataclass(frozen=True)
