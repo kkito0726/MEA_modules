@@ -4,6 +4,7 @@ from numpy import ndarray
 
 from pyMEA import Calculator, FigMEA
 from pyMEA.core.Electrode import Electrode
+from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.read.model.MEA import MEA
 
 
@@ -40,3 +41,35 @@ class PyMEA:
 
     def __floordiv__(self, value):
         return self.data.array // value
+
+    def from_slice(self, start_frame: int | float, end_frame: int | float):
+        new_data = self.data.from_slice(start_frame, end_frame)
+        return PyMEA(
+            new_data,
+            self.electrode,
+            FigMEA(new_data, self.electrode),
+            Calculator(new_data, self.electrode.ele_dis),
+        )
+
+    def from_beat_cycles(
+        self, peak_index: Peaks64, base_ch: int, margin_time: float = 0.25
+    ):
+        new_data_list = self.data.from_beat_cycles(peak_index, base_ch, margin_time)
+        return [
+            PyMEA(
+                new_data,
+                self.electrode,
+                FigMEA(new_data, self.electrode),
+                Calculator(new_data, self.electrode.ele_dis),
+            )
+            for new_data in new_data_list
+        ]
+
+    def down_sampling(self, down_sampling_rate=100):
+        new_data = self.data.down_sampling(down_sampling_rate)
+        return PyMEA(
+            new_data,
+            self.electrode,
+            FigMEA(new_data, self.electrode),
+            Calculator(new_data, self.electrode.ele_dis),
+        )
