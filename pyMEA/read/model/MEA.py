@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Any
 
-from numpy import append, arange, empty, float64, ndarray, pad
+from numpy import append, empty, float64, linspace, ndarray, pad
 from numpy._typing import NDArray
 
 from pyMEA.find_peaks.peak_model import Peaks64
@@ -127,9 +127,10 @@ class MEA:
             for i in range(1, 65)
         ]
         new_sampling_rate = int(self.SAMPLING_RATE / down_sampling_rate)
-        t = arange(len(new_voltages[0])) / new_sampling_rate
+        end = len(new_voltages[0]) / new_sampling_rate
+
+        t = linspace(self.start, end, int((end - self.start) * new_sampling_rate))
         t = t.reshape(1, len(t))
-        t = t + self.start
         new_array = append(t, new_voltages, axis=0)
 
         return MEA(
