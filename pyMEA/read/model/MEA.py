@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Any
 
-from numpy import float64, ndarray
+from numpy import append, empty, float64, linspace, ndarray, pad
 from numpy._typing import NDArray
 
 from pyMEA.find_peaks.peak_model import Peaks64
@@ -21,8 +21,8 @@ class MEA:
     """
 
     hed_path: HedPath
-    start: int
-    end: int
+    start: int | float
+    end: int | float
     SAMPLING_RATE: int
     GAIN: int
     array: NDArray[float64]
@@ -87,8 +87,8 @@ class MEA:
     def from_slice(self, start_frame: int | float, end_frame: int | float):
         return MEA(
             self.hed_path,
-            self.start,
-            self.end,
+            start_frame / self.SAMPLING_RATE,
+            end_frame / self.SAMPLING_RATE,
             self.SAMPLING_RATE,
             self.GAIN,
             self.array[:, int(start_frame) : int(end_frame)],
@@ -120,3 +120,56 @@ class MEA:
             result.append(self.from_slice(start, end))
 
         return result
+
+    def down_sampling(self, down_sampling_rate=100):
+        new_voltages = [
+            downsample_max_min(self.array[i], down_sampling_rate * 2)
+            for i in range(1, 65)
+        ]
+        new_sampling_rate = int(self.SAMPLING_RATE / down_sampling_rate)
+        end = len(new_voltages[0]) / new_sampling_rate
+
+        t = linspace(self.start, end, int((end - self.start) * new_sampling_rate))
+        t = t.reshape(1, len(t))
+        new_array = append(t, new_voltages, axis=0)
+
+        return MEA(
+            self.hed_path,
+            self.start,
+            t[0][-1],
+            new_sampling_rate,
+            self.GAIN,
+            new_array,
+        )
+
+
+def downsample_max_min(arr: NDArray[float64], factor: int) -> NDArray[float64]:
+    """
+    Max-min ダウンサンプリング（NumPyベース）
+
+    Args:
+        arr (np.ndarray): 1次元の波形データ
+        factor (int): ダウンサンプリング率（1フレームあたりの元データ数）
+
+    Returns:
+        np.ndarray: ダウンサンプリングされた波形データ（[min0, max0, min1, max1, ...] 形式）
+    """
+    n = len(arr)
+
+    # factor で割り切れない場合に備え、末尾を繰り返しで padding して帳尻を合わせる
+    pad_len = (factor - (n % factor)) % factor
+    padded = pad(arr, (0, pad_len), mode="edge")
+
+    # データを [N // factor, factor] の2次元に reshape（各ブロックに分割）
+    reshaped = padded.reshape(-1, factor)
+
+    # 各ブロックの最小値・最大値を計算（列方向）
+    min_vals = reshaped.min(axis=1)
+    max_vals = reshaped.max(axis=1)
+
+    # min, max を交互に interleave（視覚的品質を保つ）
+    result = empty(min_vals.size + max_vals.size, dtype=arr.dtype)
+    result[0::2] = min_vals
+    result[1::2] = max_vals
+
+    return result

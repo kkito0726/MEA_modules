@@ -9,7 +9,7 @@ from pyMEA import read_MEA
 class MEATest(unittest.TestCase):
     def setUp(self):
         self.path = get_resource_path("230615_day2_test_5s_.hed")
-        self.mea = read_MEA(self.path.__str__(), 0, 5, 450)
+        self.mea = read_MEA(self.path.__str__(), 0, 10, 450)
 
     def test_hedファイルからMEA計測データの読み込みができる(self):
         start, end = 1, 2
@@ -63,6 +63,27 @@ GAIN           : {mea.data.GAIN}""",
         with self.assertRaises(ValueError) as context:
             read_MEA("/User/your/mea_data.bio", 0, 5, 450)
         self.assertEqual(".hedファイルのパスを入力してください", str(context.exception))
+
+    def test_電位データのスライスができる(self):
+        sliced_mea = self.mea.from_slice(
+            0.5 * self.mea.data.SAMPLING_RATE, 0.8 * self.mea.data.SAMPLING_RATE
+        )
+        self.assertEqual(
+            sliced_mea.data.shape, (65, int(0.3 * self.mea.data.SAMPLING_RATE))
+        )
+        self.assertEqual(sliced_mea.data.start, 0.5)
+        self.assertEqual(sliced_mea.data.end, 0.8)
+        self.assertEqual(round(sliced_mea.data.time, 2), 0.3)
+
+    def test_ダウンサンプリングができる(self):
+        downsampled_mea = self.mea.down_sampling(100)
+        self.assertEqual(
+            downsampled_mea.data.shape, (65, 768)
+        )
+        self.assertEqual(downsampled_mea.data.SAMPLING_RATE, 100)
+        self.assertEqual(downsampled_mea.data.GAIN, self.mea.data.GAIN)
+        self.assertEqual(downsampled_mea.data.start, self.mea.data.start)
+        self.assertEqual(downsampled_mea.data.end, 7.68)
 
     def test_電位データを書き換えようとする場合_例外を発生する(self):
         with self.assertRaises(ValueError) as context:
