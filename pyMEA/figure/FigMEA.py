@@ -41,7 +41,7 @@ class FigMEA:
         figsize=(8, 8),
         dpi=300,
         isBuf=False,
-    ) -> None:
+    ) -> io.BytesIO | None:
         """
         64電極すべての波形を描画する
 
@@ -64,14 +64,15 @@ class FigMEA:
         start_frame = int(abs(self.data.start - start) * self.data.SAMPLING_RATE)
         end_frame = int(abs(self.data.start - end) * self.data.SAMPLING_RATE)
 
-        plt.figure(figsize=figsize, dpi=dpi)
-        for i in range(1, 65, 1):
-            plt.subplot(8, 8, i)
-            plt.plot(
-                self.data.array[0][start_frame:end_frame],
-                self.data.array[i][start_frame:end_frame],
+        x = self.data.array[0][start_frame:end_frame]
+
+        fig, axes = plt.subplots(8, 8, figsize=figsize, dpi=dpi)
+        for i, ax in enumerate(axes.flat):
+            ax.plot(
+                x,
+                self.data.array[i + 1][start_frame:end_frame],
             )
-            plt.ylim(volt_min, volt_max)
+            ax.set_ylim(volt_min, volt_max)
 
     @channel
     @output_buf
@@ -87,7 +88,7 @@ class FigMEA:
         xlabel="Time (s)",
         ylabel="Voltage (μV)",
         isBuf=False,
-    ):
+    ) -> io.BytesIO | None:
         """
         1電極の波形を描画する
 
@@ -134,7 +135,7 @@ class FigMEA:
         xlabel="Time (s)",
         ylabel="Voltage (μV)",
         isBuf=False
-    ) -> None:
+    ) -> io.BytesIO | None:
         """
         1電極の波形とピークの位置をプロット
 

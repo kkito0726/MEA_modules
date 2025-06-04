@@ -77,9 +77,7 @@ GAIN           : {mea.data.GAIN}""",
 
     def test_ダウンサンプリングができる(self):
         downsampled_mea = self.mea.down_sampling(100)
-        self.assertEqual(
-            downsampled_mea.data.shape, (65, 768)
-        )
+        self.assertEqual(downsampled_mea.data.shape, (65, 768))
         self.assertEqual(downsampled_mea.data.SAMPLING_RATE, 100)
         self.assertEqual(downsampled_mea.data.GAIN, self.mea.data.GAIN)
         self.assertEqual(downsampled_mea.data.start, self.mea.data.start)
