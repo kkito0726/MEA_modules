@@ -20,7 +20,7 @@ class MyTestCase(unittest.TestCase):
         self.fm = FigMEA(self.mea.data, Electrode(450))
 
     @patch("matplotlib.pyplot.show")
-    @patch("matplotlib.pyplot.plot")
+    @patch("matplotlib.axes.Axes.plot")
     def test_64電極表示できる(self, mock_plot: MagicMock, mock_show: MagicMock):
         self.fm.showAll()
         for ch in range(1, 65):
