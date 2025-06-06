@@ -8,7 +8,6 @@ from pyMEA.find_peaks.peak_model import (
     AllPeaks64,
     NegPeaks,
     NegPeaks64,
-    Peaks,
     PosPeaks,
     PosPeaks64,
 )

@@ -366,7 +366,7 @@ class FigMEA:
         """
         if base_ch:
             # 基準電極が指定されていたらその電極の拍動周期ごとにピーク抽出する
-            if not base_ch in chs:
+            if base_ch not in chs:
                 raise ValueError("基準電極はAMC内の電極から選択してください")
 
             result = []

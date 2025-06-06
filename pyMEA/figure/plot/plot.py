@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.collections import LineCollection
 from numpy import ndarray
-from scipy.interpolate import interp1d, splev, splprep
 
 from pyMEA.core.Electrode import Electrode
 from pyMEA.find_peaks.peak_model import Peaks64
