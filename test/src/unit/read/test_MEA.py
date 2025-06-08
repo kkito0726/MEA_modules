@@ -65,15 +65,24 @@ GAIN           : {mea.data.GAIN}""",
         self.assertEqual(".hedファイルのパスを入力してください", str(context.exception))
 
     def test_電位データのスライスができる(self):
-        sliced_mea = self.mea.from_slice(
-            0.5 * self.mea.data.SAMPLING_RATE, 0.8 * self.mea.data.SAMPLING_RATE
-        )
+        sliced_mea = self.mea.from_slice(0.5, 0.8)
         self.assertEqual(
             sliced_mea.data.shape, (65, int(0.3 * self.mea.data.SAMPLING_RATE))
         )
         self.assertEqual(sliced_mea.data.start, 0.5)
         self.assertEqual(sliced_mea.data.end, 0.8)
         self.assertEqual(round(sliced_mea.data.time, 2), 0.3)
+
+    def test_時刻データの開始地点を0秒に初期化できる(self):
+        sliced_mea = self.mea.from_slice(0.5, 0.8)
+        init_time_mea = sliced_mea.init_time()
+
+        self.assertEqual(
+            init_time_mea.data.shape, (65, int(0.3 * self.mea.data.SAMPLING_RATE))
+        )
+        self.assertEqual(init_time_mea.data.start, 0)
+        self.assertEqual(init_time_mea.data.end, 0.3)
+        self.assertEqual(round(init_time_mea.data.time, 2), 0.3)
 
     def test_ダウンサンプリングができる(self):
         downsampled_mea = self.mea.down_sampling(100)

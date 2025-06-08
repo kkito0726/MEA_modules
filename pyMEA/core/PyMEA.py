@@ -42,7 +42,11 @@ class PyMEA:
     def __floordiv__(self, value):
         return self.data.array // value
 
-    def from_slice(self, start_frame: int | float, end_frame: int | float):
+    def from_slice(self, start: int | float, end: int | float):
+        start_frame, end_frame = (
+            int((start - self.data.start) * self.data.SAMPLING_RATE),
+            int((end - self.data.start) * self.data.SAMPLING_RATE),
+        )
         new_data = self.data.from_slice(start_frame, end_frame)
         return PyMEA(
             new_data,
@@ -64,6 +68,16 @@ class PyMEA:
             )
             for new_data in new_data_list
         ]
+
+    def init_time(self):
+        """時刻データを0 (s)からにしたMEAインスタンスを返却"""
+        new_data = self.data.init_time()
+        return PyMEA(
+            new_data,
+            self.electrode,
+            FigMEA(new_data, self.electrode),
+            Calculator(new_data, self.electrode.ele_dis),
+        )
 
     def down_sampling(self, down_sampling_rate=100):
         new_data = self.data.down_sampling(down_sampling_rate)

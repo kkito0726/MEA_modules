@@ -87,8 +87,8 @@ class MEA:
     def from_slice(self, start_frame: int | float, end_frame: int | float):
         return MEA(
             self.hed_path,
-            start_frame / self.SAMPLING_RATE,
-            end_frame / self.SAMPLING_RATE,
+            start_frame / self.SAMPLING_RATE + self.start,
+            end_frame / self.SAMPLING_RATE + self.start,
             self.SAMPLING_RATE,
             self.GAIN,
             self.array[:, int(start_frame) : int(end_frame)],
@@ -120,6 +120,21 @@ class MEA:
             result.append(self.from_slice(start, end))
 
         return result
+
+    def init_time(self):
+        """時刻データを0 (s)からにしたMEAインスタンスを返却"""
+        t = self.array[0] - self.array[0][0]
+        t = t.reshape(1, len(t))
+        new_array = append(t, self.array[1:], axis=0)
+
+        return MEA(
+            self.hed_path,
+            start=0,
+            end=len(new_array[0]) / self.SAMPLING_RATE,
+            SAMPLING_RATE=self.SAMPLING_RATE,
+            GAIN=self.GAIN,
+            array=new_array,
+        )
 
     def down_sampling(self, down_sampling_rate=100):
         new_voltages = [
