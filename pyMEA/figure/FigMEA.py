@@ -6,12 +6,18 @@ from numpy import ndarray
 
 from pyMEA.core.Electrode import Electrode
 from pyMEA.figure.plot.histogram import mkHist
-from pyMEA.figure.plot.plot import draw_line_conduction, showDetection
+from pyMEA.figure.plot.plot import (
+    draw_line,
+    draw_line_conduction,
+    remove_undetected_ch,
+    showDetection,
+)
 from pyMEA.figure.plot.raster_plot import raster_plot
+from pyMEA.figure.video import FigImage, VideoMEA
 from pyMEA.find_peaks.peak_detection import detect_peak_neg
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.gradient.Gradient import Gradient
-from pyMEA.gradient.Gradients import Gradients, remove_undetected_ch
+from pyMEA.gradient.Gradients import Gradients, remove_undetected_ch_from64ch
 from pyMEA.gradient.Solver import Solver
 from pyMEA.read.model.MEA import MEA
 from pyMEA.utils.decorators import channel, output_buf
@@ -41,7 +47,7 @@ class FigMEA:
         figsize=(8, 8),
         dpi=300,
         isBuf=False,
-    ) -> io.BytesIO | None:
+    ) -> FigImage | None:
         """
         64電極すべての波形を描画する
 
@@ -88,7 +94,7 @@ class FigMEA:
         xlabel="Time (s)",
         ylabel="Voltage (μV)",
         isBuf=False,
-    ) -> io.BytesIO | None:
+    ) -> FigImage | None:
         """
         1電極の波形を描画する
 
@@ -135,7 +141,7 @@ class FigMEA:
         xlabel="Time (s)",
         ylabel="Voltage (μV)",
         isBuf=False
-    ) -> io.BytesIO | None:
+    ) -> FigImage | None:
         """
         1電極の波形とピークの位置をプロット
 
@@ -189,12 +195,12 @@ class FigMEA:
         ylabel="Electrode Number",
         dpi=300,
         isBuf=False,
-    ) -> io.BytesIO | None:
+    ) -> FigImage | None:
         start, end = self._set_times(start, end)
         # 読み込み開始時間が途中からの場合のズレを解消する
         start = abs(start - self.data.start)
         end = abs(end - self.data.start)
-        buf: io.BytesIO = showDetection(
+        buf: FigImage = showDetection(
             MEA_raw=self.data,
             eles=eles,
             start=start,
@@ -208,7 +214,6 @@ class FigMEA:
             dpi=dpi,
             isBuf=isBuf,
         )
-
         return buf
 
     def raster_plot(
@@ -221,7 +226,7 @@ class FigMEA:
         end=None,
         dpi=300,
         isBuf=False,
-    ) -> io.BytesIO | None:
+    ) -> FigImage | None:
         start, end = self._set_times(start, end)
         return raster_plot(
             MEA_data=self.data,
@@ -245,7 +250,7 @@ class FigMEA:
         end=None,
         dpi=300,
         isBuf=False,
-    ) -> io.BytesIO | ndarray:
+    ) -> FigImage | ndarray:
         start, end = self._set_times(start, end)
         return mkHist(
             MEA_data=self.data,
@@ -270,7 +275,7 @@ class FigMEA:
         dpi=300,
         cmap="jet",
         isBuf=False,
-    ) -> list[io.BytesIO | Gradient]:
+    ) -> VideoMEA | list[Gradient]:
         """
         2Dカラーマップ描画
         Args:
@@ -288,7 +293,7 @@ class FigMEA:
             result = []
             for divided_data in self.data.from_beat_cycles(peak_index, base_ch):
                 peak = detect_peak_neg(divided_data)
-                times, remove_ch = remove_undetected_ch(self.data, peak)
+                times, remove_ch = remove_undetected_ch_from64ch(self.data, peak)
                 grad = Gradient(
                     Solver(times[0], remove_ch, self.electrode.ele_dis, mesh_num)
                 )
@@ -307,7 +312,7 @@ class FigMEA:
             buf_list = grads.draw_2d(contour, isQuiver, dpi=dpi, cmap=cmap, isBuf=isBuf)
 
             if isBuf:
-                return buf_list
+                return VideoMEA(buf_list)
             else:
                 return grads.gradients
 
@@ -320,7 +325,7 @@ class FigMEA:
         clabel="Δt (ms)",
         dpi=300,
         isBuf=False,
-    ) -> list[io.BytesIO] | Gradients:
+    ) -> VideoMEA | Gradients:
         """
         3Dカラーマップ描画
         Args:
@@ -336,7 +341,7 @@ class FigMEA:
         buf_list = grads.draw_3d(xlabel, ylabel, clabel, dpi, isBuf=isBuf)
 
         if isBuf:
-            return buf_list
+            return VideoMEA(buf_list)
         else:
             return grads
 
@@ -348,7 +353,7 @@ class FigMEA:
         isLoop=True,
         dpi=300,
         isBuf=False,
-    ) -> list[list[io.BytesIO]] | list[io.BytesIO] | None:
+    ) -> VideoMEA | None:
         """
         ライン状心筋細胞ネットワークのカラーマップ描画
         電極番号の配列の順番は経路がつながっている順番になるようにすること
@@ -372,23 +377,23 @@ class FigMEA:
             result = []
             for divided_data in self.data.from_beat_cycles(peak_index, base_ch):
                 peak = detect_peak_neg(divided_data)
+                times, chs = remove_undetected_ch(divided_data, peak, chs)
                 result.append(
-                    draw_line_conduction(
-                        divided_data,
-                        self.electrode,
-                        peak,
+                    draw_line(
+                        times[0],
                         chs,
+                        self.electrode,
                         isLoop,
                         dpi,
                         isBuf=isBuf,
                     )
                 )
             if isBuf:
-                return result
+                return VideoMEA(result)
         else:
             buf_list = draw_line_conduction(
                 self.data, self.electrode, peak_index, chs, isLoop, dpi, isBuf=isBuf
             )
 
             if isBuf:
-                return buf_list
+                return VideoMEA(buf_list)

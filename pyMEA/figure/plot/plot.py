@@ -1,4 +1,3 @@
-import io
 import statistics
 from typing import List
 
@@ -8,6 +7,7 @@ from matplotlib.collections import LineCollection
 from numpy import ndarray
 
 from pyMEA.core.Electrode import Electrode
+from pyMEA.figure.video import FigImage
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.read.model.MEA import MEA
 from pyMEA.utils.decorators import output_buf
@@ -150,10 +150,10 @@ def draw_line_conduction(
     isLoop=True,
     dpi=300,
     isBuf=False,
-) -> list[io.BytesIO] | None:
+) -> list[FigImage] | None:
     times, chs = remove_undetected_ch(data, peak_index, chs)
     # 各拍動周期について処理していく
-    buf_list: list[io.BytesIO | None] = [
+    buf_list: list[FigImage | None] = [
         draw_line(time, chs, electrode, isLoop, dpi, isBuf=isBuf) for time in times
     ]
     if isBuf:
