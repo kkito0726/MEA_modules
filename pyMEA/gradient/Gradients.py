@@ -8,6 +8,7 @@ import numpy as np
 from numpy import float64
 from numpy._typing import NDArray
 
+from pyMEA.figure.video import FigImage
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.gradient.Gradient import Gradient
 from pyMEA.gradient.Solver import Solver
@@ -24,7 +25,7 @@ class Gradients:
     remove_ch: list[int] = field(init=False)
 
     def __post_init__(self):
-        times, remove_ch = remove_undetected_ch(self.data, self.peak_index)
+        times, remove_ch = remove_undetected_ch_from64ch(self.data, self.peak_index)
         object.__setattr__(self, "times", times)
         object.__setattr__(self, "remove_ch", remove_ch)
 
@@ -76,8 +77,8 @@ class Gradients:
 
     def draw_3d(
         self, xlabel="", ylabel="", clabel="", dpi=300, isBuf=False
-    ) -> list[io.BytesIO] | None:
-        buf_list: list[io.BytesIO | None] = [
+    ) -> list[FigImage] | None:
+        buf_list: list[FigImage | None] = [
             gradient.draw_3d(xlabel, ylabel, clabel, dpi, isBuf=isBuf)
             for gradient in self.gradients
         ]
@@ -85,7 +86,7 @@ class Gradients:
             return buf_list
 
 
-def remove_undetected_ch(
+def remove_undetected_ch_from64ch(
     data: MEA, peak_index: Peaks64
 ) -> tuple[list[list[np.ndarray[Any, Any]]], list[int]]:
     # ピークの時刻 (s)を取得

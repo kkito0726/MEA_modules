@@ -4,6 +4,8 @@ from functools import wraps
 
 import matplotlib.pyplot as plt
 
+from pyMEA.figure.video import FigImage
+
 
 def channel(func):
     def wrapper(*args, **kwargs):
@@ -93,7 +95,7 @@ def output_buf(func):
             plt.savefig(buf, format="png")
             buf.seek(0)
             plt.close()
-            return buf
+            return FigImage(buf)
         else:
             plt.show()
             plt.close()
