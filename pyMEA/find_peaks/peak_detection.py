@@ -130,7 +130,7 @@ def detect_peak_all(
     )
     peak_index = np.array([None for _ in range(len(MEA_data))])
     for i in range(1, 65):
-        peak_index[i] = np.array([*peak_pos[i], *peak_neg[i]])
+        peak_index[i] = np.array([*peak_pos[i], *peak_neg[i]]).astype(np.int64)
         peak_index[i] = np.sort(peak_index[i])
 
     peak_index[0] = np.array([])
