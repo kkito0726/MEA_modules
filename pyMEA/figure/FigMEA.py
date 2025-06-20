@@ -302,10 +302,11 @@ class FigMEA:
                 )
 
                 if isBuf:
-                    result.append(FigImage(buf))
+                    result.append(buf)
                 else:
                     result.append(grad)
             if isBuf:
+                # list[BytesIO]を渡してもlist[FigImage]にキャストされる
                 return VideoMEA(result)
             else:
                 return result
