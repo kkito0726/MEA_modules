@@ -302,10 +302,13 @@ class FigMEA:
                 )
 
                 if isBuf:
-                    result.append(buf)
+                    result.append(FigImage(buf))
                 else:
                     result.append(grad)
-            return result
+            if isBuf:
+                return VideoMEA(result)
+            else:
+                return result
 
         else:
             grads = Gradients(self.data, peak_index, self.electrode.ele_dis, mesh_num)
