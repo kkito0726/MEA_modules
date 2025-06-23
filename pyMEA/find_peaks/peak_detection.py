@@ -1,5 +1,3 @@
-from typing import Any
-
 import numpy as np
 from numpy import ndarray
 from scipy.signal import find_peaks
@@ -8,6 +6,7 @@ from pyMEA.find_peaks.peak_model import (
     AllPeaks64,
     NegPeaks,
     NegPeaks64,
+    Peaks,
     PosPeaks,
     PosPeaks64,
 )
@@ -31,8 +30,10 @@ def detect_peak_neg(
         distance: ピークを取る間隔
         threshold: SD * thresholdより大きいピークを取る
         min_amp: 最小のピークの閾値
+        width:
+        prominence:
     """
-    peak_index: ndarray[Any, np.dtype] = np.array([None for _ in range(len(MEA_data))])
+    peak_dict: dict[int, NegPeaks] = {}
     for i in range(1, len(MEA_data)):
         # ピーク抽出の閾値を設定
         height = np.std(MEA_data[i]) * threshold
@@ -49,11 +50,9 @@ def detect_peak_neg(
             width=width,
             prominence=prominence,
         )
+        peak_dict[i] = NegPeaks(detect_peak_index)
 
-        peak_index[i] = NegPeaks(detect_peak_index)
-    peak_index[0] = np.array([])
-
-    return NegPeaks64(peak_index)
+    return NegPeaks64(peak_dict)
 
 
 # 64電極すべての上ピークを取得
@@ -65,7 +64,7 @@ def detect_peak_pos(
     width=None,
     prominence=None,
 ) -> PosPeaks64:
-    peak_index: ndarray[Any, np.dtype] = np.array([None for _ in range(len(MEA_data))])
+    peak_dict: dict[int, PosPeaks] = {}
     for i in range(1, len(MEA_data)):
         # ピーク抽出の閾値を設定
         height = np.std(MEA_data[i]) * threshold
@@ -82,11 +81,9 @@ def detect_peak_pos(
             width=width,
             prominence=prominence,
         )
+        peak_dict[i] = PosPeaks(detect_peak_index)
 
-        peak_index[i] = NegPeaks(detect_peak_index)
-    peak_index[0] = np.array([])
-
-    return PosPeaks64(peak_index)
+    return PosPeaks64(peak_dict)
 
 
 def detect_cardio_second_peak(
@@ -96,9 +93,8 @@ def detect_cardio_second_peak(
     prominence=None,
     height: tuple[int, int] = (10, 200),
 ) -> PosPeaks64:
-    peak_index = np.array([None for _ in range(len(MEA_data))])
+    peak_dict: dict[int, PosPeaks] = {}
     for i in range(1, len(MEA_data)):
-        # height = np.std(MEA_data[i]) * 3
         detect_peak_index, _ = find_peaks(
             MEA_data[i],
             height=height,
@@ -106,11 +102,9 @@ def detect_cardio_second_peak(
             width=width,
             prominence=prominence,
         )
+        peak_dict[i] = PosPeaks(detect_peak_index)
 
-        peak_index[i] = PosPeaks(detect_peak_index)
-    peak_index[0] = np.array([])
-
-    return PosPeaks64(peak_index)
+    return PosPeaks64(peak_dict)
 
 
 # 64電極すべての上下ピークを取得
@@ -128,14 +122,12 @@ def detect_peak_all(
     peak_neg = detect_peak_neg(
         MEA_data, distance, threshold[1], min_amp[1], width, prominence
     )
-    peak_index = np.array([None for _ in range(len(MEA_data))])
+    peak_dict: dict[int, Peaks] = {}
     for i in range(1, 65):
-        peak_index[i] = np.array([*peak_pos[i], *peak_neg[i]]).astype(np.int64)
-        peak_index[i] = np.sort(peak_index[i])
+        array = np.array([*peak_pos[i], *peak_neg[i]]).astype(np.int64)
+        peak_dict[i] = Peaks(np.sort(array))
 
-    peak_index[0] = np.array([])
-
-    return AllPeaks64(peak_index)
+    return AllPeaks64(peak_dict)
 
 
 # レーザー照射によるアーティファクトを除去
