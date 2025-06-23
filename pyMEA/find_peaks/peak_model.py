@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Sequence
 
 from numpy import array_equal, int64
 from numpy._typing import NDArray
@@ -71,11 +70,9 @@ class PosPeaks(Peaks):
 
 
 # 64電極分のピークをまとめたオブジェクト
+@dataclass(frozen=True)
 class Peaks64:
-    def __init__(self, peak_index: Sequence[Peaks]):
-        if len(peak_index) != 65:
-            raise ValueError(f"peak_indexの要素数エラー 要素数: {len(peak_index)}")
-        self.peaks = {ch: peak_index[ch] for ch in range(1, 65)}
+    peaks: dict[int, Peaks]
 
     @ch_validator
     def __getitem__(self, ch) -> Peaks:
@@ -91,24 +88,22 @@ class Peaks64:
         return iter(self.peaks)
 
 
+@dataclass(frozen=True)
 class NegPeaks64(Peaks64):
-    def __init__(self, peak_index: Sequence[NegPeaks]):
-        super().__init__(peak_index)
-
     @ch_validator
-    def __getitem__(self, ch) -> NegPeaks:
+    def __getitem__(self, ch) -> Peaks:
         return super().__getitem__(ch)
 
 
+@dataclass(frozen=True)
 class PosPeaks64(Peaks64):
-    def __init__(self, peak_index: Sequence[PosPeaks]):
-        super().__init__(peak_index)
-
     @ch_validator
-    def __getitem__(self, ch) -> PosPeaks:
+    def __getitem__(self, ch) -> Peaks:
         return super().__getitem__(ch)
 
 
+@dataclass(frozen=True)
 class AllPeaks64(Peaks64):
-    def __init__(self, peak_index: Sequence[Peaks]):
-        super().__init__(peak_index)
+    @ch_validator
+    def __getitem__(self, ch) -> Peaks:
+        return super().__getitem__(ch)
