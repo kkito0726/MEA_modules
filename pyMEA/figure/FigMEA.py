@@ -381,7 +381,9 @@ class FigMEA:
             result = []
             for divided_data in self.data.from_beat_cycles(peak_index, base_ch):
                 peak = detect_peak_neg(divided_data)
-                times, remove_ch_index = remove_undetected_ch(divided_data, peak, amc_chs)
+                times, remove_ch_index = remove_undetected_ch(
+                    divided_data, peak, amc_chs
+                )
                 result.append(
                     draw_line(
                         times[0],
