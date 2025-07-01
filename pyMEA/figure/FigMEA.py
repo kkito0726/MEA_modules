@@ -352,7 +352,7 @@ class FigMEA:
     def draw_line_conduction(
         self,
         peak_index: Peaks64,
-        chs: list[int],
+        amc_chs: list[int],
         base_ch: int | None = None,
         isLoop=True,
         dpi=300,
@@ -375,17 +375,18 @@ class FigMEA:
         """
         if base_ch:
             # 基準電極が指定されていたらその電極の拍動周期ごとにピーク抽出する
-            if base_ch not in chs:
+            if base_ch not in amc_chs:
                 raise ValueError("基準電極はAMC内の電極から選択してください")
 
             result = []
             for divided_data in self.data.from_beat_cycles(peak_index, base_ch):
                 peak = detect_peak_neg(divided_data)
-                times, chs = remove_undetected_ch(divided_data, peak, chs)
+                times, remove_ch_index = remove_undetected_ch(divided_data, peak, amc_chs)
                 result.append(
                     draw_line(
                         times[0],
-                        chs,
+                        amc_chs,
+                        remove_ch_index,
                         self.electrode,
                         isLoop,
                         dpi,
@@ -396,7 +397,7 @@ class FigMEA:
                 return VideoMEA(result)
         else:
             buf_list = draw_line_conduction(
-                self.data, self.electrode, peak_index, chs, isLoop, dpi, isBuf=isBuf
+                self.data, self.electrode, peak_index, amc_chs, isLoop, dpi, isBuf=isBuf
             )
 
             if isBuf:

@@ -146,15 +146,15 @@ def draw_line_conduction(
     data: MEA,
     electrode: Electrode,
     peak_index: Peaks64,
-    chs: list[int],
+    amc_chs: list[int],
     isLoop=True,
     dpi=300,
     isBuf=False,
 ) -> list[FigImage] | None:
-    times, chs = remove_undetected_ch(data, peak_index, chs)
+    times, remove_ch_index = remove_undetected_ch(data, peak_index, amc_chs)
     # 各拍動周期について処理していく
     buf_list: list[FigImage | None] = [
-        draw_line(time, chs, electrode, isLoop, dpi, isBuf=isBuf) for time in times
+        draw_line(time, amc_chs, remove_ch_index, electrode, isLoop, dpi, isBuf=isBuf) for time in times
     ]
     if isBuf:
         return buf_list
@@ -162,12 +162,12 @@ def draw_line_conduction(
 
 @output_buf
 def draw_line(
-    time, chs: list[int], electrode: Electrode, isLoop: bool, dpi: int, isBuf=False
+    time, amc_chs: list[int], remove_ch_index: list[int], electrode: Electrode, isLoop: bool, dpi: int, isBuf=False
 ):
     t = time - time.min()
     t = t * 10**3  # 単位をmsに変換
 
-    x_fine, y_fine, t_fine = linear_interpolation_path(chs, t, electrode, isLoop=isLoop)
+    x_fine, y_fine, t_fine = linear_interpolation_path(amc_chs, t, remove_ch_index, electrode, isLoop=isLoop)
 
     # === 線分生成 ===
     points = np.array([x_fine, y_fine]).T.reshape(-1, 1, 2)
@@ -203,13 +203,13 @@ def draw_line(
 
 
 def linear_interpolation_path(
-    chs, t, electrode: Electrode, num_points=300, isLoop=False
+    amc_chs, t, remove_ch_index, electrode: Electrode, num_points=300, isLoop=False
 ):
     if isLoop:
-        chs = chs + [chs[0]]
+        amc_chs = amc_chs + [amc_chs[0]]
         t = list(t) + [t[0]]
 
-    coords = np.array([electrode.get_coordinate(ch) for ch in chs])
+    coords = np.array([electrode.get_coordinate(ch) for ch in amc_chs])
     x, y = coords[:, 0], coords[:, 1]
     t = np.array(t)
 
@@ -222,7 +222,7 @@ def linear_interpolation_path(
 
     x_fine = np.interp(d_fine, d, x)
     y_fine = np.interp(d_fine, d, y)
-    t_fine = np.interp(d_fine, d, t)
+    t_fine = np.interp(d_fine, np.delete(d, remove_ch_index), t)
 
     return x_fine, y_fine, t_fine
 
@@ -241,11 +241,10 @@ def remove_undetected_ch(data: MEA, peak_index: Peaks64, chs: list[int]):
     # ピークを正しく検出できていないchのデータを削除
     for ch in sorted(remove_ch_index, reverse=True):
         time.pop(ch)
-        chs.pop(ch)
     print("弾いた電極番号: ", np.array(remove_ch_index))
 
     times = []
     for j in range(len(time[0])):
         times.append([time[i][j] for i in range(len(time))])
 
-    return np.array(times), chs
+    return np.array(times), remove_ch_index
