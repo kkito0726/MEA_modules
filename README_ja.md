@@ -100,7 +100,8 @@ def showAll(
         dpi=300,        # 解像度
         isBuf=False,    # グラフ画像のインスタンスを返すかどうか (Falseでグラフをjupyter上に表示)
     ) -> FigImage | None:
-   
+```
+```python   
 # サンプルコード
 start, end = 0, 1
 volt_min, volt_max = -300, 300
@@ -120,6 +121,187 @@ fig_images = [
 video = VideoMEA(fig_images)
 video.save_gif("./output_64waves.gif", duration = 0.1) # 動画の保存
 video.display_gif(duration = 0.1)                      # 動画をjupyter上で再生
+```
+
+### 1電極波形描画
+
+```python
+def showSingle(
+    self,
+    ch: int,
+    start: int = None,
+    end: int = None,
+    volt_min=-200,
+    volt_max=200,
+    figsize=(8, 2),
+    dpi=None,
+    xlabel="Time (s)",
+    ylabel="Voltage (μV)",
+    isBuf=False,
+) -> FigImage | None:
+```
+```python
+# サンプルコード
+mea.fig.showSingle(ch=2, start=0, end=1, volt_min=-300, volt_max=300)
+```
+
+### ピークをプロット
+
+```python
+def plotPeaks(
+    self,
+    ch: int,
+    *peak_indexes: Peaks64,
+    start: int = None,
+    end: int = None,
+    volt_min=-200,
+    volt_max=200,
+    figsize=(8, 2),
+    dpi=None,
+    xlabel="Time (s)",
+    ylabel="Voltage (μV)",
+    isBuf=False
+) -> FigImage | None:
+```
+```python
+# サンプルコード
+# ピーク検出
+peak_index = detect_peak_neg(mea.data)
+
+# ピークをプロット
+mea.fig.plotPeaks(ch=2, peak_index, start=0, end=1, volt_min=-300, volt_max=300)
+```
+
+### 波形を縦に積み上げて描画
+
+```python
+def showDetection(
+    self,
+    eles: list[int],
+    start=None,
+    end=None,
+    adjust_wave=200,
+    figsize=(12, 12),
+    xlabel="Time (s)",
+    ylabel="Electrode Number",
+    dpi=300,
+    isBuf=False,
+) -> FigImage | None:
+```
+```python
+# サンプルコード
+peak_index = detect_peak_neg(mea.data)
+eles = [1, 2, 3, 4, 5] # 描画したい電極をリストに格納
+mea.fig.showDetection(eles=eles, start=0, end=1)
+```
+
+### ラスタープロット
+
+```python
+def raster_plot(
+    self,
+    peak_index: Peaks64,
+    eles: list[int],
+    tick_ch=1,
+    figsize=(8, 8),
+    start=None,
+    end=None,
+    dpi=300,
+    isBuf=False,
+) -> FigImage | None:
+```
+```python
+# サンプルコード
+peak_index = detect_peak_neg(mea.data)
+eles = [1, 2, 3, 4, 5] # プロットしたい電極をリストに格納
+mea.fig.raster_plot(peak_index=peak_index, eles=eles, start=0, end=1)
+```
+### ヒストグラム
+
+```python
+def mkHist(
+    self,
+    peak_index: Peaks64,
+    eles: list[int],
+    figsize=(20, 6),
+    bin_duration=0.05,
+    start=None,
+    end=None,
+    dpi=300,
+    isBuf=False,
+) -> FigImage | ndarray:
+```
+```python
+# サンプルコード
+peak_index = detect_peak_neg(mea.data)
+eles = [1, 2, 3, 4, 5] # プロットしたい電極をリストに格納
+mea.fig.mkHist(peak_index=peak_index, eles=eles, start=0, end=1)
+```
+### 2Dカラーマップ描画
+
+```python
+def draw_2d(
+    self,
+    peak_index: Peaks64,
+    base_ch: int | None = None,
+    mesh_num=100,  # mesh_num x mesh_numでデータを生成
+    contour=False,  # 等高線で表示するかどうか
+    isQuiver=True,  # 速度ベクトルを表示するかどうか
+    dpi=300,
+    cmap="jet",
+    isBuf=False,
+) -> VideoMEA | list[Gradient]:
+```
+
+```python
+# サンプルコード
+peak_index = detect_peak_neg(mea.data)
+mea.fig.draw_2d(peak_index=peak_index)
+```
+
+### 3Dカラーマップ描画
+
+```python
+def draw_3d(
+    self,
+    peak_index: Peaks64,
+    mesh_num=100,
+    xlabel="X (μm)",
+    ylabel="Y (μm)",
+    clabel="Δt (ms)",
+    dpi=300,
+    isBuf=False,
+) -> VideoMEA | Gradients:
+```
+
+```python
+# サンプルコード
+peak_index = detect_peak_neg(mea.data)
+mea.fig.draw_3d(peak_index=peak_index)
+```
+### ライン状心筋細胞ネットワークのカラーマップ描画
+
+```python
+def draw_line_conduction(
+    self,
+    peak_index: Peaks64,
+    amc_chs: list[int],
+    base_ch: int | None = None,
+    isLoop=True,
+    dpi=300,
+    isBuf=False,
+) -> VideoMEA | None:
+```
+```python
+# サンプルコード
+peak_index = detect_peak_neg(mea.data)
+amc_chs = [1, 2, 3, 4, 5, 6, 7, 8] # AMCの電極番号
+mea.fig.draw_line_conduction(peak_index=peak_index, amc_chs=amc_chs)
+
+# 環状の経路の場合
+from pyMEA.figure.plot.plot import circuit_eles
+
+mea.fig.draw_line_conduction(peak_index=peak_index, amc_chs=circuit_eles, isLoop=True)
 ```
 
 ## Article
