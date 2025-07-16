@@ -84,7 +84,43 @@ mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.CARDIO_AVE_W
 ```
 
 ---
+## ピーク抽出
+- 下ピーク抽出, 上ピーク抽出, 上下ピーク抽出を行うメソッドをそれぞれ用意している
+- デフォルトimportに対応している
+```python
+def detect_peak_neg(
+    MEA_data: MEA,
+    distance=3000, # ピークを取る間隔
+    threshold=3,   # SD * thresholdより大きいピークを取る 
+    min_amp=10,    # 最小のピークの閾値電位
+) -> NegPeaks64:
 
+def detect_peak_pos(
+    MEA_data: MEA,
+    distance=3000, # ピークを取る間隔
+    threshold=3,   # SD * thresholdより大きいピークを取る 
+    min_amp=10,    # 最小のピークの閾値電位
+) -> PosPeaks64:
+
+def detect_peak_all(
+    MEA_data: MEA,
+    threshold: tuple[int, int] = (3, 3), # (上, 下)
+    distance=3000, # SD * thresholdより大きいピークを取る
+    min_amp=(10, 10), # (上, 下)
+    width=None,
+    prominence=None,
+) -> AllPeaks64:
+```
+```python
+# サンプルコード
+peak_index_neg = detect_peak_neg(mea.data)
+peak_index_pos = detect_peak_pos(mea.data, threshold=2)
+peak_index_all = detect_peak_all(mea.data, distance=5000, threshold=(2, 5))
+
+# ch 5のピーク時刻 (s)を求める
+time = mea.data[0][peak_index_neg[5]]
+```
+---
 ## グラフ描画
 
 ### 64電極波形描画

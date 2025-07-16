@@ -64,6 +64,17 @@ def detect_peak_pos(
     width=None,
     prominence=None,
 ) -> PosPeaks64:
+    """
+    64電極すべての上ピークを取得
+
+    Args:
+        MEA_data: MEA読み込みデータ
+        distance: ピークを取る間隔
+        threshold: SD * thresholdより大きいピークを取る
+        min_amp: 最小のピークの閾値
+        width:
+        prominence:
+    """
     peak_dict: dict[int, PosPeaks] = {}
     for i in range(1, len(MEA_data)):
         # ピーク抽出の閾値を設定
@@ -116,6 +127,17 @@ def detect_peak_all(
     width=None,
     prominence=None,
 ) -> AllPeaks64:
+    """
+    64電極すべての上下ピークを取得
+    
+    Args:
+        MEA_data: MEA読み込みデータ
+        threshold: (上threshold, 下threshold)
+        distance: ピークを取る間隔
+        min_amp: (上の最小閾値電位, 下の最小閾値電位)
+        width
+        prominence
+    """
     peak_pos = detect_peak_pos(
         MEA_data, distance, threshold[0], min_amp[0], width, prominence
     )
