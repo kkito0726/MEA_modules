@@ -129,7 +129,7 @@ def detect_peak_all(
 ) -> AllPeaks64:
     """
     64電極すべての上下ピークを取得
-    
+
     Args:
         MEA_data: MEA読み込みデータ
         threshold: (上threshold, 下threshold)
