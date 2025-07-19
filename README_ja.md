@@ -58,11 +58,10 @@ def read_MEA(
 ) -> PyMEA
 ```
 
-### サンプルコード
-
-- フィルターなし (データをそのまま読み込む)
+### フィルターなし (データをそのまま読み込む)
 
 ```python
+# サンプルコード
 from pyMEA import *
 
 hed_path = "/User/you/your_record_data.hed"
@@ -72,8 +71,7 @@ electrode_distance = 450
 mea = read_MEA(hed_path, start, end, electrode_distance)
 ```
 
-- フィルターあり
-
+### フィルターあり
 ```python
 # 移動平均で処理する (神経細胞の計測データでよく使われる)
 mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.FILTER_MEA)
@@ -83,6 +81,28 @@ mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.FILTER_MEA)
 mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.CARDIO_AVE_WAVE)
 ```
 
+### データの分割
+```python
+# 読み込んだデータを任意の期間切り出す
+# read_MEAでは読み込み期間を整数でしか指定できないがここでは少数も可能
+mea_slice = mea.from_slice(0.25, 0.5)
+
+# 拍動周期ごとにデータを切り出す
+# 例: ch 5を基準電極とする
+mea_list = mea.from_beat_cycles(peak_index_neg, base_ch=5)
+```
+
+### 時刻データの先頭を0始まりにする
+```python
+# 途中から読み込んだデータでグラフ描画するときに時刻データを0始まりにしたい時
+mea = mea.init_time()
+```
+
+### 電位データのダウンサンプリング
+```python
+# 1/10にダウンサンプリングする
+dawn_sampled_mea = mea.down_sampling(10)
+```
 ---
 ## ピーク抽出
 - 下ピーク抽出, 上ピーク抽出, 上下ピーク抽出を行うメソッドをそれぞれ用意している
@@ -142,21 +162,6 @@ def showAll(
 start, end = 0, 1
 volt_min, volt_max = -300, 300
 mea.fig.showAll(start, end, volt_min, volt_max)
-
-# フレーム間0.1秒で100フレーム分のGIF動画を作成
-fig_images = [
-    mea.fig.showAll(
-        0 + i * 0.1, 
-        1 + i * 0.1, 
-        isBuf=True, 
-        dpi=100, 
-        figsize=(10, 8)
-    ) 
-    for i in range(68)
-]
-video = VideoMEA(fig_images)
-video.save_gif("./output_64waves.gif", duration = 0.1) # 動画の保存
-video.display_gif(duration = 0.1)                      # 動画をjupyter上で再生
 ```
 
 ### 1電極波形描画
@@ -338,6 +343,31 @@ mea.fig.draw_line_conduction(peak_index=peak_index, amc_chs=amc_chs)
 from pyMEA.figure.plot.plot import circuit_eles
 
 mea.fig.draw_line_conduction(peak_index=peak_index, amc_chs=circuit_eles, isLoop=True)
+```
+
+## 動画作成
+グラフ描画のメソッドの引数にはisBufという引数があり、これをTrueにするとFigImageクラスのインスタンスが返る。このクラスはグラフ画像情報を保持するクラスであり、このインスタンスのリストをVideoMEAクラスに渡すことでGIF動画の再生や保存ができるようになる。カラーマップ描画系のメソッドは入力したデータのすべての拍動周期に対してグラフ描画するので、isBufをTrueにするとVideoMEAのインスタンスが返るようにしている。
+```python
+# フレーム間0.1秒で100フレーム分のGIF動画作成
+# ここではshowAllメソッドを例に上げる
+fig_images = [
+    mea.fig.showAll(
+        0 + i * 0.1, 
+        1 + i * 0.1, 
+        isBuf=True, 
+        dpi=100, 
+        figsize=(10, 8)
+    ) 
+    for i in range(100)
+]
+video = VideoMEA(fig_images)
+video.save_gif("./output_64waves.gif", duration = 0.1) # 動画の保存
+video.display_gif(duration = 0.1)                      # 動画をjupyter上で再生
+
+# カラーマップのGIF動画作成
+video = mea.fig.draw_2d(peak_index=peak_index, isBuf=True)
+video.save_gif("./output_2d_color_maps.gif", duration = 0.1) # 動画の保存
+video.display_gif(duration = 0.1)                      # 動画をjupyter上で再生
 ```
 
 ## 数値計算
