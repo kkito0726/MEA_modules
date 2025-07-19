@@ -340,6 +340,78 @@ from pyMEA.figure.plot.plot import circuit_eles
 mea.fig.draw_line_conduction(peak_index=peak_index, amc_chs=circuit_eles, isLoop=True)
 ```
 
+## 数値計算
+
+### ISI (拍動間隔) の計算
+
+```python
+def isi(self, peak_index: Peaks64, ch) -> ndarray[Any, dtype[floating[Any]]]:
+```
+```python
+# サンプルコード
+peak_index = detect_peak_neg(mea.data)
+isi = mea.calculator.isi(peak_index, ch=2)
+```
+
+### FPD (細胞外電位継続時間) の計算
+
+```python
+def fpd(
+    self,
+    neg_peak_index: NegPeaks64,
+    ch: int,
+    peak_range=(30, 110), # 2ndピークの電位範囲
+    stroke_time=0.02,     # 1stピークのストロークの期間 (s)
+    fpd_range=(0.1, 0.4), # FPDとして採用する範囲
+) -> FPD:
+```
+```python
+# サンプルコード
+# ch 2のFPD (s)を算出する
+peak_index = detect_peak_neg(mea.data)
+fpd = mea.calculator.fpd(peak_index, ch=2)
+
+# FPD算出のために抽出したピークの位置を確認する
+fpd.show(mea.data)
+```
+
+### 伝導速度の計算
+
+```python
+def conduction_velocity(self, peak_index: Peaks64, ch1: int, ch2: int) -> ndarray:
+```
+
+```python
+# サンプルコード
+# ch 9とch 54間の伝導速度を算出する
+peak_index = detect_peak_neg(mea.data)
+conduction_velocity = mea.calculator.conduction_velocity(peak_index, ch1=9, ch2=54)
+```
+
+### 電極間距離の計算 (直線距離を計算)
+
+```python
+def distance(self, ch1: int, ch2: int) -> np.float64:
+```
+
+```python
+# サンプルコード
+# ch 9とch 54の直線距離を算出する
+distance = mea.calculator.distance(ch1=9, ch2=54)
+```
+
+### 速度ベクトルから伝導速度を計算
+
+```python
+def gradient_velocity(self, peak_index: Peaks64, base_ch=None, mesh_num=8):
+```
+
+```python
+# サンプルコード
+peak_index = detect_peak_neg(mea.data)
+gradient_velocity = mea.calculator.gradient_velocity(peak_index)
+```
+
 ## Article
 [K.Kito *et al* (2024) *Biophysics and Physicobiology*, e210026](https://doi.org/10.2142/biophysico.bppb-v21.0026)
 
