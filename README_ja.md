@@ -123,6 +123,7 @@ mea_slice = mea.from_slice(0.25, 0.5)
 
 # 拍動周期ごとにデータを切り出す
 # 例: ch 5を基準電極とする
+peak_index_neg = detect_peak_neg(mea.data)
 mea_list = mea.from_beat_cycles(peak_index_neg, base_ch=5)
 ```
 
@@ -244,7 +245,8 @@ def plotPeaks(
 peak_index = detect_peak_neg(mea.data)
 
 # ピークをプロット
-mea.fig.plotPeaks(ch=2, peak_index, start=0, end=1, volt_min=-300, volt_max=300)
+ch = 2
+mea.fig.plotPeaks(ch, peak_index, start=0, end=1, volt_min=-300, volt_max=300)
 ```
 
 ### 波形を縦に積み上げて描画
