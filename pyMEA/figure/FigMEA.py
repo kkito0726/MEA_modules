@@ -34,12 +34,11 @@ class FigMEA:
     @channel
     @output_buf
     def plot_spectrum(
-        self, ch: int, max_freq=500, nperseg=2048, dpi=100, isBuf=False
+        self, ch: int, max_freq=500, nperseg=2048, figsize=(10, 4), dpi=100, isBuf=False
     ):
         """
         与えられた信号のスペクトルをプロットする関数
         - FFTの振幅スペクトル
-        - Welch法によるパワースペクトル密度
         """
         N = len(self.data[ch])
 
@@ -52,25 +51,15 @@ class FigMEA:
         f, Pxx = welch(self.data[ch], fs=self.data.SAMPLING_RATE, nperseg=nperseg)
 
         # === プロット ===
-        fig, axs = plt.subplots(1, 2, figsize=(12, 4), dpi=dpi)
+        plt.figure(figsize=figsize, dpi=dpi)
 
         # FFT
-        axs[0].plot(fft_freq, amplitude)
-        axs[0].set_xlim(0, max_freq)
-        axs[0].set_xticks(np.arange(0, max_freq + 50, 50))
-        axs[0].set_xlabel("Frequency [Hz]")
-        axs[0].set_ylabel("Amplitude")
-        axs[0].set_title("Amplitude Spectrum (FFT)")
-        axs[0].grid()
-
-        # Welch
-        axs[1].semilogy(f, Pxx)
-        axs[1].set_xlim(0, max_freq)
-        axs[1].set_xticks(np.arange(0, max_freq + 50, 50))
-        axs[1].set_xlabel("Frequency [Hz]")
-        axs[1].set_ylabel("Power Spectral Density")
-        axs[1].set_title("Power Spectrum (Welch)")
-        axs[1].grid()
+        plt.plot(fft_freq, amplitude)
+        plt.xlim(0, max_freq)
+        plt.xticks(np.arange(0, max_freq + 50, 50))
+        plt.xlabel("Frequency [Hz]")
+        plt.ylabel("Amplitude")
+        plt.grid()
 
         plt.tight_layout()
 
