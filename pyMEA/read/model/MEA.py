@@ -4,10 +4,10 @@ from typing import Any
 
 from numpy import append, empty, float64, linspace, ndarray, pad
 from numpy._typing import NDArray
+from scipy.signal import filtfilt, iirnotch
 
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.read.model.HedPath import HedPath
-from scipy.signal import iirnotch, filtfilt
 
 
 @dataclass(frozen=True)
@@ -219,6 +219,7 @@ def iirnotch_filter_single_ch(signal, fs, f0=50, Q=30):
     filtered = filtfilt(b, a, signal)
 
     return filtered
+
 
 def downsample_max_min(arr: NDArray[float64], factor: int) -> NDArray[float64]:
     """
