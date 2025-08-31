@@ -7,6 +7,7 @@ from numpy._typing import NDArray
 
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.read.model.HedPath import HedPath
+from scipy.signal import iirnotch, filtfilt
 
 
 @dataclass(frozen=True)
@@ -157,6 +158,67 @@ class MEA:
             new_array,
         )
 
+    def iirnotch_filter(self, filter_hz=50, Q=30):
+        """
+        IIRノッチフィルタで特定周波数のノイズを除去する関数
+
+        Parameters
+        ----------
+        filter_hz : float, optional
+            除去したい周波数（デフォルト 50 Hz）
+        Q : float, optional
+            Q値（ノッチの鋭さ、デフォルト 30）
+
+        Returns
+        -------
+        filtered : MEA
+            フィルタ後の信号
+        """
+        new_voltages = [
+            iirnotch_filter_single_ch(self.array[ch], self.SAMPLING_RATE, filter_hz, Q)
+            for ch in range(1, 65)
+        ]
+        t = self.array[0]
+        t = t.reshape(1, len(t))
+        new_array = append(t, new_voltages, axis=0)
+
+        return MEA(
+            self.hed_path,
+            self.start,
+            self.array[0][-1],
+            self.SAMPLING_RATE,
+            self.GAIN,
+            new_array,
+        )
+
+
+def iirnotch_filter_single_ch(signal, fs, f0=50, Q=30):
+    """
+    IIRノッチフィルタで特定周波数のノイズを除去する関数
+
+    Parameters
+    ----------
+    signal : array_like
+        入力信号（1次元配列）
+    fs : float
+        サンプリング周波数 [Hz]
+    f0 : float, optional
+        除去したい周波数（デフォルト 50 Hz）
+    Q : float, optional
+        Q値（ノッチの鋭さ、デフォルト 30）
+
+    Returns
+    -------
+    filtered : ndarray
+        フィルタ後の信号
+    """
+    # ノッチフィルタ設計
+    b, a = iirnotch(f0, Q, fs)
+
+    # 前後方向フィルタ（位相歪み補正）
+    filtered = filtfilt(b, a, signal)
+
+    return filtered
 
 def downsample_max_min(arr: NDArray[float64], factor: int) -> NDArray[float64]:
     """

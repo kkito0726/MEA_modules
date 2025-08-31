@@ -87,3 +87,27 @@ class PyMEA:
             FigMEA(new_data, self.electrode),
             Calculator(new_data, self.electrode.ele_dis),
         )
+
+    def iirnotch_filter(self, filter_hz=50, Q=30):
+        """
+        IIRノッチフィルタで特定周波数のノイズを除去する関数
+
+        Parameters
+        ----------
+        filter_hz : float, optional
+            除去したい周波数（デフォルト 50 Hz）
+        Q : float, optional
+            Q値（ノッチの鋭さ、デフォルト 30）
+
+        Returns
+        -------
+        filtered : PyMEA
+            フィルタ後の信号
+        """
+        new_data = self.data.iirnotch_filter(filter_hz, Q)
+        return PyMEA(
+            new_data,
+            self.electrode,
+            FigMEA(new_data, self.electrode),
+            Calculator(new_data, self.electrode.ele_dis),
+        )

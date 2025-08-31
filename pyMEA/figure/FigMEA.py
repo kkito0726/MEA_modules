@@ -2,7 +2,10 @@ import io
 from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
-from numpy import ndarray
+
+# from numpy import ndarray
+import numpy as np
+from scipy.signal import welch
 
 from pyMEA.core.Electrode import Electrode
 from pyMEA.figure.plot.histogram import mkHist
@@ -27,6 +30,38 @@ from pyMEA.utils.decorators import channel, output_buf
 class FigMEA:
     data: MEA
     electrode: Electrode
+
+    @channel
+    @output_buf
+    def plot_spectrum(
+        self, ch: int, max_freq=500, nperseg=2048, figsize=(10, 4), dpi=100, isBuf=False
+    ):
+        """
+        与えられた信号のスペクトルをプロットする関数
+        - FFTの振幅スペクトル
+        """
+        N = len(self.data[ch])
+
+        # === FFT ===
+        fft_vals = np.fft.rfft(self.data[ch])
+        fft_freq = np.fft.rfftfreq(N, 1 / self.data.SAMPLING_RATE)
+        amplitude = np.abs(fft_vals) / N
+
+        # === Welch ===
+        f, Pxx = welch(self.data[ch], fs=self.data.SAMPLING_RATE, nperseg=nperseg)
+
+        # === プロット ===
+        plt.figure(figsize=figsize, dpi=dpi)
+
+        # FFT
+        plt.plot(fft_freq, amplitude)
+        plt.xlim(0, max_freq)
+        plt.xticks(np.arange(0, max_freq + 50, 50))
+        plt.xlabel("Frequency [Hz]")
+        plt.ylabel("Amplitude")
+        plt.grid()
+
+        plt.tight_layout()
 
     def _set_times(self, start, end) -> tuple[int, int]:
         # 時間の設定がなければ読み込み時間全体をプロットするようにする。
@@ -250,7 +285,7 @@ class FigMEA:
         end=None,
         dpi=300,
         isBuf=False,
-    ) -> FigImage | ndarray:
+    ) -> FigImage | np.ndarray:
         start, end = self._set_times(start, end)
         return mkHist(
             MEA_data=self.data,
