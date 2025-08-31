@@ -283,6 +283,7 @@ class FigMEA:
         bin_duration=0.05,
         start=None,
         end=None,
+        y_max=None,
         dpi=300,
         isBuf=False,
     ) -> FigImage | np.ndarray:
@@ -296,6 +297,7 @@ class FigMEA:
             sampling=self.data.SAMPLING_RATE,
             start=start,
             end=end,
+            y_max=y_max,
             dpi=dpi,
             isBuf=isBuf,
         )

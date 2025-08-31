@@ -27,6 +27,7 @@ def mkHist(
     sampling=10000,
     start=0,
     end=120,
+    y_max=None,
     dpi=300,
     isBuf=False,
 ) -> io.BytesIO | ndarray:
@@ -36,6 +37,8 @@ def mkHist(
     bins = len(MEA_data[0]) / sampling / bin_duration
     y, _, _ = plt.hist(detect_time, bins=int(bins), color="k")
     plt.xlim(start, end)
+    if y_max:
+        plt.ylim(0, y_max)
     plt.ylabel("Number of spikes")
     plt.xlabel("Time (s)")
 

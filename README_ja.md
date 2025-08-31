@@ -304,6 +304,7 @@ def mkHist(
     bin_duration=0.05,
     start=None,
     end=None,
+    y_max=None,
     dpi=300,
     isBuf=False,
 ) -> FigImage | ndarray:
