@@ -2,7 +2,10 @@ import io
 from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
-from numpy import ndarray
+
+# from numpy import ndarray
+import numpy as np
+from scipy.signal import welch
 
 from pyMEA.core.Electrode import Electrode
 from pyMEA.figure.plot.histogram import mkHist
@@ -27,6 +30,49 @@ from pyMEA.utils.decorators import channel, output_buf
 class FigMEA:
     data: MEA
     electrode: Electrode
+
+    @channel
+    @output_buf
+    def plot_spectrum(
+        self, ch: int, max_freq=500, nperseg=2048, dpi=100, isBuf=False
+    ):
+        """
+        与えられた信号のスペクトルをプロットする関数
+        - FFTの振幅スペクトル
+        - Welch法によるパワースペクトル密度
+        """
+        N = len(self.data[ch])
+
+        # === FFT ===
+        fft_vals = np.fft.rfft(self.data[ch])
+        fft_freq = np.fft.rfftfreq(N, 1 / self.data.SAMPLING_RATE)
+        amplitude = np.abs(fft_vals) / N
+
+        # === Welch ===
+        f, Pxx = welch(self.data[ch], fs=self.data.SAMPLING_RATE, nperseg=nperseg)
+
+        # === プロット ===
+        fig, axs = plt.subplots(1, 2, figsize=(12, 4), dpi=dpi)
+
+        # FFT
+        axs[0].plot(fft_freq, amplitude)
+        axs[0].set_xlim(0, max_freq)
+        axs[0].set_xticks(np.arange(0, max_freq + 50, 50))
+        axs[0].set_xlabel("Frequency [Hz]")
+        axs[0].set_ylabel("Amplitude")
+        axs[0].set_title("Amplitude Spectrum (FFT)")
+        axs[0].grid()
+
+        # Welch
+        axs[1].semilogy(f, Pxx)
+        axs[1].set_xlim(0, max_freq)
+        axs[1].set_xticks(np.arange(0, max_freq + 50, 50))
+        axs[1].set_xlabel("Frequency [Hz]")
+        axs[1].set_ylabel("Power Spectral Density")
+        axs[1].set_title("Power Spectrum (Welch)")
+        axs[1].grid()
+
+        plt.tight_layout()
 
     def _set_times(self, start, end) -> tuple[int, int]:
         # 時間の設定がなければ読み込み時間全体をプロットするようにする。
@@ -250,7 +296,7 @@ class FigMEA:
         end=None,
         dpi=300,
         isBuf=False,
-    ) -> FigImage | ndarray:
+    ) -> FigImage | np.ndarray:
         start, end = self._set_times(start, end)
         return mkHist(
             MEA_data=self.data,
