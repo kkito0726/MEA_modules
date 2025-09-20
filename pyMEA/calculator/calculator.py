@@ -50,6 +50,8 @@ class Calculator:
         peak_range=(30, 110),
         stroke_time=0.02,
         fpd_range=(0.1, 0.4),
+        width=None,
+        prominence=None
     ) -> FPD:
         """
         FPD (s) 細胞外電位継続時間を計算する
@@ -60,6 +62,8 @@ class Calculator:
             peak_range: 2ndピークの電位範囲
             stroke_time: ピークに達するまでの時間 (s)
             fpd_range: 許容するFPDの範囲
+            width
+            prominence
 
         Returns:
             FPD
@@ -81,7 +85,13 @@ class Calculator:
         for p in neg_peak_index[ch]:
             tmp = data[:, p + stroke_frame : p + max_fpd_frame]
             # 2nd peak付近のデータを抽出
-            pos_peak = detect_cardio_second_peak(tmp, height=peak_range, distance=3000)
+            pos_peak = detect_cardio_second_peak(
+                tmp,
+                height=peak_range,
+                distance=3000,
+                width=width,
+                prominence=prominence
+            )
             # ピークが見つからなかったら飛ばして次の拍動周期
             if len(pos_peak[ch]) == 0:
                 continue
