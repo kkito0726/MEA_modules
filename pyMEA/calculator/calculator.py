@@ -5,6 +5,7 @@ import numpy as np
 from numpy import dtype, floating, ndarray
 
 from pyMEA.calculator.FPD import FPD
+from pyMEA.calculator.ISI import ISI
 from pyMEA.find_peaks.peak_detection import detect_cardio_second_peak, detect_peak_neg
 from pyMEA.find_peaks.peak_model import NegPeaks64, Peaks64, PosPeaks
 from pyMEA.gradient.Gradient import Gradient
@@ -27,7 +28,7 @@ class Calculator:
     ele_dis: int
 
     @ch_validator
-    def isi(self, peak_index: Peaks64, ch) -> ndarray[Any, dtype[floating[Any]]]:
+    def isi(self, peak_index: Peaks64, ch) -> ISI:
         """
         ISI (s) 拍動間隔を計算する
         ----------
@@ -40,7 +41,13 @@ class Calculator:
         -------
 
         """
-        return np.diff(peak_index[ch]) / self.data.SAMPLING_RATE
+
+        return ISI(
+            values=np.diff(peak_index[ch]) / self.data.SAMPLING_RATE,
+            ch=ch,
+            data=self.data,
+            peaks=peak_index[ch]
+        )
 
     @ch_validator
     def fpd(
