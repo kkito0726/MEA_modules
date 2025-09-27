@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
-from numpy import array_equal, ndarray
 
 from pyMEA.calculator.AbstractValues import AbstractValues
 from pyMEA.find_peaks.peak_model import NegPeaks, PosPeaks
