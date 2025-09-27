@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from typing import Any
 
 import numpy as np
-from numpy import dtype, floating, ndarray
+from numpy import ndarray
 
 from pyMEA.calculator.FPD import FPD
 from pyMEA.calculator.ISI import ISI
@@ -114,6 +113,7 @@ class Calculator:
         return FPD(
             values=np.array(fpds),
             ch=ch,
+            data=self.data,
             neg_peaks=neg_peak_index[ch],
             pos_peaks=PosPeaks(np.array(pos_peaks)),
         )
