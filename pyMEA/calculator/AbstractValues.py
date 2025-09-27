@@ -51,10 +51,12 @@ class AbstractValues:
     def __ge__(self, other):
         return self.values >= other
 
+    @property
     def stv(self):
         diff = abs(np.diff(self.values))
         N2 = len(diff) * np.sqrt(2)
         return sum(diff) / N2
 
+    @property
     def coefficient_of_variation(self):
         return np.std(self.values) / np.mean(self.values) * 100
