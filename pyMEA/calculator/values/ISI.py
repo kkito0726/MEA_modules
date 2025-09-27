@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
 
-from pyMEA.calculator.AbstractValues import AbstractValues
+from pyMEA.calculator.values.AbstractValues import AbstractValues
 from pyMEA.find_peaks.peak_model import Peaks
 from pyMEA.read.model.MEA import MEA
 from pyMEA.utils.decorators import output_buf

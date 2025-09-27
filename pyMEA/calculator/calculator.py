@@ -3,8 +3,8 @@ from dataclasses import dataclass
 import numpy as np
 from numpy import ndarray
 
-from pyMEA.calculator.FPD import FPD
-from pyMEA.calculator.ISI import ISI
+from pyMEA.calculator.values.FPD import FPD
+from pyMEA.calculator.values.ISI import ISI
 from pyMEA.find_peaks.peak_detection import detect_cardio_second_peak, detect_peak_neg
 from pyMEA.find_peaks.peak_model import NegPeaks64, Peaks64, PosPeaks
 from pyMEA.gradient.Gradient import Gradient
