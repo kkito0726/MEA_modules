@@ -3,61 +3,17 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt
 from numpy import array_equal, ndarray
 
+from pyMEA.calculator.AbstractValues import AbstractValues
 from pyMEA.find_peaks.peak_model import NegPeaks, PosPeaks
 from pyMEA.read.model.MEA import MEA
 from pyMEA.utils.decorators import output_buf
 
 
 @dataclass(frozen=True)
-class FPD:
+class FPD(AbstractValues):
     ch: int
     neg_peaks: NegPeaks
     pos_peaks: PosPeaks
-    fpds: ndarray
-
-    def __repr__(self):
-        return repr(self.fpds)
-
-    def __getitem__(self, item):
-        return self.fpds[item]
-
-    def __len__(self):
-        return len(self.fpds)
-
-    def __add__(self, value):
-        return self.fpds + value
-
-    def __sub__(self, value):
-        return self.fpds - value
-
-    def __mul__(self, value):
-        return self.fpds * value
-
-    def __truediv__(self, value):
-        return self.fpds / value
-
-    def __floordiv__(self, value):
-        return self.fpds // value
-
-    def __eq__(self, other):
-        if isinstance(other, FPD):
-            return array_equal(self.fpds, other.fpds)
-        return False
-
-    def __ne__(self, other):
-        return self.fpds != other
-
-    def __lt__(self, other):
-        return self.fpds < other
-
-    def __le__(self, other):
-        return self.fpds <= other
-
-    def __gt__(self, other):
-        return self.fpds > other
-
-    def __ge__(self, other):
-        return self.fpds >= other
 
     @output_buf
     def show(
