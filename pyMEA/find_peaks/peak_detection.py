@@ -30,8 +30,8 @@ def detect_peak_neg(
         distance: ピークを取る間隔
         threshold: SD * thresholdより大きいピークを取る
         min_amp: 最小のピークの閾値
-        width:
-        prominence:
+        prominence: 突起度
+        width: ピークの幅
     """
     peak_dict: dict[int, NegPeaks] = {}
     for i in range(1, len(MEA_data)):
@@ -72,8 +72,8 @@ def detect_peak_pos(
         distance: ピークを取る間隔
         threshold: SD * thresholdより大きいピークを取る
         min_amp: 最小のピークの閾値
-        width:
-        prominence:
+        prominence: 突起度
+        width: ピークの幅
     """
     peak_dict: dict[int, PosPeaks] = {}
     for i in range(1, len(MEA_data)):
@@ -135,8 +135,8 @@ def detect_peak_all(
         threshold: (上threshold, 下threshold)
         distance: ピークを取る間隔
         min_amp: (上の最小閾値電位, 下の最小閾値電位)
-        width
-        prominence
+        prominence: 突起度
+        width: ピークの幅
     """
     peak_pos = detect_peak_pos(
         MEA_data, distance, threshold[0], min_amp[0], width, prominence

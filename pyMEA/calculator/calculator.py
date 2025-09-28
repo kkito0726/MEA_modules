@@ -68,8 +68,8 @@ class Calculator:
             peak_range: 2ndピークの電位範囲
             stroke_time: ピークに達するまでの時間 (s)
             fpd_range: 許容するFPDの範囲
-            width:
             prominence: 突起度
+            width: ピークの幅
 
         Returns:
             FPD
