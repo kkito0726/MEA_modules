@@ -19,8 +19,8 @@ def detect_peak_neg(
     distance=3000,
     threshold=3,
     min_amp=10,
-    width=None,
     prominence=None,
+    width=None,
 ) -> NegPeaks64:
     """
     64電極すべての下ピークを取得
@@ -30,8 +30,8 @@ def detect_peak_neg(
         distance: ピークを取る間隔
         threshold: SD * thresholdより大きいピークを取る
         min_amp: 最小のピークの閾値
-        width:
-        prominence:
+        prominence: 突起度
+        width: ピークの幅
     """
     peak_dict: dict[int, NegPeaks] = {}
     for i in range(1, len(MEA_data)):
@@ -47,8 +47,8 @@ def detect_peak_neg(
             -data,
             height=height,
             distance=distance,
-            width=width,
             prominence=prominence,
+            width=width,
         )
         peak_dict[i] = NegPeaks(detect_peak_index)
 
@@ -61,8 +61,8 @@ def detect_peak_pos(
     distance=3000,
     threshold=3,
     min_amp=10,
-    width=None,
     prominence=None,
+    width=None,
 ) -> PosPeaks64:
     """
     64電極すべての上ピークを取得
@@ -72,8 +72,8 @@ def detect_peak_pos(
         distance: ピークを取る間隔
         threshold: SD * thresholdより大きいピークを取る
         min_amp: 最小のピークの閾値
-        width:
-        prominence:
+        prominence: 突起度
+        width: ピークの幅
     """
     peak_dict: dict[int, PosPeaks] = {}
     for i in range(1, len(MEA_data)):
@@ -89,8 +89,8 @@ def detect_peak_pos(
             data,
             height=height,
             distance=distance,
-            width=width,
             prominence=prominence,
+            width=width,
         )
         peak_dict[i] = PosPeaks(detect_peak_index)
 
@@ -100,8 +100,8 @@ def detect_peak_pos(
 def detect_cardio_second_peak(
     MEA_data: MEA,
     distance=3000,
-    width=None,
     prominence=None,
+    width=None,
     height: tuple[int, int] = (10, 200),
 ) -> PosPeaks64:
     peak_dict: dict[int, PosPeaks] = {}
@@ -110,8 +110,8 @@ def detect_cardio_second_peak(
             MEA_data[i],
             height=height,
             distance=distance,
-            width=width,
             prominence=prominence,
+            width=width,
         )
         peak_dict[i] = PosPeaks(detect_peak_index)
 
@@ -124,8 +124,8 @@ def detect_peak_all(
     threshold: tuple[int, int] = (3, 3),
     distance=3000,
     min_amp=(10, 10),
-    width=None,
     prominence=None,
+    width=None,
 ) -> AllPeaks64:
     """
     64電極すべての上下ピークを取得
@@ -135,8 +135,8 @@ def detect_peak_all(
         threshold: (上threshold, 下threshold)
         distance: ピークを取る間隔
         min_amp: (上の最小閾値電位, 下の最小閾値電位)
-        width
-        prominence
+        prominence: 突起度
+        width: ピークの幅
     """
     peak_pos = detect_peak_pos(
         MEA_data, distance, threshold[0], min_amp[0], width, prominence

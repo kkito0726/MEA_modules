@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import Any
 
 import numpy as np
-from numpy import dtype, floating, ndarray
+from numpy import ndarray
 
-from pyMEA.calculator.FPD import FPD
+from pyMEA.calculator.values.FPD import FPD
+from pyMEA.calculator.values.ISI import ISI
 from pyMEA.find_peaks.peak_detection import detect_cardio_second_peak, detect_peak_neg
 from pyMEA.find_peaks.peak_model import NegPeaks64, Peaks64, PosPeaks
 from pyMEA.gradient.Gradient import Gradient
@@ -27,7 +27,7 @@ class Calculator:
     ele_dis: int
 
     @ch_validator
-    def isi(self, peak_index: Peaks64, ch) -> ndarray[Any, dtype[floating[Any]]]:
+    def isi(self, peak_index: Peaks64, ch) -> ISI:
         """
         ISI (s) 拍動間隔を計算する
         ----------
@@ -40,7 +40,13 @@ class Calculator:
         -------
 
         """
-        return np.diff(peak_index[ch]) / self.data.SAMPLING_RATE
+
+        return ISI(
+            values=np.diff(peak_index[ch]) / self.data.SAMPLING_RATE,
+            ch=ch,
+            data=self.data,
+            peaks=peak_index[ch]
+        )
 
     @ch_validator
     def fpd(
@@ -50,8 +56,8 @@ class Calculator:
         peak_range=(30, 110),
         stroke_time=0.02,
         fpd_range=(0.1, 0.4),
+        prominence=None,
         width=None,
-        prominence=None
     ) -> FPD:
         """
         FPD (s) 細胞外電位継続時間を計算する
@@ -62,8 +68,8 @@ class Calculator:
             peak_range: 2ndピークの電位範囲
             stroke_time: ピークに達するまでの時間 (s)
             fpd_range: 許容するFPDの範囲
-            width
-            prominence
+            prominence: 突起度
+            width: ピークの幅
 
         Returns:
             FPD
@@ -90,7 +96,7 @@ class Calculator:
                 height=peak_range,
                 distance=3000,
                 width=width,
-                prominence=prominence
+                prominence=prominence,
             )
             # ピークが見つからなかったら飛ばして次の拍動周期
             if len(pos_peak[ch]) == 0:
@@ -105,10 +111,11 @@ class Calculator:
             else:
                 continue
         return FPD(
-            ch,
+            values=np.array(fpds),
+            ch=ch,
+            data=self.data,
             neg_peaks=neg_peak_index[ch],
             pos_peaks=PosPeaks(np.array(pos_peaks)),
-            fpds=np.array(fpds),
         )
 
     @ch_validator

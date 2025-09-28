@@ -412,12 +412,14 @@ video.display_gif(duration = 0.1)                      # 動画をjupyter上で�
 ### ISI (拍動間隔) の計算
 
 ```python
-def isi(self, peak_index: Peaks64, ch) -> ndarray[Any, dtype[floating[Any]]]:
+def isi(self, peak_index: Peaks64, ch) -> ISI:
 ```
 ```python
 # サンプルコード
 peak_index = detect_peak_neg(mea.data)
 isi = mea.calculator.isi(peak_index, ch=2)
+isi_stv = isi.stv # ISIのSTV (Short-Term Variability)を計算
+isi_cv = isi.coefficient_of_variation # ISIのCV (変動係数, Coefficient of Variation)を計算
 ```
 
 ### FPD (細胞外電位継続時間) の計算
@@ -430,6 +432,8 @@ def fpd(
     peak_range=(30, 110), # 2ndピークの電位範囲
     stroke_time=0.02,     # 1stピークのストロークの期間 (s)
     fpd_range=(0.1, 0.4), # FPDとして採用する範囲
+    prominence=None, # find_peaksのパラメータ
+    width=None, # find_peaksのパラメータ
 ) -> FPD:
 ```
 ```python
@@ -437,6 +441,8 @@ def fpd(
 # ch 2のFPD (s)を算出する
 peak_index = detect_peak_neg(mea.data)
 fpd = mea.calculator.fpd(peak_index, ch=2)
+fpd_stv = fpd.stv # FPDのSTV (Short-Term Variability)を計算
+fpd_cv = fpd.coefficient_of_variation # ISIのCV (変動係数, Coefficient of Variation)を計算
 
 # FPD算出のために抽出したピークの位置を確認する
 fpd.show(mea.data)
