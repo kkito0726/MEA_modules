@@ -110,6 +110,7 @@ def showDetection(
     read_start=None,  # データの読み込み開始時間 (s)読み込み時間によるframeのずれを解消する
     sampling_rate=10000,
     adjust_wave=200,
+    isDisplayCh = True,
     figsize=(12, 12),
     xlabel="Time (s)",
     ylabel="Electrode Number",
@@ -129,7 +130,12 @@ def showDetection(
         tmp_volt = (index - np.mean(index)) / adjust_wave
         plt.plot(MEA_raw[0][start_frame:end_frame], tmp_volt[start_frame:end_frame] + i)
 
-    ele_label = [str(eles[i]) for i in range(len(eles))]
+    if isDisplayCh:
+        # 電極番号をY軸の目盛りにする
+        ele_label = [str(eles[i]) for i in range(len(eles))]
+    else:
+        # インデックスを目盛りにする
+        ele_label = [str(i + 1) for i in range(len(eles))]
     plt.yticks(range(0, len(eles), 1), ele_label)
 
     # 読み込み開始時間が途中からの場合のズレを解消する
