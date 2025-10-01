@@ -225,12 +225,27 @@ class FigMEA:
         start=None,
         end=None,
         adjust_wave=200,
+        isDisplayCh = True,
         figsize=(12, 12),
         xlabel="Time (s)",
         ylabel="Electrode Number",
         dpi=300,
         isBuf=False,
     ) -> FigImage | None:
+        """
+        波形を縦に積み上げて描画する
+        Args:
+            eles: 電極番号のリスト
+            start: 描画開始時刻 (s)
+            end: 描画終了時刻 (s)
+            adjust_wave: 波形を何分の一にして描画するか
+            isDisplayCh: 電極番号をY軸の目盛りにするか
+            figsize: figの縦横比
+            xlabel: X軸ラベル
+            ylabel: Y軸ラベル
+            dpi: 解像度
+            isBuf: 画像のバッファを返すかどうか
+        """
         start, end = self._set_times(start, end)
         # 読み込み開始時間が途中からの場合のズレを解消する
         start = abs(start - self.data.start)
@@ -243,6 +258,7 @@ class FigMEA:
             end=end,
             sampling_rate=self.data.SAMPLING_RATE,
             adjust_wave=adjust_wave,
+            isDisplayCh=isDisplayCh,
             figsize=figsize,
             xlabel=xlabel,
             ylabel=ylabel,

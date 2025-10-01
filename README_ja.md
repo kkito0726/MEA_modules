@@ -258,6 +258,7 @@ def showDetection(
     start=None,
     end=None,
     adjust_wave=200,
+    isDisplayCh = True, # 電極番号をY軸の目盛りに設定
     figsize=(12, 12),
     xlabel="Time (s)",
     ylabel="Electrode Number",
@@ -270,6 +271,9 @@ def showDetection(
 peak_index = detect_peak_neg(mea.data)
 eles = [1, 2, 3, 4, 5] # 描画したい電極をリストに格納
 mea.fig.showDetection(eles=eles, start=0, end=1)
+
+# インデックス番号をY軸の目盛りにする (1, 2, 3....)
+mea.fig.showDetection(eles=eles, start=0, end=1, isDisplayCh = False)
 ```
 
 ### ラスタープロット
