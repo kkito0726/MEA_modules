@@ -52,6 +52,18 @@ class AbstractValues:
         return self.values >= other
 
     @property
+    def mean(self):
+        return np.mean(self.values)
+
+    @property
+    def std(self):
+        return np.std(self.values)
+
+    @property
+    def se(self):
+        return self.std / len(self.values)
+
+    @property
     def stv(self):
         diff = abs(np.diff(self.values))
         N2 = len(diff) * np.sqrt(2)
