@@ -110,7 +110,7 @@ def showDetection(
     read_start=None,  # データの読み込み開始時間 (s)読み込み時間によるframeのずれを解消する
     sampling_rate=10000,
     adjust_wave=200,
-    isDisplayCh = True,
+    isDisplayCh=True,
     figsize=(12, 12),
     xlabel="Time (s)",
     ylabel="Electrode Number",
