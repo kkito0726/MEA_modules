@@ -422,6 +422,9 @@ def isi(self, peak_index: Peaks64, ch) -> ISI:
 # サンプルコード
 peak_index = detect_peak_neg(mea.data)
 isi = mea.calculator.isi(peak_index, ch=2)
+isi_mean = isi.mean # 算出されたISIの平均値
+isi_std = isi.std # 算出されたISIの標準偏差
+isi_se = isi.se # 算出されたISIの標準誤差
 isi_stv = isi.stv # ISIのSTV (Short-Term Variability)を計算
 isi_cv = isi.coefficient_of_variation # ISIのCV (変動係数, Coefficient of Variation)を計算
 ```
@@ -445,8 +448,11 @@ def fpd(
 # ch 2のFPD (s)を算出する
 peak_index = detect_peak_neg(mea.data)
 fpd = mea.calculator.fpd(peak_index, ch=2)
+fpd_mean = fpd.mean # 算出されたFPDの平均値
+fpd_std = fpd.std # 算出されたFPDの標準偏差
+fpd_se = fpd.se # 算出されたFPDの標準誤差
 fpd_stv = fpd.stv # FPDのSTV (Short-Term Variability)を計算
-fpd_cv = fpd.coefficient_of_variation # ISIのCV (変動係数, Coefficient of Variation)を計算
+fpd_cv = fpd.coefficient_of_variation # FPDのCV (変動係数, Coefficient of Variation)を計算
 
 # FPD算出のために抽出したピークの位置を確認する
 fpd.show(mea.data)
@@ -463,6 +469,11 @@ def conduction_velocity(self, peak_index: Peaks64, ch1: int, ch2: int) -> ndarra
 # ch 9とch 54間の伝導速度を算出する
 peak_index = detect_peak_neg(mea.data)
 conduction_velocity = mea.calculator.conduction_velocity(peak_index, ch1=9, ch2=54)
+mean = fpd.mean # 算出された伝導速度の平均値
+std = fpd.std # 算出された伝導速度の標準偏差
+se = fpd.se # 算出された伝導速度の標準誤差
+stv = fpd.stv # 伝導速度のSTV (Short-Term Variability)を計算
+cv = fpd.coefficient_of_variation # 伝導速度のCV (変動係数, Coefficient of Variation)を計算
 ```
 
 ### 電極間距離の計算 (直線距離を計算)

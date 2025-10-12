@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 from numpy import ndarray
 
+from pyMEA.calculator.values.ConductionVelocity import ConductionVelocity
 from pyMEA.calculator.values.FPD import FPD
 from pyMEA.calculator.values.ISI import ISI
 from pyMEA.find_peaks.peak_detection import detect_cardio_second_peak, detect_peak_neg
@@ -45,7 +46,7 @@ class Calculator:
             values=np.diff(peak_index[ch]) / self.data.SAMPLING_RATE,
             ch=ch,
             data=self.data,
-            peaks=peak_index[ch]
+            peaks=peak_index[ch],
         )
 
     @ch_validator
@@ -119,7 +120,9 @@ class Calculator:
         )
 
     @ch_validator
-    def conduction_velocity(self, peak_index: Peaks64, ch1: int, ch2: int) -> ndarray:
+    def conduction_velocity(
+        self, peak_index: Peaks64, ch1: int, ch2: int
+    ) -> ConductionVelocity:
         """
         伝導速度 (m/s)を計算する
         ----------
@@ -140,7 +143,16 @@ class Calculator:
             abs(peak_index[ch1] - peak_index[ch2]) / self.data.SAMPLING_RATE
         )
         distance = self.distance(ch1, ch2) * 10**-6
-        return distance / conduction_time
+        cv = distance / conduction_time
+
+        return ConductionVelocity(
+            values=cv,
+            ch1=ch1,
+            ch2=ch2,
+            distance=distance,
+            data=self.data,
+            peaks64=peak_index,
+        )
 
     @ch_validator
     def distance(self, ch1: int, ch2: int) -> np.float64:
