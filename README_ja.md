@@ -189,6 +189,7 @@ def showAll(
         volt_max=200,   # 最小電位 (μV)
         figsize=(8, 8), # グラフの縦横比
         dpi=300,        # 解像度
+        color: list[str] | list[list[float]] = None, # 波形の配色
         isBuf=False,    # グラフ画像のインスタンスを返すかどうか (Falseでグラフをjupyter上に表示)
     ) -> FigImage | None:
 ```
@@ -213,6 +214,7 @@ def showSingle(
     dpi=None,
     xlabel="Time (s)",
     ylabel="Voltage (μV)",
+    color: str | None=None,
     isBuf=False,
 ) -> FigImage | None:
 ```
@@ -236,6 +238,8 @@ def plotPeaks(
     dpi=None,
     xlabel="Time (s)",
     ylabel="Voltage (μV)",
+    color: str | None=None,
+    peak_color: list[str] | list[list[float]] = None,
     isBuf=False
 ) -> FigImage | None:
 ```
@@ -263,6 +267,7 @@ def showDetection(
     xlabel="Time (s)",
     ylabel="Electrode Number",
     dpi=300,
+    color: list[str] | list[list[float]] = None,
     isBuf=False,
 ) -> FigImage | None:
 ```
