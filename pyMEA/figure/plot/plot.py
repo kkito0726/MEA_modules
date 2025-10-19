@@ -114,9 +114,12 @@ def showDetection(
     figsize=(12, 12),
     xlabel="Time (s)",
     ylabel="Electrode Number",
+    color=None,
     dpi=300,
     isBuf=False,
 ):
+    if color is None:
+        color = [[0, 118, 178]]
     MEA_data = []
     for ele in eles:
         MEA_data.append(MEA_raw[ele])
@@ -126,9 +129,24 @@ def showDetection(
     end_frame = int(end * sampling_rate)
 
     plt.figure(figsize=figsize, dpi=dpi)
+    color_index = 0
     for i, index in enumerate(np.array(data)):
         tmp_volt = (index - np.mean(index)) / adjust_wave
-        plt.plot(MEA_raw[0][start_frame:end_frame], tmp_volt[start_frame:end_frame] + i)
+        if color is None:
+            plt.plot(
+                MEA_raw[0][start_frame:end_frame],
+                tmp_volt[start_frame:end_frame] + i,
+            )
+        else:
+            plt.plot(
+                MEA_raw[0][start_frame:end_frame],
+                tmp_volt[start_frame:end_frame] + i,
+                color=color[color_index],
+            )
+
+            color_index += 1
+            if color_index >= len(color):
+                color_index = 0
 
     if isDisplayCh:
         # 電極番号をY軸の目盛りにする

@@ -2,8 +2,6 @@ import io
 from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
-
-# from numpy import ndarray
 import numpy as np
 from scipy.signal import welch
 
@@ -81,6 +79,7 @@ class FigMEA:
         volt_max=200,
         figsize=(8, 8),
         dpi=300,
+        color: list[str] | list[list[float]] = None,
         isBuf=False,
     ) -> FigImage | None:
         """
@@ -93,6 +92,7 @@ class FigMEA:
             volt_max: プラス電位 [μV]
             figsize: figのアスペクト比
             dpi: 解像度
+            color: プロットの配色
             isBuf: グラフ画像を返すかどうか
         """
         # 時間の設定がない場合はデータの最初から5秒間をプロットする。
@@ -107,12 +107,24 @@ class FigMEA:
 
         x = self.data.array[0][start_frame:end_frame]
 
+        color = self._normalize_color(color)
+
         fig, axes = plt.subplots(8, 8, figsize=figsize, dpi=dpi)
+        color_index = 0
         for i, ax in enumerate(axes.flat):
-            ax.plot(
-                x,
-                self.data.array[i + 1][start_frame:end_frame],
-            )
+            if color is None:
+                # 配色指定あり
+                ax.plot(x, self.data.array[i + 1][start_frame:end_frame])
+            else:
+                # 配色指定なし
+                ax.plot(
+                    x,
+                    self.data.array[i + 1][start_frame:end_frame],
+                    color=color[color_index],
+                )
+                color_index += 1
+                if color_index >= len(color):
+                    color_index = 0
             ax.set_ylim(volt_min, volt_max)
 
     @channel
@@ -128,6 +140,7 @@ class FigMEA:
         dpi=None,
         xlabel="Time (s)",
         ylabel="Voltage (μV)",
+        color: str = None,
         isBuf=False,
     ) -> FigImage | None:
         """
@@ -143,6 +156,7 @@ class FigMEA:
             dpi: 解像度
             xlabel: X軸ラベル
             ylabel: Y軸ラベル
+            color: プロットの配色
             isBuf: グラフ画像を返すかどうか
         """
         start, end = self._set_times(start, end)
@@ -155,6 +169,7 @@ class FigMEA:
         plt.plot(
             self.data.array[0][start_frame:end_frame],
             self.data.array[ch][start_frame:end_frame],
+            color=color,
         )
         plt.xlim(start, end)
         plt.ylim(volt_min, volt_max)
@@ -175,6 +190,8 @@ class FigMEA:
         dpi=None,
         xlabel="Time (s)",
         ylabel="Voltage (μV)",
+        color: str = None,
+        peak_color: list[str] | list[list[float]] = None,
         isBuf=False
     ) -> FigImage | None:
         """
@@ -188,6 +205,8 @@ class FigMEA:
             volt_min: マイナス電位 [μV]
             volt_max: プラス電位 [μV]
             figsize: figのアスペクト比
+            color: プロットの配色
+            peak_color: ピークのプロットの配色
             dpi: 解像度
             xlabel: X軸ラベル
             ylabel: Y軸ラベル
@@ -205,14 +224,20 @@ class FigMEA:
             self.data.array[0][start_frame:end_frame],
             self.data.array[ch][start_frame:end_frame],
         )
-        plt.plot(x, y)
+        plt.plot(x, y, color=color)
 
         # ピークのプロット
+        peak_color = self._normalize_color(peak_color, "red")
+        peak_color_index = 0
         for peak_index in peak_indexes:
             peaks = peak_index[ch]
             peaks = peaks[start_frame < peaks]
             peaks = peaks[peaks < end_frame]
-            plt.plot(x[peaks], y[peaks], ".")
+            plt.plot(x[peaks], y[peaks], ".", color=peak_color[peak_color_index])
+
+            peak_color_index += 1
+            if peak_color_index >= len(peak_color):
+                peak_color_index = 0
 
         plt.xlim(start, end)
         plt.ylim(volt_min, volt_max)
@@ -230,6 +255,7 @@ class FigMEA:
         xlabel="Time (s)",
         ylabel="Electrode Number",
         dpi=300,
+        color: list[str] | list[list[float]] = None,
         isBuf=False,
     ) -> FigImage | None:
         """
@@ -244,6 +270,7 @@ class FigMEA:
             xlabel: X軸ラベル
             ylabel: Y軸ラベル
             dpi: 解像度
+            color: プロットの配色
             isBuf: 画像のバッファを返すかどうか
         """
         start, end = self._set_times(start, end)
@@ -263,6 +290,7 @@ class FigMEA:
             xlabel=xlabel,
             ylabel=ylabel,
             dpi=dpi,
+            color=self._normalize_color(color, None),
             isBuf=isBuf,
         )
         return buf
@@ -457,3 +485,28 @@ class FigMEA:
 
             if isBuf:
                 return VideoMEA(buf_list)
+
+    def _normalize_color(self, color, default_color=None):
+        """
+        peak_color を標準化して常に list[list[float] または str] のリストにする
+
+        Args:
+            color: str | list[str] | list[float] | list[list[float]] | None
+
+        Returns:
+            list[str] | list[list[float]]: 正規化された色リスト
+        """
+        if color is None:
+            # デフォルトカラー
+            return [default_color]
+        elif isinstance(color, str):
+            return [color]
+        elif isinstance(color, list):
+            # RGB値1セットだけ渡された場合 [0.1, 0.2, 0.3]
+            if all(isinstance(c, (int, float)) for c in color):
+                return [color]
+            # list[str] や list[list[float]] はそのまま
+            return color
+
+        else:
+            raise TypeError("peak_color must be str or list[str] or list[list[float]]")
