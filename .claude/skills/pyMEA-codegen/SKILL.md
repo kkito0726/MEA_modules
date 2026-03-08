@@ -14,6 +14,8 @@ description: |
 pyMEAライブラリを使った解析コードをJupyter Notebook上で生成するためのガイド。
 ユーザーは研究者（プログラミング経験は様々）で、pyMEAはインストール済み。
 
+**詳細なAPIリファレンス**: 各メソッドの全パラメータや型情報は `references/api-reference.md` を参照すること。パラメータの詳細やあまり使われない機能（バースト解析、ポワンカレプロット、アーティファクト除去等）について質問があった場合は、まずリファレンスを確認する。
+
 ## 基本原則
 
 1. **`from pyMEA import *` を使う** — これが標準的なimport方法
@@ -121,6 +123,9 @@ mea.fig.draw_2d(peak_index=peak_index)
 
 # 等高線表示 + 速度ベクトルなし
 mea.fig.draw_2d(peak_index=peak_index, contour=True, isQuiver=False)
+
+# カラーマップの変更、基準電極を指定して拍動ごとに分割
+mea.fig.draw_2d(peak_index=peak_index, cmap="viridis", base_ch=5)
 ```
 
 #### 3Dカラーマップ
@@ -132,9 +137,13 @@ mea.fig.draw_3d(peak_index=peak_index)
 #### ライン状ネットワークのカラーマップ
 ```python
 peak_index = detect_peak_neg(mea.data)
-amc_chs = [1, 2, 3, 4, 5, 6, 7, 8]  # AMC電極の順番
+amc_chs = [1, 2, 3, 4, 5, 6, 7, 8]  # AMC電極の順番（経路がつながっている順）
 mea.fig.draw_line_conduction(peak_index=peak_index, amc_chs=amc_chs)
+
+# 環状でない経路、基準電極を指定する場合
+mea.fig.draw_line_conduction(peak_index=peak_index, amc_chs=amc_chs, isLoop=False, base_ch=1)
 ```
+**注意**: `base_ch` を指定する場合、`amc_chs` に含まれる電極を指定すること。
 
 ### 4. 数値計算
 
@@ -166,6 +175,16 @@ print(f"標準偏差: {fpd.std:.4f} s")
 fpd.show()
 ```
 
+FPDの検出がうまくいかない場合のパラメータ調整:
+```python
+fpd = mea.calculator.fpd(
+    peak_index, ch=6,
+    peak_range=(30, 110),    # 2ndピークの電位範囲 (μV)
+    stroke_time=0.02,        # 1stピーク付近の除外時間 (s)
+    fpd_range=(0.1, 0.4),    # 許容するFPDの範囲 (s)
+)
+```
+
 #### 伝導速度
 ```python
 peak_index = detect_peak_neg(mea.data)
@@ -173,6 +192,7 @@ cv = mea.calculator.conduction_velocity(peak_index, ch1=9, ch2=54)
 
 print(f"平均伝導速度: {cv.mean:.4f} m/s")
 ```
+**注意**: ch1とch2のピーク検出数が一致しない場合、ValueErrorが発生する。ピーク検出パラメータの調整が必要になることがある。
 
 #### 速度ベクトルからの伝導速度
 ```python
@@ -241,6 +261,49 @@ video.save_gif("colormap.gif", duration=0.1)
 
 ```python
 mea.fig.plot_spectrum(ch=6, max_freq=500)
+```
+
+### 8. バースト解析（神経細胞用）
+
+バースト解析モジュールは `from pyMEA import *` ではインポートされない。明示的にインポートする。
+
+```python
+from pyMEA.find_peaks.burst import sbf_detection, sbf_single
+
+# 64電極の同期バースト発火検出
+peak_index = detect_peak_neg(mea.data)
+bursts = sbf_detection(mea.data, peak_index)
+
+# 1電極のバースト発火検出
+bursts_single = sbf_single(mea.data, peak_index, ch=6)
+```
+
+パラメータの詳細は `references/api-reference.md` の「バースト解析」セクションを参照。
+
+### 9. 画像の保存
+
+```python
+# isBuf=True で画像オブジェクトを取得し、ファイルに保存
+fig_image = mea.fig.showAll(isBuf=True)
+fig_image.save("output.png")   # .png, .jpg, .jpeg に対応
+
+# MP4動画の保存
+video = mea.fig.draw_2d(peak_index=peak_index, isBuf=True)
+video.save_mp4("output.mp4", fps=10)
+```
+
+### 10. データ情報の確認
+
+```python
+# MEAデータの基本情報を表示
+mea.data.info
+# => 読み込み開始時間, 終了時間, 合計時間, サンプリングレート, GAIN
+
+# データの形状
+print(mea.data.shape)  # (65, フレーム数)
+
+# 電極座標の取得
+x, y = mea.electrode.get_coordinate(ch=6)
 ```
 
 ## よくある解析フロー
