@@ -139,10 +139,10 @@ def detect_peak_all(
         width: ピークの幅
     """
     peak_pos = detect_peak_pos(
-        MEA_data, distance, threshold[0], min_amp[0], width, prominence
+        MEA_data, distance, threshold[0], min_amp[0], prominence=prominence, width=width
     )
     peak_neg = detect_peak_neg(
-        MEA_data, distance, threshold[1], min_amp[1], width, prominence
+        MEA_data, distance, threshold[1], min_amp[1], prominence=prominence, width=width
     )
     peak_dict: dict[int, Peaks] = {}
     for i in range(1, 65):
