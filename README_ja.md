@@ -510,31 +510,34 @@ gradient_velocity = mea.calculator.gradient_velocity(peak_index)
 
 [Claude Code](https://docs.anthropic.com/en/docs/claude-code)を使用している場合、pyMEA専用のコード生成スキルを利用できます。自然言語で解析内容を指示するだけで、pyMEAを使った解析コードを自動生成します。
 
-### インストール
+### インストール（推奨: リポジトリルートで使用）
 
-本リポジトリをクローンすると、プロジェクトスキルとして自動的に利用可能になります。
+本リポジトリをクローンし、リポジトリルートでClaude Codeを起動してください。プロジェクトスキルとして自動的に利用可能になります。
 
 ```bash
 git clone https://github.com/kkito0726/MEA_modules.git
 cd MEA_modules
 ```
 
-どのプロジェクトからでも使えるようにグローバルインストールする場合は、スキルファイルを `~/.claude/skills/` にコピーしてください。
+**リポジトリルートでの使用を推奨する理由**: スキルがpyMEAのソースコードを直接参照できるため、より正確なコード生成が可能です。メソッドのシグネチャや型情報、内部実装を確認しながら回答するため、グローバルインストールより高品質な結果が得られます。
+
+### グローバルインストール（非推奨）
+
+どのプロジェクトからでも使えるようにグローバルインストールすることも可能ですが、ソースコードを参照できないため回答の精度が下がります。
 
 ```bash
 # リポジトリをクローン後に実行
 mkdir -p ~/.claude/skills/pyMEA-codegen
-cp MEA_modules/.claude/skills/pyMEA-codegen/SKILL.md ~/.claude/skills/pyMEA-codegen/
+cp -r MEA_modules/.claude/skills/pyMEA-codegen/ ~/.claude/skills/pyMEA-codegen/
 ```
 
 ### 更新
 
-スキルを最新版に更新するには、リポジトリを更新してから再度コピーしてください。
-
 ```bash
 cd MEA_modules
 git pull
-cp .claude/skills/pyMEA-codegen/SKILL.md ~/.claude/skills/pyMEA-codegen/
+# グローバルインストールしている場合のみ
+cp -r .claude/skills/pyMEA-codegen/ ~/.claude/skills/pyMEA-codegen/
 ```
 
 ### 使い方
