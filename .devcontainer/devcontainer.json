@@ -12,16 +12,30 @@
   // "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-"postCreateCommand": "pip3 install --user -r requirements.txt",
+"postCreateCommand": "pip3 install --user -r requirements.txt && pip3 install --user -e .",
 "customizations": {
 	"vscode": {
 		"extensions": [
 			"donjayamanne.python-extension-pack",
+			"charliermarsh.ruff",
 			"ionutvmi.path-autocomplete",
 			"ms-toolsai.jupyter",
+			"ms-toolsai.jupyter-keymap",
+			"ms-toolsai.jupyter-renderers",
+			"ms-toolsai.vscode-jupyter-cell-tags",
+			"ms-toolsai.vscode-jupyter-slideshow",
 			"streetsidesoftware.code-spell-checker",
 			"ms-python.black-formatter"
-		]
+		],
+		"settings": {
+			"ruff.lint.exclude": ["**/*.ipynb"],
+			"python.analysis.ignore": ["**/*.ipynb"],
+			"[jupyter-notebook]": {
+				"editor.formatOnSave": false,
+				"editor.codeActionsOnSave": {},
+				"editor.defaultFormatter": null
+			}
+		}
 	}
 }
 
