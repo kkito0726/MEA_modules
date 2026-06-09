@@ -13,6 +13,6 @@ setup(
     description="MEA計測データを読み込み・解析するためのモジュール",  # 説明
     author="kentaro kito",  # 作者名
     packages=find_packages(exclude=["test", "test.*"]),
-    install_requires=parse_requirements("requirements.txt"),
+    install_requires=parse_requirements("requirements.in"),
     license="MIT",  # ライセンス
 )
