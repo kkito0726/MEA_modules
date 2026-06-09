@@ -31,7 +31,8 @@
 			"ms-toolsai.vscode-jupyter-cell-tags",
 			"ms-toolsai.vscode-jupyter-slideshow",
 			"streetsidesoftware.code-spell-checker",
-			"ms-python.black-formatter"
+			"ms-python.black-formatter",
+			"marp-team.marp-vscode"
 		],
 		"settings": {
 			"ruff.lint.exclude": ["**/*.ipynb"],
