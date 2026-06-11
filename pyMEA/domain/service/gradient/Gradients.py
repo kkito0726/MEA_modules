@@ -1,17 +1,16 @@
-import statistics
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-import numpy as np
 from numpy import float64
 from numpy._typing import NDArray
 
-from pyMEA.constants import DEFAULT_ELECTRODE_DISTANCE, NUM_ELECTRODES
+from pyMEA.constants import DEFAULT_ELECTRODE_DISTANCE
 from pyMEA.domain.model.MEA import MEA
 from pyMEA.domain.model.peak_model import Peaks64
 from pyMEA.domain.service.gradient.Gradient import Gradient
 from pyMEA.domain.service.gradient.Solver import Solver
+from pyMEA.domain.service.peak_times import remove_undetected_ch_from64ch
 
 if TYPE_CHECKING:
     from pyMEA.presentation.FigImage import FigImage
@@ -86,28 +85,3 @@ class Gradients:
         ]
         if isBuf:
             return buf_list
-
-
-def remove_undetected_ch_from64ch(
-    data: MEA, peak_index: Peaks64
-) -> tuple[list[list[np.ndarray[Any, Any]]], list[int]]:
-    # ピークの時刻 (s)を取得
-    time = [data[0][peak_index[i]] for i in range(1, NUM_ELECTRODES + 1)]
-
-    # 各電極の取得ピーク数の最頻値以外の電極は削除
-    peaks = [len(peak_index[i]) for i in range(1, NUM_ELECTRODES + 1)]
-    remove_ch = []
-    for i in range(len(time)):
-        if len(time[i]) != statistics.mode(peaks):
-            remove_ch.append(i)
-
-    # ピークを正しく検出できていないchのデータを削除
-    for ch in sorted(remove_ch, reverse=True):
-        time.pop(ch)
-    print("弾いた電極番号: ", np.array(remove_ch))
-
-    times = []
-    for j in range(len(time[0])):
-        times.append([time[i][j] for i in range(len(time))])
-
-    return times, remove_ch
