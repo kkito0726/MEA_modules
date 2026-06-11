@@ -10,11 +10,12 @@ pip install git+https://github.com/kkito0726/MEA_modules.git
 <pre>
 MEA_modules
 ├──pyMEA
-   ├── calculator # Utilities for calculating ISI, FPD, conduction velocity, and more
-   ├── figure     # Tools for plotting and visualizing data
-   ├── find_peaks # Tools for peak detection in waveform
-   ├── gradient   # Gradient analysis and related computations
-   ├── read       # Reading MEA recording file
+   ├── domain         # Core models, values, and services (MEA, ISI, FPD, peak detection, gradient, ...)
+   ├── application    # Use cases (read_MEA, PyMEA facade, MutableMEA)
+   ├── infrastructure # Reading MEA recording files (.hed/.bio)
+   ├── presentation   # Plotting and visualization (FigMEA, VideoMEA)
+   ├── constants.py   # Shared constants
+   └── __init__.py    # Public API
 </pre>
 
 ## Usage
