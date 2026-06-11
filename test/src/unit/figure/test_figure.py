@@ -5,11 +5,11 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 
 from pyMEA import read_MEA
-from pyMEA.core.Electrode import Electrode
-from pyMEA.figure.FigMEA import FigMEA
-from pyMEA.figure.plot.plot import circuit_eles
-from pyMEA.find_peaks.peak_detection import detect_peak_neg
-from pyMEA.read.model.MEA import MEA
+from pyMEA.domain.model.Electrode import Electrode
+from pyMEA.presentation.FigMEA import FigMEA
+from pyMEA.presentation.plot.plot import circuit_eles
+from pyMEA.domain.service.peak_detection import detect_peak_neg
+from pyMEA.domain.model.MEA import MEA
 
 
 class MyTestCase(unittest.TestCase):

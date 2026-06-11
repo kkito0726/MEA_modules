@@ -4,7 +4,7 @@ from test.utils import get_resource_path
 import pandas as pd
 
 from pyMEA import detect_peak_all, detect_peak_neg, read_MEA
-from pyMEA.find_peaks.peak_detection import detect_peak_pos
+from pyMEA.domain.service.peak_detection import detect_peak_pos
 
 
 class MyTestCase(unittest.TestCase):

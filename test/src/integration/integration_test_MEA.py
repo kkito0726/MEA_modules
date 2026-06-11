@@ -1,9 +1,9 @@
 from test.utils import get_resource_path
 
 from pyMEA import detect_peak_all
-from pyMEA.figure.plot.plot import circuit_eles
-from pyMEA.find_peaks.peak_detection import detect_peak_neg, detect_peak_pos
-from pyMEA.read.read_MEA import read_MEA
+from pyMEA.presentation.plot.plot import circuit_eles
+from pyMEA.domain.service.peak_detection import detect_peak_neg, detect_peak_pos
+from pyMEA.application.read_MEA import read_MEA
 
 path = get_resource_path("230615_day2_test_5s_.hed")
 

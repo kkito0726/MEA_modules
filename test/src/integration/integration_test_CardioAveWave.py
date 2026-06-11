@@ -1,8 +1,8 @@
 from test.utils import get_resource_path
 
-from pyMEA.core.FilterType import FilterType
-from pyMEA.find_peaks.peak_detection import detect_peak_neg, detect_peak_pos
-from pyMEA.read.read_MEA import read_MEA
+from pyMEA.domain.model.FilterType import FilterType
+from pyMEA.domain.service.peak_detection import detect_peak_neg, detect_peak_pos
+from pyMEA.application.read_MEA import read_MEA
 
 path = get_resource_path("230615_day2_test_5s_.hed")
 

@@ -164,9 +164,9 @@ def test_video_mea_contract():
 
 def test_value_objects_contract():
     """Calculator の戻り値 (ISI, FPD, ConductionVelocity) の公開メソッドを保証する。"""
-    from pyMEA.calculator.values.ConductionVelocity import ConductionVelocity
-    from pyMEA.calculator.values.FPD import FPD
-    from pyMEA.calculator.values.ISI import ISI
+    from pyMEA.domain.value.ConductionVelocity import ConductionVelocity
+    from pyMEA.domain.value.FPD import FPD
+    from pyMEA.domain.value.ISI import ISI
 
     for cls in (ISI, FPD, ConductionVelocity):
         for name in ("mean", "std", "se", "stv", "coefficient_of_variation"):
@@ -180,7 +180,7 @@ def test_value_objects_contract():
 
 def test_peaks64_contract():
     """detect_peak_* の戻り値 Peaks64 系の公開メソッドを保証する。"""
-    from pyMEA.find_peaks.peak_model import AllPeaks64, NegPeaks64, Peaks64, PosPeaks64
+    from pyMEA.domain.model.peak_model import AllPeaks64, NegPeaks64, Peaks64, PosPeaks64
 
     for cls in (Peaks64, NegPeaks64, PosPeaks64, AllPeaks64):
         for dunder in ("__getitem__", "__len__", "__iter__"):

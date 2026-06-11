@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from pyMEA import detect_peak_neg, read_MEA
-from pyMEA.calculator.calculator import Calculator
+from pyMEA.domain.service.calculator import Calculator
 
 
 class CalculatorTest(unittest.TestCase):
