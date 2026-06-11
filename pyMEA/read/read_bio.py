@@ -4,6 +4,7 @@ import numpy as np
 from numpy import float64
 from numpy._typing import NDArray
 
+from pyMEA.constants import NUM_ELECTRODES, REFERENCE_GAIN
 from pyMEA.read.model.BioPath import BioPath
 from pyMEA.read.model.HedData import HedData
 from pyMEA.read.model.HedPath import HedPath
@@ -39,11 +40,10 @@ def read_bio(
     start: int,
     end: int,
     sampling_rate=10000,
-    gain=50000,
+    gain=REFERENCE_GAIN,
     volt_range=100,
 ) -> NDArray[float64]:  # sampling_rate (Hz), volt_range (mV)
-    electrode_number = 64
-    data_unit_length = electrode_number + 4
+    data_unit_length = NUM_ELECTRODES + 4
 
     bytesize = np.dtype("<h").itemsize
     data = (
@@ -61,8 +61,8 @@ def read_bio(
     data = np.delete(data, range(4), 0)
 
     # Gainの値に合わせてデータを増幅させる。
-    if gain != 50000:
-        amp = 50000 / gain
+    if gain != REFERENCE_GAIN:
+        amp = REFERENCE_GAIN / gain
         data *= amp
 
     t = np.arange(len(data[0])) / sampling_rate

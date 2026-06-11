@@ -8,7 +8,8 @@ import numpy as np
 from numpy import float64
 from numpy._typing import NDArray
 
-from pyMEA.figure.video import FigImage
+from pyMEA.constants import DEFAULT_ELECTRODE_DISTANCE, NUM_ELECTRODES
+from pyMEA.core.FigImage import FigImage
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.gradient.Gradient import Gradient
 from pyMEA.gradient.Solver import Solver
@@ -19,7 +20,7 @@ from pyMEA.read.model.MEA import MEA
 class Gradients:
     data: MEA
     peak_index: Peaks64
-    ele_dis: int = 450
+    ele_dis: int = DEFAULT_ELECTRODE_DISTANCE
     mesh_num: int = 100
     times: NDArray[float64] = field(init=False)
     remove_ch: list[int] = field(init=False)
@@ -90,10 +91,10 @@ def remove_undetected_ch_from64ch(
     data: MEA, peak_index: Peaks64
 ) -> tuple[list[list[np.ndarray[Any, Any]]], list[int]]:
     # ピークの時刻 (s)を取得
-    time = [data[0][peak_index[i]] for i in range(1, 65)]
+    time = [data[0][peak_index[i]] for i in range(1, NUM_ELECTRODES + 1)]
 
     # 各電極の取得ピーク数の最頻値以外の電極は削除
-    peaks = [len(peak_index[i]) for i in range(1, 65)]
+    peaks = [len(peak_index[i]) for i in range(1, NUM_ELECTRODES + 1)]
     remove_ch = []
     for i in range(len(time)):
         if len(time[i]) != statistics.mode(peaks):

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import welch
 
+from pyMEA.constants import ELECTRODE_GRID_SIZE
 from pyMEA.core.Electrode import Electrode
 from pyMEA.figure.plot.histogram import mkHist
 from pyMEA.figure.plot.plot import (
@@ -109,7 +110,9 @@ class FigMEA:
 
         color = self._normalize_color(color)
 
-        fig, axes = plt.subplots(8, 8, figsize=figsize, dpi=dpi)
+        fig, axes = plt.subplots(
+            ELECTRODE_GRID_SIZE, ELECTRODE_GRID_SIZE, figsize=figsize, dpi=dpi
+        )
         color_index = 0
         for i, ax in enumerate(axes.flat):
             if color is None:

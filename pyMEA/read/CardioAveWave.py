@@ -1,6 +1,6 @@
 import numpy as np
-from black.cache import dataclass
 
+from pyMEA.constants import NUM_ELECTRODES
 from pyMEA.find_peaks.peak_detection import detect_peak_neg
 from pyMEA.find_peaks.peak_model import NegPeaks64
 from pyMEA.read.model.MEA import MEA
@@ -20,11 +20,11 @@ def calc_64_ave_waves(data: MEA, neg_peaks: NegPeaks64, front=0.05, end=0.3):
     ave_waves = np.array(
         [
             [0.0 for _ in range(int(data.SAMPLING_RATE * (front + end)))]
-            for _ in range(65)
+            for _ in range(NUM_ELECTRODES + 1)
         ]
     )
 
-    for ch in range(1, 65):
+    for ch in range(1, NUM_ELECTRODES + 1):
         if len(neg_peaks[ch]) > 3:
             ave_waves[ch] = calc_average_wave(
                 data, neg_peaks, ch, front=front_frame, end=end_frame

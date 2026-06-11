@@ -2,6 +2,7 @@ import numpy as np
 from numpy import ndarray
 from scipy.signal import find_peaks
 
+from pyMEA.constants import DEFAULT_PEAK_DISTANCE, NUM_ELECTRODES
 from pyMEA.find_peaks.peak_model import (
     AllPeaks64,
     NegPeaks,
@@ -16,7 +17,7 @@ from pyMEA.read.model.MEA import MEA
 # 64電極すべての下ピークを取得
 def detect_peak_neg(
     MEA_data: MEA,
-    distance=3000,
+    distance=DEFAULT_PEAK_DISTANCE,
     threshold=3,
     min_amp=10,
     prominence=None,
@@ -58,7 +59,7 @@ def detect_peak_neg(
 # 64電極すべての上ピークを取得
 def detect_peak_pos(
     MEA_data: MEA,
-    distance=3000,
+    distance=DEFAULT_PEAK_DISTANCE,
     threshold=3,
     min_amp=10,
     prominence=None,
@@ -99,7 +100,7 @@ def detect_peak_pos(
 
 def detect_cardio_second_peak(
     MEA_data: MEA,
-    distance=3000,
+    distance=DEFAULT_PEAK_DISTANCE,
     prominence=None,
     width=None,
     height: tuple[int, int] = (10, 200),
@@ -122,7 +123,7 @@ def detect_cardio_second_peak(
 def detect_peak_all(
     MEA_data: MEA,
     threshold: tuple[int, int] = (3, 3),
-    distance=3000,
+    distance=DEFAULT_PEAK_DISTANCE,
     min_amp=(10, 10),
     prominence=None,
     width=None,
@@ -145,7 +146,7 @@ def detect_peak_all(
         MEA_data, distance, threshold[1], min_amp[1], prominence=prominence, width=width
     )
     peak_dict: dict[int, Peaks] = {}
-    for i in range(1, 65):
+    for i in range(1, NUM_ELECTRODES + 1):
         array = np.array([*peak_pos[i], *peak_neg[i]]).astype(np.int64)
         peak_dict[i] = Peaks(np.sort(array))
 
@@ -157,7 +158,7 @@ def remove_artifact(
     MEA_data: ndarray, artifact_peaks: ndarray, front_frame=8500, end_frame=20000
 ) -> tuple[ndarray, ndarray]:
     remove_times = []
-    for i in range(1, 65):
+    for i in range(1, NUM_ELECTRODES + 1):
         for peak in artifact_peaks:
             start_frame = peak - front_frame
             finish_frame = peak + end_frame

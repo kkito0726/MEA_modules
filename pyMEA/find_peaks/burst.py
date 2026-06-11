@@ -12,13 +12,14 @@ import itertools
 import numpy as np
 from numpy import ndarray
 
-from pyMEA import MEA
+from pyMEA.constants import NUM_ELECTRODES
 from pyMEA.find_peaks.peak_model import Peaks64
+from pyMEA.read.model.MEA import MEA
 
 
 # 64電極のpeak_indexを一次元の配列にまとめる。
 def peak_flatten(data: MEA, peak_index: Peaks64) -> ndarray:
-    detect_time = [data[0][peak_index[i]] for i in range(1, 65)]
+    detect_time = [data[0][peak_index[i]] for i in range(1, NUM_ELECTRODES + 1)]
     detect_time = list(itertools.chain.from_iterable(detect_time))
 
     return np.array(detect_time)

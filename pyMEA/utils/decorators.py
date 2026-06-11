@@ -4,7 +4,8 @@ from functools import wraps
 
 import matplotlib.pyplot as plt
 
-from pyMEA.figure.video import FigImage
+from pyMEA.constants import NUM_ELECTRODES
+from pyMEA.core.FigImage import FigImage
 
 
 def channel(func):
@@ -32,7 +33,7 @@ def ch_validator(func):
 
         # 'ch' のバリデーション
         if ch is not None:
-            if not (1 <= ch <= 64):
+            if not (1 <= ch <= NUM_ELECTRODES):
                 raise ValueError("chは1-64の整数で入力してください")
 
         return func(*args, **kwargs)

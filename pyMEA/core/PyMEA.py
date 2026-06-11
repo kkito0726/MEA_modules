@@ -2,8 +2,9 @@ from dataclasses import dataclass
 
 from numpy import ndarray
 
-from pyMEA import Calculator, FigMEA
+from pyMEA.calculator.calculator import Calculator
 from pyMEA.core.Electrode import Electrode
+from pyMEA.figure.FigMEA import FigMEA
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.read.model.MEA import MEA
 
