@@ -1,4 +1,5 @@
 import unittest
+from test.fixtures import fixture_hed_path
 from test.utils import get_resource_path
 
 import pandas as pd
@@ -9,7 +10,7 @@ from pyMEA.domain.service.peak_detection import detect_peak_pos
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
-        self.path = get_resource_path("230615_day2_test_5s_.hed")
+        self.path = fixture_hed_path("cardio")
         self.expect_neg_peak_index_path = get_resource_path(
             "expects/neg_peak_index.csv"
         )
@@ -19,7 +20,7 @@ class MyTestCase(unittest.TestCase):
         self.expect_all_peak_index_path = get_resource_path(
             "expects/all_peak_index.csv"
         )
-        self.mea = read_MEA(self.path.__str__(), 0, 5, 450)
+        self.mea = read_MEA(self.path.__str__(), 0, 3, 450)
         self.neg_peak_index = detect_peak_neg(self.mea.data)
         self.pos_peak_index = detect_peak_pos(self.mea.data, threshold=2)
         self.all_peak_index = detect_peak_all(self.mea.data, threshold=(2, 2))

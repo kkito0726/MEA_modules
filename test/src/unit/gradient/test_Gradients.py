@@ -1,5 +1,5 @@
 import unittest
-from test.utils import get_resource_path
+from test.fixtures import fixture_hed_path
 
 from pyMEA import detect_peak_neg, read_MEA
 from pyMEA.domain.service.gradient.Gradients import Gradients
@@ -7,7 +7,7 @@ from pyMEA.domain.service.gradient.Gradients import Gradients
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
-        self.path = get_resource_path("230615_day2_test_5s_.hed")
+        self.path = fixture_hed_path("cardio")
 
     def test_Gradientsが正しくインスタンス化される(self):
         start, end = 1, 2

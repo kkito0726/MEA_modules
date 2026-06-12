@@ -1,7 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
-from test.utils import get_resource_path
+from test.fixtures import fixture_hed_path
 
 from pyMEA import read_MEA
 from pyMEA.presentation.plot.color import normalize_color
@@ -46,7 +46,7 @@ class TestPointcareUtils(unittest.TestCase):
 class TestVideoMEA(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        path = get_resource_path("230615_day2_test_5s_.hed")
+        path = fixture_hed_path("cardio")
         cls.mea = read_MEA(path.__str__(), 1, 2, 450)
 
     def test_GIFを保存できる(self):

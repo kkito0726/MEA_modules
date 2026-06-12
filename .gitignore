@@ -3,6 +3,10 @@ data/
 __pycache__
 pyMEA.egg-info
 test.py
-test/resources
+# 原本の計測データ (.hed/.bio) は除外。テスト用フィクスチャと期待値のみ追跡する
+test/resources/*
+!test/resources/expects/
+!test/resources/fixtures/
 *.ipynb
 .idea
+node_modules
