@@ -1,66 +1,30 @@
-import io
 from dataclasses import dataclass
 
-import matplotlib.pyplot as plt
 import numpy as np
-from scipy.signal import welch
 
-from pyMEA.constants import ELECTRODE_GRID_SIZE
 from pyMEA.domain.model.Electrode import Electrode
-from pyMEA.presentation.plot.histogram import mkHist
-from pyMEA.presentation.plot.plot import (
-    draw_line,
-    draw_line_conduction,
-    remove_undetected_ch,
-    showDetection,
-)
-from pyMEA.presentation.plot.raster_plot import raster_plot
-from pyMEA.presentation.video import FigImage, VideoMEA
-from pyMEA.domain.service.peak_detection import detect_peak_neg
+from pyMEA.domain.model.MEA import MEA
 from pyMEA.domain.model.peak_model import Peaks64
 from pyMEA.domain.service.gradient.Gradient import Gradient
-from pyMEA.domain.service.gradient.Gradients import Gradients, remove_undetected_ch_from64ch
-from pyMEA.domain.service.gradient.Solver import Solver
-from pyMEA.domain.model.MEA import MEA
-from pyMEA.presentation.output import channel, output_buf
+from pyMEA.domain.service.gradient.Gradients import Gradients
+from pyMEA.presentation.FigImage import FigImage
+from pyMEA.presentation.plot import colormap, waveform
+from pyMEA.presentation.plot.color import normalize_color
+from pyMEA.presentation.plot.histogram import mkHist
+from pyMEA.presentation.plot.plot import showDetection
+from pyMEA.presentation.plot.raster_plot import raster_plot
+from pyMEA.presentation.video import VideoMEA
 
 
 @dataclass(frozen=True)
 class FigMEA:
+    """グラフ描画のファサード。
+
+    各メソッドの実装本体は presentation/plot/ 配下の小モジュールにある。
+    """
+
     data: MEA
     electrode: Electrode
-
-    @channel
-    @output_buf
-    def plot_spectrum(
-        self, ch: int, max_freq=500, nperseg=2048, figsize=(10, 4), dpi=100, isBuf=False
-    ):
-        """
-        与えられた信号のスペクトルをプロットする関数
-        - FFTの振幅スペクトル
-        """
-        N = len(self.data[ch])
-
-        # === FFT ===
-        fft_vals = np.fft.rfft(self.data[ch])
-        fft_freq = np.fft.rfftfreq(N, 1 / self.data.SAMPLING_RATE)
-        amplitude = np.abs(fft_vals) / N
-
-        # === Welch ===
-        f, Pxx = welch(self.data[ch], fs=self.data.SAMPLING_RATE, nperseg=nperseg)
-
-        # === プロット ===
-        plt.figure(figsize=figsize, dpi=dpi)
-
-        # FFT
-        plt.plot(fft_freq, amplitude)
-        plt.xlim(0, max_freq)
-        plt.xticks(np.arange(0, max_freq + 50, 50))
-        plt.xlabel("Frequency [Hz]")
-        plt.ylabel("Amplitude")
-        plt.grid()
-
-        plt.tight_layout()
 
     def _set_times(self, start, end) -> tuple[int, int]:
         # 時間の設定がなければ読み込み時間全体をプロットするようにする。
@@ -71,7 +35,23 @@ class FigMEA:
 
         return start, end
 
-    @output_buf
+    def plot_spectrum(
+        self, ch: int, max_freq=500, nperseg=2048, figsize=(10, 4), dpi=100, isBuf=False
+    ):
+        """
+        与えられた信号のスペクトルをプロットする関数
+        - FFTの振幅スペクトル
+        """
+        return waveform.plot_spectrum(
+            self.data,
+            ch,
+            max_freq=max_freq,
+            nperseg=nperseg,
+            figsize=figsize,
+            dpi=dpi,
+            isBuf=isBuf,
+        )
+
     def showAll(
         self,
         start=None,
@@ -96,42 +76,18 @@ class FigMEA:
             color: プロットの配色
             isBuf: グラフ画像を返すかどうか
         """
-        # 時間の設定がない場合はデータの最初から5秒間をプロットする。
-        if start is None:
-            start = self.data.start
-        if end is None:
-            end = start + 5
-
-        # 読み込み開始時間が0ではないときズレが生じるため差を取っている
-        start_frame = int(abs(self.data.start - start) * self.data.SAMPLING_RATE)
-        end_frame = int(abs(self.data.start - end) * self.data.SAMPLING_RATE)
-
-        x = self.data.array[0][start_frame:end_frame]
-
-        color = self._normalize_color(color)
-
-        fig, axes = plt.subplots(
-            ELECTRODE_GRID_SIZE, ELECTRODE_GRID_SIZE, figsize=figsize, dpi=dpi
+        return waveform.show_all(
+            self.data,
+            start=start,
+            end=end,
+            volt_min=volt_min,
+            volt_max=volt_max,
+            figsize=figsize,
+            dpi=dpi,
+            color=color,
+            isBuf=isBuf,
         )
-        color_index = 0
-        for i, ax in enumerate(axes.flat):
-            if color is None:
-                # 配色指定あり
-                ax.plot(x, self.data.array[i + 1][start_frame:end_frame])
-            else:
-                # 配色指定なし
-                ax.plot(
-                    x,
-                    self.data.array[i + 1][start_frame:end_frame],
-                    color=color[color_index],
-                )
-                color_index += 1
-                if color_index >= len(color):
-                    color_index = 0
-            ax.set_ylim(volt_min, volt_max)
 
-    @channel
-    @output_buf
     def showSingle(
         self,
         ch: int,
@@ -163,24 +119,21 @@ class FigMEA:
             isBuf: グラフ画像を返すかどうか
         """
         start, end = self._set_times(start, end)
-
-        # 読み込み開始時間が0ではないときズレが生じるため差を取っている
-        start_frame = int(abs(self.data.start - start) * self.data.SAMPLING_RATE)
-        end_frame = int(abs(self.data.start - end) * self.data.SAMPLING_RATE)
-
-        plt.figure(figsize=figsize, dpi=dpi)
-        plt.plot(
-            self.data.array[0][start_frame:end_frame],
-            self.data.array[ch][start_frame:end_frame],
+        return waveform.show_single(
+            self.data,
+            ch,
+            start,
+            end,
+            volt_min=volt_min,
+            volt_max=volt_max,
+            figsize=figsize,
+            dpi=dpi,
+            xlabel=xlabel,
+            ylabel=ylabel,
             color=color,
+            isBuf=isBuf,
         )
-        plt.xlim(start, end)
-        plt.ylim(volt_min, volt_max)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
 
-    @channel
-    @output_buf
     def plotPeaks(
         self,
         ch: int,
@@ -195,14 +148,14 @@ class FigMEA:
         ylabel="Voltage (μV)",
         color: str = None,
         peak_color: list[str] | list[list[float]] = None,
-        isBuf=False
+        isBuf=False,
     ) -> FigImage | None:
         """
         1電極の波形とピークの位置をプロット
 
         Args:
             ch: 描画する電極番号
-            *peak_index: ピーク配列 (可変長)以降の引数は引数名を指定する
+            *peak_indexes: ピーク配列 (可変長)以降の引数は引数名を指定する
             start: 読み込み開始時間 [s]
             end: 読み込み終了時間[s]
             volt_min: マイナス電位 [μV]
@@ -216,36 +169,22 @@ class FigMEA:
             isBuf: グラフ画像を返すかどうか
         """
         start, end = self._set_times(start, end)
-
-        # 読み込み開始時間が0ではないときズレが生じるため差を取っている
-        start_frame = int(abs(self.data.start - start) * self.data.SAMPLING_RATE)
-        end_frame = int(abs(self.data.start - end) * self.data.SAMPLING_RATE)
-
-        # 波形データのプロット
-        plt.figure(figsize=figsize, dpi=dpi)
-        x, y = (
-            self.data.array[0][start_frame:end_frame],
-            self.data.array[ch][start_frame:end_frame],
+        return waveform.plot_peaks(
+            self.data,
+            ch,
+            *peak_indexes,
+            start=start,
+            end=end,
+            volt_min=volt_min,
+            volt_max=volt_max,
+            figsize=figsize,
+            dpi=dpi,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            color=color,
+            peak_color=peak_color,
+            isBuf=isBuf,
         )
-        plt.plot(x, y, color=color)
-
-        # ピークのプロット
-        peak_color = self._normalize_color(peak_color, "red")
-        peak_color_index = 0
-        for peak_index in peak_indexes:
-            peaks = peak_index[ch]
-            peaks = peaks[start_frame < peaks]
-            peaks = peaks[peaks < end_frame]
-            plt.plot(x[peaks], y[peaks], ".", color=peak_color[peak_color_index])
-
-            peak_color_index += 1
-            if peak_color_index >= len(peak_color):
-                peak_color_index = 0
-
-        plt.xlim(start, end)
-        plt.ylim(volt_min, volt_max)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
 
     def showDetection(
         self,
@@ -293,7 +232,7 @@ class FigMEA:
             xlabel=xlabel,
             ylabel=ylabel,
             dpi=dpi,
-            color=self._normalize_color(color, None),
+            color=normalize_color(color, None),
             isBuf=isBuf,
         )
         return buf
@@ -372,37 +311,18 @@ class FigMEA:
             cmap: カラーセット
             isBuf: グラフ画像を返すかどうか
         """
-        if base_ch:
-            # 基準電極が指定されていたらその電極の拍動周期ごとにピーク抽出する
-            result = []
-            for divided_data in self.data.from_beat_cycles(peak_index, base_ch):
-                peak = detect_peak_neg(divided_data)
-                times, remove_ch = remove_undetected_ch_from64ch(self.data, peak)
-                grad = Gradient(
-                    Solver(times[0], remove_ch, self.electrode.ele_dis, mesh_num)
-                )
-                buf: io.BytesIO = grad.draw2d(
-                    contour, isQuiver, dpi=dpi, cmap=cmap, isBuf=isBuf
-                )
-
-                if isBuf:
-                    result.append(buf)
-                else:
-                    result.append(grad)
-            if isBuf:
-                # list[BytesIO]を渡してもlist[FigImage]にキャストされる
-                return VideoMEA(result)
-            else:
-                return result
-
-        else:
-            grads = Gradients(self.data, peak_index, self.electrode.ele_dis, mesh_num)
-            buf_list = grads.draw_2d(contour, isQuiver, dpi=dpi, cmap=cmap, isBuf=isBuf)
-
-            if isBuf:
-                return VideoMEA(buf_list)
-            else:
-                return grads.gradients
+        return colormap.draw_2d(
+            self.data,
+            self.electrode,
+            peak_index,
+            base_ch=base_ch,
+            mesh_num=mesh_num,
+            contour=contour,
+            isQuiver=isQuiver,
+            dpi=dpi,
+            cmap=cmap,
+            isBuf=isBuf,
+        )
 
     def draw_3d(
         self,
@@ -425,13 +345,17 @@ class FigMEA:
             dpi: 解像度
             isBuf: グラフ画像を返すかどうか
         """
-        grads = Gradients(self.data, peak_index, self.electrode.ele_dis, mesh_num)
-        buf_list = grads.draw_3d(xlabel, ylabel, clabel, dpi, isBuf=isBuf)
-
-        if isBuf:
-            return VideoMEA(buf_list)
-        else:
-            return grads
+        return colormap.draw_3d(
+            self.data,
+            self.electrode,
+            peak_index,
+            mesh_num=mesh_num,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            clabel=clabel,
+            dpi=dpi,
+            isBuf=isBuf,
+        )
 
     def draw_line_conduction(
         self,
@@ -448,7 +372,7 @@ class FigMEA:
         ----------
         Parameters
             peak_index: ピーク抽出結果
-            chs: AMCの電極番号配列
+            amc_chs: AMCの電極番号配列
             base_ch: 基準電極
             isLoop: 経路が環状かどうか
             dpi: 解像度
@@ -457,59 +381,13 @@ class FigMEA:
         -------
 
         """
-        if base_ch:
-            # 基準電極が指定されていたらその電極の拍動周期ごとにピーク抽出する
-            if base_ch not in amc_chs:
-                raise ValueError("基準電極はAMC内の電極から選択してください")
-
-            result = []
-            for divided_data in self.data.from_beat_cycles(peak_index, base_ch):
-                peak = detect_peak_neg(divided_data)
-                times, remove_ch_index = remove_undetected_ch(
-                    divided_data, peak, amc_chs
-                )
-                result.append(
-                    draw_line(
-                        times[0],
-                        amc_chs,
-                        remove_ch_index,
-                        self.electrode,
-                        isLoop,
-                        dpi,
-                        isBuf=isBuf,
-                    )
-                )
-            if isBuf:
-                return VideoMEA(result)
-        else:
-            buf_list = draw_line_conduction(
-                self.data, self.electrode, peak_index, amc_chs, isLoop, dpi, isBuf=isBuf
-            )
-
-            if isBuf:
-                return VideoMEA(buf_list)
-
-    def _normalize_color(self, color, default_color=None):
-        """
-        peak_color を標準化して常に list[list[float] または str] のリストにする
-
-        Args:
-            color: str | list[str] | list[float] | list[list[float]] | None
-
-        Returns:
-            list[str] | list[list[float]]: 正規化された色リスト
-        """
-        if color is None:
-            # デフォルトカラー
-            return [default_color]
-        elif isinstance(color, str):
-            return [color]
-        elif isinstance(color, list):
-            # RGB値1セットだけ渡された場合 [0.1, 0.2, 0.3]
-            if all(isinstance(c, (int, float)) for c in color):
-                return [color]
-            # list[str] や list[list[float]] はそのまま
-            return color
-
-        else:
-            raise TypeError("peak_color must be str or list[str] or list[list[float]]")
+        return colormap.draw_line_conduction_map(
+            self.data,
+            self.electrode,
+            peak_index,
+            amc_chs,
+            base_ch=base_ch,
+            isLoop=isLoop,
+            dpi=dpi,
+            isBuf=isBuf,
+        )

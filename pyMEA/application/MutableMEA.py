@@ -18,7 +18,9 @@ class MutableMEA:
         self.start: int = start
         self.end: int = end
         self.time: int = end - start
-        self.SAMPLING_RATE, self.GAIN = decode_hed(self.hed_path)
+        hed_data = decode_hed(self.hed_path)
+        self.SAMPLING_RATE = hed_data.SAMPLING_RATE
+        self.GAIN = hed_data.GAIN
         self.array = hed2array(self.hed_path, self.start, self.end)
 
     def __repr__(self):
