@@ -4,6 +4,7 @@ import numpy as np
 from numpy import ndarray
 
 from pyMEA.calculator.values.ConductionVelocity import ConductionVelocity
+from pyMEA.constants import DEFAULT_PEAK_DISTANCE
 from pyMEA.calculator.values.FPD import FPD
 from pyMEA.calculator.values.ISI import ISI
 from pyMEA.find_peaks.peak_detection import detect_cardio_second_peak, detect_peak_neg
@@ -95,7 +96,7 @@ class Calculator:
             pos_peak = detect_cardio_second_peak(
                 tmp,
                 height=peak_range,
-                distance=3000,
+                distance=DEFAULT_PEAK_DISTANCE,
                 width=width,
                 prominence=prominence,
             )

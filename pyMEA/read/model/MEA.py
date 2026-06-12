@@ -6,6 +6,7 @@ from numpy import append, empty, float64, linspace, ndarray, pad
 from numpy._typing import NDArray
 from scipy.signal import filtfilt, iirnotch
 
+from pyMEA.constants import NUM_ELECTRODES
 from pyMEA.find_peaks.peak_model import Peaks64
 from pyMEA.read.model.HedPath import HedPath
 
@@ -140,7 +141,7 @@ class MEA:
     def down_sampling(self, down_sampling_rate=100):
         new_voltages = [
             downsample_max_min(self.array[i], down_sampling_rate * 2)
-            for i in range(1, 65)
+            for i in range(1, NUM_ELECTRODES + 1)
         ]
         new_sampling_rate = int(self.SAMPLING_RATE / down_sampling_rate)
         end = len(new_voltages[0]) / new_sampling_rate
@@ -176,7 +177,7 @@ class MEA:
         """
         new_voltages = [
             iirnotch_filter_single_ch(self.array[ch], self.SAMPLING_RATE, filter_hz, Q)
-            for ch in range(1, 65)
+            for ch in range(1, NUM_ELECTRODES + 1)
         ]
         t = self.array[0]
         t = t.reshape(1, len(t))

@@ -1,5 +1,6 @@
 import numpy as np
 
+from pyMEA.constants import NUM_ELECTRODES
 from pyMEA.read.model.MEA import MEA
 
 """
@@ -32,9 +33,9 @@ def filter_by_moving_average(data: MEA, power_noise_freq=50, steps=10) -> np.nda
     start_frames[-steps:] = start_frames[-steps - 1]
 
     # ノイズデータの初期化
-    elc_noise = np.zeros((64 + 1, data_length))
+    elc_noise = np.zeros((NUM_ELECTRODES + 1, data_length))
 
-    for ch in range(1, 65):
+    for ch in range(1, NUM_ELECTRODES + 1):
         # 各周期の移動平均を算出
         for start_frame, time_frame in zip(start_frames, time_frames):
             elc_noise[ch][time_frame : time_frame + wave_length] = get_moving_average(

@@ -1,5 +1,7 @@
-from pyMEA import Calculator, FigMEA
+from pyMEA.calculator.calculator import Calculator
+from pyMEA.constants import DEFAULT_PEAK_DISTANCE
 from pyMEA.core.Electrode import Electrode
+from pyMEA.figure.FigMEA import FigMEA
 from pyMEA.core.FilterType import FilterType
 from pyMEA.core.PyMEA import PyMEA
 from pyMEA.read.CardioAveWave import cardio_ave_wave_factory
@@ -17,7 +19,7 @@ def read_MEA(
     filter_type=FilterType.NONE,
     front=0.05,
     back=0.3,
-    distance=3000,
+    distance=DEFAULT_PEAK_DISTANCE,
     power_noise_freq=50,
     steps=10,
 ) -> PyMEA:
