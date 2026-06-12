@@ -10,11 +10,12 @@ pip install git+https://github.com/kkito0726/MEA_modules.git
 <pre>
 MEA_modules
 ├──pyMEA
-   ├── calculator # Utilities for calculating ISI, FPD, conduction velocity, and more
-   ├── figure     # Tools for plotting and visualizing data
-   ├── find_peaks # Tools for peak detection in waveform
-   ├── gradient   # Gradient analysis and related computations
-   ├── read       # Reading MEA recording file
+   ├── domain         # Core models, values, and services (MEA, ISI, FPD, peak detection, gradient, ...)
+   ├── application    # Use cases (read_MEA, PyMEA facade, MutableMEA)
+   ├── infrastructure # Reading MEA recording files (.hed/.bio)
+   ├── presentation   # Plotting and visualization (FigMEA, VideoMEA)
+   ├── constants.py   # Shared constants
+   └── __init__.py    # Public API
 </pre>
 
 ## Usage
@@ -29,8 +30,8 @@ electrode_distance = 450 # Distance between electrodes (μm)
 mea = read_MEA(hed_path, start, end, electrode_distance)
 
 # Detecting peaks in the waveform
-peak_index_neg = detect_peak_neg(mea.data) # Detect positive peaks
-peak_index_pos = detect_peak_pos(mea.data) # Detect negative peaks
+peak_index_neg = detect_peak_neg(mea.data) # Detect negative peaks
+peak_index_pos = detect_peak_pos(mea.data) # Detect positive peaks
 
 ch = 6 # electrode number
 

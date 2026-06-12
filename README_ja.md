@@ -119,7 +119,7 @@ mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.CARDIO_AVE_W
 ### データの分割
 ```python
 # 読み込んだデータを任意の期間切り出す
-# read_MEAでは読み込み期間を整数でしか指定できないがここでは少数も可能
+# read_MEAでは読み込み期間を整数でしか指定できないがここでは小数も可能
 mea_slice = mea.from_slice(0.25, 0.5)
 
 # 拍動周期ごとにデータを切り出す
@@ -137,7 +137,7 @@ mea = mea.init_time()
 ### 電位データのダウンサンプリング
 ```python
 # 1/10にダウンサンプリングする
-dawn_sampled_mea = mea.down_sampling(10)
+down_sampled_mea = mea.down_sampling(10)
 ```
 ---
 ## ピーク抽出
@@ -160,11 +160,11 @@ def detect_peak_pos(
 
 def detect_peak_all(
     MEA_data: MEA,
-    threshold: tuple[int, int] = (3, 3), # (上, 下)
-    distance=3000, # SD * thresholdより大きいピークを取る
-    min_amp=(10, 10), # (上, 下)
-    width=None,
+    threshold: tuple[int, int] = (3, 3), # SD * thresholdより大きいピークを取る (上, 下)
+    distance=3000, # ピークを取る間隔
+    min_amp=(10, 10), # 最小のピークの閾値電位 (上, 下)
     prominence=None,
+    width=None,
 ) -> AllPeaks64:
 ```
 ```python
@@ -186,8 +186,8 @@ def showAll(
         self,
         start=None,     # 描画開始時間 (s)
         end=5,          # 描画終了時間 (s)
-        volt_min=-200,  # 最大電位 (μV)
-        volt_max=200,   # 最小電位 (μV)
+        volt_min=-200,  # 最小電位 (μV)
+        volt_max=200,   # 最大電位 (μV)
         figsize=(8, 8), # グラフの縦横比
         dpi=300,        # 解像度
         color: list[str] | list[list[float]] = None, # 波形の配色
@@ -461,25 +461,25 @@ fpd_stv = fpd.stv # FPDのSTV (Short-Term Variability)を計算
 fpd_cv = fpd.coefficient_of_variation # FPDのCV (変動係数, Coefficient of Variation)を計算
 
 # FPD算出のために抽出したピークの位置を確認する
-fpd.show(mea.data)
+fpd.show()
 ```
 
 ### 伝導速度の計算
 
 ```python
-def conduction_velocity(self, peak_index: Peaks64, ch1: int, ch2: int) -> ndarray:
+def conduction_velocity(self, peak_index: Peaks64, ch1: int, ch2: int) -> ConductionVelocity:
 ```
 
 ```python
 # サンプルコード
-# ch 9とch 54間の伝導速度を算出する
+# ch 9とch 54間の伝導速度 (m/s)を算出する
 peak_index = detect_peak_neg(mea.data)
 conduction_velocity = mea.calculator.conduction_velocity(peak_index, ch1=9, ch2=54)
-mean = fpd.mean # 算出された伝導速度の平均値
-std = fpd.std # 算出された伝導速度の標準偏差
-se = fpd.se # 算出された伝導速度の標準誤差
-stv = fpd.stv # 伝導速度のSTV (Short-Term Variability)を計算
-cv = fpd.coefficient_of_variation # 伝導速度のCV (変動係数, Coefficient of Variation)を計算
+mean = conduction_velocity.mean # 算出された伝導速度の平均値
+std = conduction_velocity.std # 算出された伝導速度の標準偏差
+se = conduction_velocity.se # 算出された伝導速度の標準誤差
+stv = conduction_velocity.stv # 伝導速度のSTV (Short-Term Variability)を計算
+cv = conduction_velocity.coefficient_of_variation # 伝導速度のCV (変動係数, Coefficient of Variation)を計算
 ```
 
 ### 電極間距離の計算 (直線距離を計算)
