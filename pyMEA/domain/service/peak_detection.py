@@ -14,6 +14,42 @@ from pyMEA.domain.model.peak_model import (
 from pyMEA.domain.model.MEA import MEA
 
 
+def _detect_peaks_by_ch(
+    MEA_data: MEA,
+    is_positive: bool,
+    distance,
+    threshold,
+    min_amp,
+    prominence,
+    width,
+) -> dict[int, ndarray]:
+    """全電極に対して片側 (上または下) のピーク検出を行う共通処理"""
+    peak_dict: dict[int, ndarray] = {}
+    for i in range(1, len(MEA_data)):
+        # ピーク抽出の閾値を設定
+        height = np.std(MEA_data[i]) * threshold
+        # 閾値が最低閾値を下回っていた場合は最低閾値の値を閾値の値に設定する
+        if height < min_amp:
+            height = min_amp
+
+        data = MEA_data.array[i].copy()
+        if is_positive:
+            data[data < 0] = 0
+        else:
+            data[data > 0] = 0
+            data = -data
+        detect_peak_index, _ = find_peaks(
+            data,
+            height=height,
+            distance=distance,
+            prominence=prominence,
+            width=width,
+        )
+        peak_dict[i] = detect_peak_index
+
+    return peak_dict
+
+
 # 64電極すべての下ピークを取得
 def detect_peak_neg(
     MEA_data: MEA,
@@ -34,26 +70,16 @@ def detect_peak_neg(
         prominence: 突起度
         width: ピークの幅
     """
-    peak_dict: dict[int, NegPeaks] = {}
-    for i in range(1, len(MEA_data)):
-        # ピーク抽出の閾値を設定
-        height = np.std(MEA_data[i]) * threshold
-        # 閾値が最低閾値を下回っていた場合は最低閾値の値を閾値の値に設定する
-        if height < min_amp:
-            height = min_amp
-
-        data = MEA_data.array[i].copy()
-        data[data > 0] = 0
-        detect_peak_index, _ = find_peaks(
-            -data,
-            height=height,
-            distance=distance,
-            prominence=prominence,
-            width=width,
-        )
-        peak_dict[i] = NegPeaks(detect_peak_index)
-
-    return NegPeaks64(peak_dict)
+    peak_dict = _detect_peaks_by_ch(
+        MEA_data,
+        is_positive=False,
+        distance=distance,
+        threshold=threshold,
+        min_amp=min_amp,
+        prominence=prominence,
+        width=width,
+    )
+    return NegPeaks64({ch: NegPeaks(peaks) for ch, peaks in peak_dict.items()})
 
 
 # 64電極すべての上ピークを取得
@@ -76,26 +102,16 @@ def detect_peak_pos(
         prominence: 突起度
         width: ピークの幅
     """
-    peak_dict: dict[int, PosPeaks] = {}
-    for i in range(1, len(MEA_data)):
-        # ピーク抽出の閾値を設定
-        height = np.std(MEA_data[i]) * threshold
-        # 閾値が最低閾値を下回っていた場合は最低閾値の値を閾値の値に設定する
-        if height < min_amp:
-            height = min_amp
-
-        data = MEA_data.array[i].copy()
-        data[data < 0] = 0
-        detect_peak_index, _ = find_peaks(
-            data,
-            height=height,
-            distance=distance,
-            prominence=prominence,
-            width=width,
-        )
-        peak_dict[i] = PosPeaks(detect_peak_index)
-
-    return PosPeaks64(peak_dict)
+    peak_dict = _detect_peaks_by_ch(
+        MEA_data,
+        is_positive=True,
+        distance=distance,
+        threshold=threshold,
+        min_amp=min_amp,
+        prominence=prominence,
+        width=width,
+    )
+    return PosPeaks64({ch: PosPeaks(peaks) for ch, peaks in peak_dict.items()})
 
 
 def detect_cardio_second_peak(

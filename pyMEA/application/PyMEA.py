@@ -43,51 +43,34 @@ class PyMEA:
     def __floordiv__(self, value):
         return self.data.array // value
 
+    def _rebuild(self, new_data: MEA) -> "PyMEA":
+        """変換後のMEAデータから各責務クラスを再構築したPyMEAを返す"""
+        return PyMEA(
+            new_data,
+            self.electrode,
+            FigMEA(new_data, self.electrode),
+            Calculator(new_data, self.electrode.ele_dis),
+        )
+
     def from_slice(self, start: int | float, end: int | float):
         start_frame, end_frame = (
             int((start - self.data.start) * self.data.SAMPLING_RATE),
             int((end - self.data.start) * self.data.SAMPLING_RATE),
         )
-        new_data = self.data.from_slice(start_frame, end_frame)
-        return PyMEA(
-            new_data,
-            self.electrode,
-            FigMEA(new_data, self.electrode),
-            Calculator(new_data, self.electrode.ele_dis),
-        )
+        return self._rebuild(self.data.from_slice(start_frame, end_frame))
 
     def from_beat_cycles(
         self, peak_index: Peaks64, base_ch: int, margin_time: float = 0.25
     ):
         new_data_list = self.data.from_beat_cycles(peak_index, base_ch, margin_time)
-        return [
-            PyMEA(
-                new_data,
-                self.electrode,
-                FigMEA(new_data, self.electrode),
-                Calculator(new_data, self.electrode.ele_dis),
-            )
-            for new_data in new_data_list
-        ]
+        return [self._rebuild(new_data) for new_data in new_data_list]
 
     def init_time(self):
         """時刻データを0 (s)からにしたMEAインスタンスを返却"""
-        new_data = self.data.init_time()
-        return PyMEA(
-            new_data,
-            self.electrode,
-            FigMEA(new_data, self.electrode),
-            Calculator(new_data, self.electrode.ele_dis),
-        )
+        return self._rebuild(self.data.init_time())
 
     def down_sampling(self, down_sampling_rate=100):
-        new_data = self.data.down_sampling(down_sampling_rate)
-        return PyMEA(
-            new_data,
-            self.electrode,
-            FigMEA(new_data, self.electrode),
-            Calculator(new_data, self.electrode.ele_dis),
-        )
+        return self._rebuild(self.data.down_sampling(down_sampling_rate))
 
     def iirnotch_filter(self, filter_hz=50, Q=30):
         """
@@ -105,10 +88,4 @@ class PyMEA:
         filtered : PyMEA
             フィルタ後の信号
         """
-        new_data = self.data.iirnotch_filter(filter_hz, Q)
-        return PyMEA(
-            new_data,
-            self.electrode,
-            FigMEA(new_data, self.electrode),
-            Calculator(new_data, self.electrode.ele_dis),
-        )
+        return self._rebuild(self.data.iirnotch_filter(filter_hz, Q))

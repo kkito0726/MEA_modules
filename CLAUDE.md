@@ -25,18 +25,26 @@ PyMEA (frozen dataclass)
   └── electrode:  Electrode  # 電極位置情報
 ```
 
-## パッケージ構成
+## パッケージ構成 (DDDレイヤー)
 
 ```
 pyMEA/
-  ├── core/        # PyMEA, Electrode, FilterType
-  ├── read/        # .hedファイル読み込み, MEAデータモデル
-  ├── figure/      # 波形描画, カラーマップ, ラスタープロット, ヒストグラム, 動画
-  ├── calculator/  # ISI, FPD, 伝導速度の計算
-  ├── find_peaks/  # ピーク検出, バースト解析
-  ├── gradient/    # 勾配解析, 速度ベクトル計算
-  └── utils/       # フィルタ, デコレータ, パラメータ
+  ├── domain/              # 外部I/O・matplotlibに依存しない
+  │   ├── model/           # MEA, Electrode, FilterType, HedPath, BioPath, HedData, peak_model
+  │   ├── value/           # AbstractValues, ISI, FPD, ConductionVelocity
+  │   ├── service/         # peak_detection, burst, calculator, FilterMEA, CardioAveWave, peak_times, gradient/
+  │   └── validators.py    # ch_validator, time_validator
+  ├── application/         # PyMEAファサード, read_MEA, MutableMEA
+  ├── infrastructure/      # read_bio (.hed/.bioファイルI/O)
+  ├── presentation/        # FigMEA, video, FigImage, output, value_plots, gradient_plots, plot/
+  ├── constants.py         # NUM_ELECTRODES, ELECTRODE_GRID_SIZE 等の定数
+  └── __init__.py          # 公開API (PEP 562の遅延エクスポート)
 ```
+
+**依存方向ルール**: domain → なし / infrastructure → domain / presentation → domain / application → 全層。逆方向は禁止。
+
+- ドメイン層の描画メソッド (`ISI.show()`, `Gradient.draw2d()` 等) は presentation 層の実装へ遅延importで委譲する (domainのimport時にmatplotlibを読み込まない)
+- 公開API (`pyMEA/__init__.py` の `__all__`) は利用者との契約。シグネチャ・入出力を変更しないこと。`test/src/unit/test_public_api.py` が回帰テストとして守っている
 
 ## 技術スタック
 
@@ -54,7 +62,7 @@ pyMEA/
 - **イミュータブル設計**: 全主要クラスが `@dataclass(frozen=True)` を使用。MEAクラスの `array` も `setflags(write=False)` で凍結
 - **新インスタンス生成**: データ変換時は常に新しいインスタンスを返す (`from_slice`, `init_time`, `down_sampling` 等)
 - **電極番号**: 1-64 (8x8グリッド)。`array[0]` は時間データ、`array[1]`〜`array[64]` が電極データ
-- **デコレータパターン**: `@channel` (電極番号バリデーション), `@output_buf` (画像バッファ出力切替), `@ch_validator`
+- **デコレータパターン**: `@ch_validator`, `@time_validator` (入力バリデーション, `domain/validators.py`) / `@channel`, `@output_buf` (描画出力切替, `presentation/output.py`)
 
 ## テスト
 

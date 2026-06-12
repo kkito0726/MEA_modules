@@ -383,10 +383,10 @@ video.save_mp4("out.mp4", fps=10)    # MP4保存 (libx264コーデック)
 
 ## バースト解析
 
-`pyMEA.find_peaks.burst` モジュール（`from pyMEA import *` ではインポートされない。明示的にインポートが必要）。
+`pyMEA.domain.service.burst` モジュール（`from pyMEA import *` ではインポートされない。明示的にインポートが必要）。
 
 ```python
-from pyMEA.find_peaks.burst import sbf_detection, sbf_single, peak_flatten
+from pyMEA.domain.service.burst import sbf_detection, sbf_single, peak_flatten
 ```
 
 ### 同期バースト発火検出 (64電極)
@@ -426,10 +426,10 @@ def peak_flatten(data: MEA, peak_index: Peaks64) -> ndarray
 
 ## ポワンカレプロット・自己相関
 
-`pyMEA.figure.plot.pointcare_plot` モジュール（明示的インポートが必要）。
+`pyMEA.presentation.plot.pointcare_plot` モジュール（明示的インポートが必要）。
 
 ```python
-from pyMEA.figure.plot.pointcare_plot import pointcare_plot, normalize_data, autocorrelation
+from pyMEA.presentation.plot.pointcare_plot import pointcare_plot, normalize_data, autocorrelation
 ```
 
 ```python
@@ -447,10 +447,10 @@ pointcare_plot(data, tau, dpi=300)
 
 ## アーティファクト除去
 
-`pyMEA.find_peaks.peak_detection` モジュール内（明示的インポートが必要）。
+`pyMEA.domain.service.peak_detection` モジュール内（明示的インポートが必要）。
 
 ```python
-from pyMEA.find_peaks.peak_detection import remove_artifact
+from pyMEA.domain.service.peak_detection import remove_artifact
 
 # レーザー照射などのアーティファクトを除去
 cleaned_data, remove_times = remove_artifact(

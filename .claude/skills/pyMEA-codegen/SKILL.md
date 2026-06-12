@@ -268,7 +268,7 @@ mea.fig.plot_spectrum(ch=6, max_freq=500)
 バースト解析モジュールは `from pyMEA import *` ではインポートされない。明示的にインポートする。
 
 ```python
-from pyMEA.find_peaks.burst import sbf_detection, sbf_single
+from pyMEA.domain.service.burst import sbf_detection, sbf_single
 
 # 64電極の同期バースト発火検出
 peak_index = detect_peak_neg(mea.data)
