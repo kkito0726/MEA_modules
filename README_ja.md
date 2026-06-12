@@ -387,7 +387,7 @@ amc_chs = [1, 2, 3, 4, 5, 6, 7, 8] # AMCの電極番号
 mea.fig.draw_line_conduction(peak_index=peak_index, amc_chs=amc_chs)
 
 # 環状の経路の場合
-from pyMEA.figure.plot.plot import circuit_eles
+from pyMEA.presentation.plot.plot import circuit_eles
 
 mea.fig.draw_line_conduction(peak_index=peak_index, amc_chs=circuit_eles, isLoop=True)
 ```

@@ -2,7 +2,7 @@ import unittest
 from test.utils import get_resource_path
 
 from pyMEA import detect_peak_neg, read_MEA
-from pyMEA.gradient.Gradients import Gradients
+from pyMEA.domain.service.gradient.Gradients import Gradients
 
 
 class MyTestCase(unittest.TestCase):
