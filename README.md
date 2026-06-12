@@ -30,8 +30,8 @@ electrode_distance = 450 # Distance between electrodes (μm)
 mea = read_MEA(hed_path, start, end, electrode_distance)
 
 # Detecting peaks in the waveform
-peak_index_neg = detect_peak_neg(mea.data) # Detect positive peaks
-peak_index_pos = detect_peak_pos(mea.data) # Detect negative peaks
+peak_index_neg = detect_peak_neg(mea.data) # Detect negative peaks
+peak_index_pos = detect_peak_pos(mea.data) # Detect positive peaks
 
 ch = 6 # electrode number
 
