@@ -1,5 +1,5 @@
 import unittest
-from test.utils import get_resource_path
+from test.fixtures import fixture_hed_path
 
 import numpy as np
 
@@ -10,7 +10,7 @@ from pyMEA.domain.service.burst import peak_flatten, sbf_detection, sbf_single
 class TestBurst(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        path = get_resource_path("230615_day2_test_5s_.hed")
+        path = fixture_hed_path("cardio")
         cls.mea = read_MEA(path.__str__(), 1, 2, 450)
         cls.peak_index = detect_peak_neg(cls.mea.data)
 

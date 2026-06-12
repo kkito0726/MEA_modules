@@ -1,5 +1,5 @@
 import unittest
-from test.utils import get_resource_path
+from test.fixtures import fixture_hed_path
 
 import numpy as np
 
@@ -9,8 +9,8 @@ from pyMEA import MutableMEA, detect_peak_neg, read_MEA
 class TestPyMEATransformations(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.path = get_resource_path("230615_day2_test_5s_.hed")
-        cls.mea = read_MEA(cls.path.__str__(), 0, 5, 450)
+        cls.path = fixture_hed_path("cardio")
+        cls.mea = read_MEA(cls.path.__str__(), 0, 3, 450)
 
     def test_from_sliceで切り出した区間の責務クラスが再構築される(self):
         sliced = self.mea.from_slice(1, 3)
@@ -23,10 +23,10 @@ class TestPyMEATransformations(unittest.TestCase):
         self.assertIs(self.mea.electrode, sliced.electrode)
         # 元のインスタンスは変更されない (イミュータブル)
         self.assertEqual(0, self.mea.data.start)
-        self.assertEqual(5, self.mea.data.end)
+        self.assertEqual(3, self.mea.data.end)
 
     def test_init_timeで時刻が0から始まる(self):
-        sliced = self.mea.from_slice(2, 4).init_time()
+        sliced = self.mea.from_slice(1, 3).init_time()
         self.assertEqual(0, sliced.data.start)
         self.assertAlmostEqual(0, sliced.data.array[0][0])
 
@@ -60,13 +60,13 @@ class TestPyMEATransformations(unittest.TestCase):
 class TestMutableMEA(unittest.TestCase):
     def test_インスタンス化できる(self):
         # decode_hedの戻り値アンパックのバグ修正に対する回帰テスト
-        path = get_resource_path("230615_day2_test_5s_.hed")
-        m = MutableMEA(path.__str__(), 0, 5)
+        path = fixture_hed_path("cardio")
+        m = MutableMEA(path.__str__(), 0, 3)
 
         self.assertEqual(10000, m.SAMPLING_RATE)
         self.assertEqual(2000, m.GAIN)
-        self.assertEqual((65, 50000), m.array.shape)
-        self.assertEqual(5, m.time)
+        self.assertEqual((65, 30000), m.array.shape)
+        self.assertEqual(3, m.time)
 
 
 if __name__ == "__main__":

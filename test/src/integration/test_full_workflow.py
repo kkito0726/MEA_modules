@@ -5,7 +5,7 @@
 """
 
 import unittest
-from test.utils import get_resource_path
+from test.fixtures import fixture_hed_path
 
 from pyMEA import FilterType, detect_peak_all, detect_peak_neg, read_MEA
 from pyMEA.presentation.FigImage import FigImage
@@ -16,8 +16,8 @@ class TestNeuronWorkflow(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        path = get_resource_path("230615_day2_test_5s_.hed")
-        cls.mea = read_MEA(path.__str__(), 0, 5, 450)
+        path = fixture_hed_path("cardio")
+        cls.mea = read_MEA(path.__str__(), 0, 3, 450)
         cls.neg_peaks = detect_peak_neg(cls.mea.data)
         cls.all_peaks = detect_peak_all(cls.mea.data)
 
@@ -41,7 +41,7 @@ class TestNeuronWorkflow(unittest.TestCase):
         )
 
     def test_変換チェーンの結果でも解析できる(self):
-        sub = self.mea.from_slice(1, 4).init_time()
+        sub = self.mea.from_slice(1, 3).init_time()
         peaks = detect_peak_neg(sub.data)
         isi = sub.calculator.isi(peaks, ch=32)
         self.assertEqual(len(peaks[32]) - 1, len(isi))
@@ -52,10 +52,10 @@ class TestCardioWorkflow(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.path = get_resource_path("1102_dish3_day10_p210_5sec_.hed")
+        cls.path = fixture_hed_path("neuro")
 
     def test_平均波形フィルタを通したFPD計算(self):
-        mea = read_MEA(self.path.__str__(), 0, 5, 450, FilterType.CARDIO_AVE_WAVE)
+        mea = read_MEA(self.path.__str__(), 0, 3, 450, FilterType.CARDIO_AVE_WAVE)
         neg_peaks = detect_peak_neg(mea.data)
         fpd = mea.calculator.fpd(neg_peaks, ch=32)
         # FPDは設定した許容範囲内に収まる
@@ -63,7 +63,7 @@ class TestCardioWorkflow(unittest.TestCase):
             self.assertTrue(0.1 < value < 0.4)
 
     def test_生データのままFPD計算(self):
-        mea = read_MEA(self.path.__str__(), 0, 5, 450)
+        mea = read_MEA(self.path.__str__(), 0, 3, 450)
         neg_peaks = detect_peak_neg(mea.data)
         fpd = mea.calculator.fpd(neg_peaks, ch=32)
         self.assertGreaterEqual(len(fpd), 0)

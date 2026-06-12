@@ -1,5 +1,5 @@
 import unittest
-from test.utils import get_resource_path
+from test.fixtures import fixture_hed_path
 
 import numpy as np
 
@@ -12,7 +12,7 @@ from pyMEA.domain.service.peak_times import remove_undetected_ch_from64ch
 class TestSolver(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        path = get_resource_path("230615_day2_test_5s_.hed")
+        path = fixture_hed_path("cardio")
         cls.mea = read_MEA(path.__str__(), 1, 2, 450)
         peak_index = detect_peak_neg(cls.mea.data)
         cls.times, cls.remove_ch = remove_undetected_ch_from64ch(

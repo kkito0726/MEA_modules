@@ -1,5 +1,5 @@
 import unittest
-from test.utils import get_resource_path
+from test.fixtures import fixture_hed_path
 
 from pyMEA import detect_peak_neg, read_MEA
 from pyMEA.domain.service.CardioAveWave import calc_64_ave_waves
@@ -9,8 +9,8 @@ from pyMEA.domain.service.FilterMEA import filter_by_moving_average
 class TestFilterMEA(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        path = get_resource_path("230615_day2_test_5s_.hed")
-        cls.mea = read_MEA(path.__str__(), 0, 5, 450)
+        path = fixture_hed_path("cardio")
+        cls.mea = read_MEA(path.__str__(), 0, 3, 450)
 
     def test_移動平均フィルタ後も形状が維持される(self):
         filtered = filter_by_moving_average(self.mea.data)
@@ -25,8 +25,8 @@ class TestFilterMEA(unittest.TestCase):
 class TestCardioAveWave(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        path = get_resource_path("1102_dish3_day10_p210_5sec_.hed")
-        cls.mea = read_MEA(path.__str__(), 0, 5, 450)
+        path = fixture_hed_path("neuro")
+        cls.mea = read_MEA(path.__str__(), 0, 3, 450)
         cls.neg_peaks = detect_peak_neg(cls.mea.data)
 
     def test_平均波形は指定時間幅の形状になる(self):

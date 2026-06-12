@@ -1,5 +1,5 @@
 import unittest
-from test.utils import get_resource_path
+from test.fixtures import fixture_hed_path
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -14,7 +14,7 @@ from pyMEA.domain.model.MEA import MEA
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
-        self.path = get_resource_path("230615_day2_test_5s_.hed")
+        self.path = fixture_hed_path("cardio")
         self.mea = read_MEA(self.path.__str__(), 1, 2, 450)
         self.peak_index = detect_peak_neg(self.mea.data)
         self.fm = FigMEA(self.mea.data, Electrode(450))
