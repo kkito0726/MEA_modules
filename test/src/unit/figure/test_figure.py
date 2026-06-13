@@ -26,7 +26,7 @@ class MyTestCase(unittest.TestCase):
         for ch in range(1, 65):
             x_actual, y_actual = mock_plot.call_args_list[ch - 1][0]
             # numpyの配列比較を行う
-            np.testing.assert_array_equal(x_actual, self.mea.data.array[0])
+            np.testing.assert_array_equal(x_actual, self.mea.data[0])
             np.testing.assert_array_equal(y_actual, self.mea.data.array[ch])
 
         self.assertEqual(mock_show.call_count, 1)
@@ -39,7 +39,7 @@ class MyTestCase(unittest.TestCase):
 
             x_actual, y_actual = mock_plot.call_args_list[ch - 1][0]
             # numpyの配列比較を行う
-            np.testing.assert_array_equal(x_actual, self.mea.data.array[0])
+            np.testing.assert_array_equal(x_actual, self.mea.data[0])
             np.testing.assert_array_equal(y_actual, self.mea.data.array[ch])
         # showが呼び出された回数を確認
         self.assertEqual(mock_show.call_count, 64)

@@ -72,7 +72,7 @@ def show_all(
     start_frame = int(abs(data.start - start) * data.SAMPLING_RATE)
     end_frame = int(abs(data.start - end) * data.SAMPLING_RATE)
 
-    x = data.array[0][start_frame:end_frame]
+    x = data[0][start_frame:end_frame]
 
     color = normalize_color(color)
 
@@ -122,7 +122,7 @@ def show_single(
 
     plt.figure(figsize=figsize, dpi=dpi)
     plt.plot(
-        data.array[0][start_frame:end_frame],
+        data[0][start_frame:end_frame],
         data.array[ch][start_frame:end_frame],
         color=color,
     )
@@ -160,7 +160,7 @@ def plot_peaks(
     # 波形データのプロット
     plt.figure(figsize=figsize, dpi=dpi)
     x, y = (
-        data.array[0][start_frame:end_frame],
+        data[0][start_frame:end_frame],
         data.array[ch][start_frame:end_frame],
     )
     plt.plot(x, y, color=color)

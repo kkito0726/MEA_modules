@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Any
 
-from numpy import append, empty, float64, linspace, ndarray, pad
+import numpy as np
+from numpy import append, empty, float64, ndarray, pad
 from numpy._typing import NDArray
 from scipy.signal import filtfilt, iirnotch
 
@@ -30,23 +30,32 @@ class MEA:
     array: NDArray[float64]
 
     def __post_init__(self):
-        self.array.setflags(write=False)
-        # self.array に対して副作用を与えないようコピーして freeze
-        object.__setattr__(self, "array", self._freeze_array(self.array.copy()))
-
-    @staticmethod
-    def _freeze_array(arr) -> ndarray[Any]:
+        # 電位データは float32 で保持しメモリを半減する（情報量は元々16bitで実質無損失）。
+        # 時刻行(array[0])は float32 だと長時間記録で精度不足になるため、
+        # 正確な時刻は times プロパティ(float64)で別途再生成して配信する。
+        arr = np.array(self.array, dtype=np.float32)
         arr.setflags(write=False)
-        return arr
+        object.__setattr__(self, "array", arr)
 
     @cached_property
     def time(self):
         return self.end - self.start
 
+    @cached_property
+    def times(self) -> NDArray[float64]:
+        """float64 の時刻軸 [s]。array[0] は float32 保持のため、精度確保用に再生成する。"""
+        t = np.arange(self.array.shape[1], dtype=np.float64) / self.SAMPLING_RATE
+        t = t + self.start
+        t.setflags(write=False)
+        return t
+
     def __repr__(self):
         return repr(self.array)
 
     def __getitem__(self, index: int) -> ndarray:
+        # 時刻行は float64 の正確な時刻軸(times)を返す。電位行は float32 のまま。
+        if isinstance(index, (int, np.integer)) and index == 0:
+            return self.times
         return self.array[index]
 
     def __len__(self) -> int:
@@ -125,14 +134,14 @@ class MEA:
 
     def init_time(self):
         """時刻データを0 (s)からにしたMEAインスタンスを返却"""
-        t = self.array[0] - self.array[0][0]
-        t = t.reshape(1, len(t))
+        n = self.array.shape[1]
+        t = (np.arange(n, dtype=float64) / self.SAMPLING_RATE).reshape(1, n)
         new_array = append(t, self.array[1:], axis=0)
 
         return MEA(
             self.hed_path,
             start=0,
-            end=len(new_array[0]) / self.SAMPLING_RATE,
+            end=n / self.SAMPLING_RATE,
             SAMPLING_RATE=self.SAMPLING_RATE,
             GAIN=self.GAIN,
             array=new_array,
@@ -144,16 +153,16 @@ class MEA:
             for i in range(1, NUM_ELECTRODES + 1)
         ]
         new_sampling_rate = int(self.SAMPLING_RATE / down_sampling_rate)
-        end = len(new_voltages[0]) / new_sampling_rate
+        n = len(new_voltages[0])
+        end = n / new_sampling_rate + self.start
 
-        t = linspace(self.start, end, int((end - self.start) * new_sampling_rate))
-        t = t.reshape(1, len(t))
+        t = (np.arange(n, dtype=float64) / new_sampling_rate + self.start).reshape(1, n)
         new_array = append(t, new_voltages, axis=0)
 
         return MEA(
             self.hed_path,
             self.start,
-            t[0][-1],
+            end,
             new_sampling_rate,
             self.GAIN,
             new_array,
@@ -179,14 +188,13 @@ class MEA:
             iirnotch_filter_single_ch(self.array[ch], self.SAMPLING_RATE, filter_hz, Q)
             for ch in range(1, NUM_ELECTRODES + 1)
         ]
-        t = self.array[0]
-        t = t.reshape(1, len(t))
+        t = self.times.reshape(1, self.array.shape[1])
         new_array = append(t, new_voltages, axis=0)
 
         return MEA(
             self.hed_path,
             self.start,
-            self.array[0][-1],
+            self.times[-1],
             self.SAMPLING_RATE,
             self.GAIN,
             new_array,
