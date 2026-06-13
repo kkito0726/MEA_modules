@@ -14,10 +14,9 @@
   // "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-"initializeCommand": "sh .devcontainer/init.sh",
 "postCreateCommand": "curl -fsSL https://claude.ai/install.sh | bash && pip3 install --user -r requirements.txt && pip3 install --user -e .",
 "mounts": [
-  "source=${localEnv:MEA_DATA_PATH:/tmp/mea_data},target=/data,type=bind,consistency=cached"
+  "source=${localEnv:MEA_DATA_PATH:${localWorkspaceFolder}/data},target=/data,type=bind,consistency=cached"
 ],
 "customizations": {
 	"vscode": {
