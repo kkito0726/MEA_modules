@@ -58,6 +58,16 @@ class MEADtypeTest(unittest.TestCase):
         self.assertEqual(np.float32, filtered.array.dtype)
         self.assertEqual(np.float64, filtered[0].dtype)
 
+    def test_dtype契約_単一時刻はfloat64_複数行スライスはfloat32(self):
+        # 契約: float64の正確な時刻は mea[0] / mea.times のみ。
+        # 複数行スライスは単一dtype配列のため float32 を返す(時刻行も float32 精度)。
+        data = self.mea.data
+        self.assertEqual(np.float64, data[0].dtype)
+        self.assertEqual(np.float64, data.times.dtype)
+        self.assertEqual(np.float32, data[0:3].dtype)
+        self.assertEqual(np.float32, data[:, 0:5].dtype)
+        self.assertEqual(np.float32, np.array(data).dtype)
+
 
 if __name__ == "__main__":
     unittest.main()

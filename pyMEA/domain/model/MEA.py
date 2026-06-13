@@ -20,6 +20,19 @@ class MEA:
         hed_path: ヘッダーファイルのパス
         start: 読み込み開始時間 (s)
         end: 読み込み終了時間 (s)
+
+    dtypeの契約 (重要):
+        電位データは float32 で保持しメモリを半減する (情報量は元々16bitのため実質無損失)。
+        一方、時刻軸は float32 だと長時間記録 (start が大きい場合) で精度が崩壊するため、
+        float64 で別管理する。両者は単一dtypeの ndarray に同居できないため、アクセス方法で
+        返る dtype が異なる:
+
+        - 正確な時刻 (float64) が必要なとき   : ``mea[0]`` または ``mea.times`` を使う
+        - 電位データ (float32)                : ``mea[ch]`` (ch>=1) / ``mea.array[ch]``
+        - 複数行スライス (``mea[0:3]``,
+          ``mea[:, a:b]``, ``np.array(mea)``) : 生の float32 配列を返す。
+          時刻行も float32 精度になる (常用域では誤差 ~1e-7 s で無害だが、start が大きい
+          長時間記録では劣化する)。時刻を正確に扱う場合は上記 ``mea[0]`` / ``mea.times`` を使うこと。
     """
 
     hed_path: HedPath
