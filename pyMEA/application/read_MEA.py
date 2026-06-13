@@ -8,7 +8,26 @@ from pyMEA.domain.service.CardioAveWave import cardio_ave_wave_factory
 from pyMEA.domain.service.FilterMEA import filter_by_moving_average
 from pyMEA.domain.model.HedPath import HedPath
 from pyMEA.domain.model.MEA import MEA
-from pyMEA.infrastructure.read_bio import decode_hed, hed2array
+from pyMEA.infrastructure.reader import MEAReadResult, create_reader
+
+
+def _build_pymea(data: MEA, electrode_distance: int) -> PyMEA:
+    """MEAデータから各責務クラスを組み立てて PyMEA を返す。"""
+    electrode = Electrode(electrode_distance)
+    fig = FigMEA(data, electrode)
+    calculator = Calculator(data, electrode_distance)
+    return PyMEA(data, electrode, fig, calculator)
+
+
+def _to_mea(result: MEAReadResult) -> MEA:
+    return MEA(
+        result.hed_path,
+        result.start,
+        result.end,
+        result.sampling_rate,
+        result.gain,
+        result.array,
+    )
 
 
 def read_MEA(
@@ -44,23 +63,47 @@ def read_MEA(
     -------
 
     """
-    hed_path = HedPath(hed_path)
-    hed_data = decode_hed(hed_path)
-    array = hed2array(hed_path, start, end)
-    data = MEA(hed_path, start, end, hed_data.SAMPLING_RATE, hed_data.GAIN, array)
+    # .hed以外(.bio等)は専用メッセージで弾く(拡張子バリデーション)
+    HedPath(hed_path)
+    result = create_reader(hed_path, start=start, end=end).read()
+    data = _to_mea(result)
 
     if filter_type == FilterType.CARDIO_AVE_WAVE:
         data = cardio_ave_wave_factory(data, front, back, distance)
     elif filter_type == FilterType.FILTER_MEA:
         filtered_array = filter_by_moving_average(data, power_noise_freq, steps)
         data = MEA(
-            hed_path, start, end, hed_data.SAMPLING_RATE, hed_data.GAIN, filtered_array
+            result.hed_path,
+            result.start,
+            result.end,
+            result.sampling_rate,
+            result.gain,
+            filtered_array,
         )
     else:
         pass
 
-    electrode = Electrode(electrode_distance)
-    fig = FigMEA(data, electrode)
-    calculator = Calculator(data, electrode_distance)
+    return _build_pymea(data, electrode_distance)
 
-    return PyMEA(data, electrode, fig, calculator)
+
+def read_MEA_npz(path: str, electrode_distance: int) -> PyMEA:
+    """save_npz で保存した .npz を読み込み PyMEA を返す。
+
+    Parameters
+    ----------
+    path : str
+        .npz ファイルのパス
+    electrode_distance : int
+        電極間距離 (μm)
+
+    Returns
+    -------
+    PyMEA
+
+    Notes
+    -----
+    サンプリングレート・GAIN・start・end はファイルのメタ情報から復元する。
+    時刻行は再生成する。.hed/.bio 読込(read_MEA)とは入口を分けている。
+    """
+    result = create_reader(path).read()
+    return _build_pymea(_to_mea(result), electrode_distance)

@@ -43,6 +43,20 @@ class PyMEA:
     def __floordiv__(self, value):
         return self.data.array // value
 
+    def save_npz(self, path: str, dtype: str = "float32") -> None:
+        """計測データを .npz(圧縮)で保存する。
+
+        Parameters
+        ----------
+        path : str
+            保存先パス(.npz)
+        dtype : str
+            "float32"(実質無損失, 約1/2) / "int16"(16bit量子化, 約1/4)
+        """
+        from pyMEA.infrastructure.npz_io import save_mea_npz
+
+        save_mea_npz(self.data, path, dtype)
+
     def _rebuild(self, new_data: MEA) -> "PyMEA":
         """変換後のMEAデータから各責務クラスを再構築したPyMEAを返す"""
         return PyMEA(

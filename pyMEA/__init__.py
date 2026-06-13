@@ -9,7 +9,7 @@ import importlib
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pyMEA.application.read_MEA import read_MEA
+    from pyMEA.application.read_MEA import read_MEA, read_MEA_npz
     from pyMEA.domain.model.FilterType import FilterType
     from pyMEA.domain.model.MEA import MEA
     from pyMEA.application.MutableMEA import MutableMEA
@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 # 公開名 -> 定義モジュールのマッピング
 _EXPORTS = {
     "read_MEA": "pyMEA.application.read_MEA",
+    "read_MEA_npz": "pyMEA.application.read_MEA",
     "FilterType": "pyMEA.domain.model.FilterType",
     "MEA": "pyMEA.domain.model.MEA",
     "MutableMEA": "pyMEA.application.MutableMEA",
@@ -38,6 +39,7 @@ _EXPORTS = {
 
 __all__ = [
     "read_MEA",
+    "read_MEA_npz",
     "FilterType",
     "MEA",
     "MutableMEA",
