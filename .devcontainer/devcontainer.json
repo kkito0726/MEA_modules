@@ -14,6 +14,10 @@
   // "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
+  // initializeCommand: ホスト側にbindマウント用ディレクトリを作成する。
+  // Mac/Linux: sh で mkdir を実行。Windows: sh が無くても || exit 0 でエラーを吸収。
+  // Windows ユーザーは MEA_DATA_PATH に既存ディレクトリを設定すること。
+"initializeCommand": "mkdir -p \"${localEnv:MEA_DATA_PATH:/tmp/mea_data}\" 2>/dev/null || exit 0",
 "postCreateCommand": "curl -fsSL https://claude.ai/install.sh | bash && pip3 install --user -r requirements.txt && pip3 install --user -e .",
 "mounts": [
   "source=${localEnv:MEA_DATA_PATH:/tmp/mea_data},target=/data,type=bind,consistency=cached"
