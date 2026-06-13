@@ -54,9 +54,13 @@ class MEA:
     def time(self):
         return self.end - self.start
 
-    @cached_property
+    @property
     def times(self) -> NDArray[float64]:
-        """float64 の時刻軸 [s]。array[0] は float32 保持のため、精度確保用に再生成する。"""
+        """float64 の時刻軸 [s]。array[0] は float32 保持のため、精度確保用に再生成する。
+
+        メモリ冗長を避けるため常駐させず(キャッシュしない)、アクセス時に都度生成する。
+        時刻は start/SAMPLING_RATE/列数から復元できるので保持は不要。
+        """
         t = np.arange(self.array.shape[1], dtype=np.float64) / self.SAMPLING_RATE
         t = t + self.start
         t.setflags(write=False)
