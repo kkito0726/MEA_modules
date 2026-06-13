@@ -116,6 +116,36 @@ mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.FILTER_MEA)
 mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.CARDIO_AVE_WAVE)
 ```
 
+### ノイズ除去 (S/N比改善)
+
+弱い信号のS/N比を上げたい場合のデノイズプリセット。`CARDIO_AVE_WAVE` と違い**全時系列を保持**する (ISI・拍動間変動などが残る)。
+
+```python
+# 心筋 (強〜中信号): ドリフト除去 + 共通モードノイズ除去
+mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.CARDIO_DENOISE)
+
+# 微弱な心筋: 帯域通過 + 共通モードノイズ除去
+mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.CARDIO_DENOISE_WEAK)
+
+# 神経: スパイク帯(100-3000Hz)のみ通過
+mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.NEURO_DENOISE)
+```
+
+プリセットを使わず、`MEA` のデノイズメソッドを直接合成して独自パイプラインを組むこともできる (いずれもゼロ位相でピークタイミングを変えず、新インスタンスを返す)。
+
+```python
+# ハイパス(ドリフト除去) / バンドパス / 共通中央値リファレンス / ウェーブレット縮退
+denoised = mea.data.highpass(cutoff=1).common_median_reference()
+denoised = mea.data.bandpass(low=100, high=3000)
+denoised = mea.data.wavelet_denoise(wavelet="db4")
+
+# 手法の効果はS/N比で確認できる (スパイク振幅 / 静穏区間ノイズRMS)
+peak_index = detect_peak_neg(denoised)
+snr = mea.calculator.snr(peak_index, ch=6)
+```
+
+> **手法選定の目安**: 心筋(強)は `CARDIO_DENOISE`、微弱な心筋は `CARDIO_DENOISE_WEAK`、神経は `NEURO_DENOISE`。`wavelet_denoise` は強信号で最もS/Nが上がるが、微弱信号では弱スパイクを削るおそれがあるため `snr` で検出を確認すること。
+
 ### データの分割
 ```python
 # 読み込んだデータを任意の期間切り出す

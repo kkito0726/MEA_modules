@@ -51,6 +51,38 @@ class Calculator:
         )
 
     @ch_validator
+    def snr(self, peak_index: Peaks64, ch, noise_window=0.015) -> float:
+        """
+        S/N比を計算する (スパイク振幅 / 静穏区間ノイズRMS)。
+
+        デノイズ手法の効果を利用者が自分のデータで比較するための指標。
+        ----------
+        Args:
+            peak_index: ピーク抽出結果
+            ch: 電極番号
+            noise_window: 各スパイク前後でノイズ計算から除外する片側幅 (s)
+
+        Returns:
+            float: S/N比
+        -------
+
+        """
+        signal = self.data[ch]
+        spikes = peak_index[ch]
+        half = int(noise_window * self.data.SAMPLING_RATE)
+
+        mask = np.zeros(len(signal), dtype=bool)
+        for p in spikes:
+            mask[max(0, p - half) : p + half] = True
+
+        noise_rms = signal[~mask].std()
+        amplitudes = [
+            abs(signal[p] - np.median(signal[max(0, p - half) : p + half]))
+            for p in spikes
+        ]
+        return float(np.median(amplitudes) / noise_rms)
+
+    @ch_validator
     def fpd(
         self,
         neg_peak_index: NegPeaks64,

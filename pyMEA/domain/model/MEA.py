@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Any
 
+import numpy as np
+import pywt
 from numpy import append, empty, float64, linspace, median, ndarray, pad
 from numpy._typing import NDArray
 from scipy.signal import butter, filtfilt, iirnotch, sosfiltfilt
@@ -242,6 +244,32 @@ class MEA:
         ]
         return self._rebuild_voltages(new_voltages)
 
+    def wavelet_denoise(self, wavelet="db4", level=None):
+        """
+        ウェーブレット縮退で帯域内の広帯域ノイズを除去する（スパイク形状を保持）。
+
+        Parameters
+        ----------
+        wavelet : str, optional
+            ウェーブレット母関数（デフォルト "db4"）
+        level : int | None, optional
+            分解レベル。None なら信号長から自動決定（最大6）
+
+        Returns
+        -------
+        MEA
+            デノイズ後の新しいインスタンス
+
+        Notes
+        -----
+        微弱信号では弱いスパイクごと削るおそれがあるため、検出率を確認すること。
+        """
+        new_voltages = [
+            wavelet_denoise_single_ch(self.array[ch], wavelet, level)
+            for ch in range(1, NUM_ELECTRODES + 1)
+        ]
+        return self._rebuild_voltages(new_voltages)
+
     def _rebuild_voltages(self, new_voltages) -> "MEA":
         """時刻行を保持したまま電位データを差し替えた新しい MEA を返す。"""
         t = self.array[0].reshape(1, len(self.array[0]))
@@ -280,6 +308,41 @@ def zero_phase_butter(signal, fs, Wn, btype, order=4):
     """
     sos = butter(order, Wn, btype=btype, fs=fs, output="sos")
     return sosfiltfilt(sos, signal)
+
+
+def wavelet_denoise_single_ch(signal, wavelet="db4", level=None, max_level=6):
+    """
+    ウェーブレット縮退（DWT + ソフト閾値）で1電極の信号をデノイズする。
+
+    閾値はノイズ標準偏差から universal threshold (σ√(2 ln N)) で自動算出する。
+
+    Parameters
+    ----------
+    signal : array_like
+        入力信号（1次元配列）
+    wavelet : str, optional
+        ウェーブレット母関数（デフォルト "db4"）
+    level : int | None, optional
+        分解レベル。None なら信号長から自動決定
+    max_level : int, optional
+        自動決定時の上限レベル（デフォルト 6）
+
+    Returns
+    -------
+    ndarray
+        デノイズ後の信号
+    """
+    # frozen 配列は read-only のため pywt 用に書き込み可能なコピーを作る
+    signal = np.array(signal, dtype=float)
+    if level is None:
+        level = min(
+            pywt.dwt_max_level(len(signal), pywt.Wavelet(wavelet).dec_len), max_level
+        )
+    coeffs = pywt.wavedec(signal, wavelet, level=level)
+    sigma = np.median(np.abs(coeffs[-1])) / 0.6745
+    uthresh = sigma * np.sqrt(2 * np.log(len(signal)))
+    coeffs[1:] = [pywt.threshold(c, uthresh, mode="soft") for c in coeffs[1:]]
+    return pywt.waverec(coeffs, wavelet)[: len(signal)]
 
 
 def iirnotch_filter_single_ch(signal, fs, f0=50, Q=30):
