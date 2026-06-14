@@ -3,7 +3,7 @@
 計測データを **1つの小さなファイル(`.npz`)にまとめて保存**し、あとから簡単に読み込むための機能です。
 
 - 保存: `mea.save_npz("data.npz")`
-- 読込: `read_MEA_npz("data.npz")`(電極間距離もファイルに保存されるので省略可)
+- 読込: `read_MEA_npz("data.npz")`(電極間距離もファイルに保存されるので引数不要)
 
 ---
 
@@ -61,8 +61,8 @@ mea.save_npz("data.npz")
 mea = read_MEA_npz("data.npz")
 ```
 
-> 電極間距離も `.npz` に保存されるので、読み込み時の指定は不要です。
-> 別の値で読みたいときだけ `read_MEA_npz("data.npz", electrode_distance=600)` のように上書きできます。
+> 電極間距離を含むすべての情報が `.npz` に保存されるため、読み込み時に値を渡しません。
+> これは、読み込み時に誤った値を入れてしまい後から気づけなくなる事故を防ぐためです。
 
 読み込んだ後は、通常の `read_MEA` と全く同じように解析・描画できます。
 
@@ -181,4 +181,4 @@ mea.save_npz("clip_32.5-35.0s.npz")
 | 関数 / メソッド | 説明 |
 |---|---|
 | `PyMEA.save_npz(path, dtype="int16")` | 計測データを `.npz` で保存する |
-| `read_MEA_npz(path, electrode_distance=None)` | `.npz` を読み込み `PyMEA` を返す。電極間距離は省略可(保存値を使用) |
+| `read_MEA_npz(path)` | `.npz` を読み込み `PyMEA` を返す。電極間距離を含むメタ情報はすべてファイルから復元 |

@@ -23,7 +23,7 @@ class NpzIoTest(unittest.TestCase):
 
     def test_float32保存は電位を完全一致で復元する(self):
         self.pymea.save_npz(self.npz, dtype="float32")
-        loaded = read_MEA_npz(self.npz, 450)
+        loaded = read_MEA_npz(self.npz)
 
         np.testing.assert_array_equal(
             self.pymea.data.array[1:], loaded.data.array[1:]
@@ -31,7 +31,7 @@ class NpzIoTest(unittest.TestCase):
 
     def test_int16保存は16bit精度で復元する(self):
         self.pymea.save_npz(self.npz, dtype="int16")
-        loaded = read_MEA_npz(self.npz, 450)
+        loaded = read_MEA_npz(self.npz)
 
         orig = self.pymea.data.array[1:]
         scale = float(np.max(np.abs(orig))) / 32767
@@ -39,7 +39,7 @@ class NpzIoTest(unittest.TestCase):
 
     def test_メタ情報が復元される(self):
         self.pymea.save_npz(self.npz, dtype="float32")
-        loaded = read_MEA_npz(self.npz, 450)
+        loaded = read_MEA_npz(self.npz)
 
         self.assertEqual(self.pymea.data.SAMPLING_RATE, loaded.data.SAMPLING_RATE)
         self.assertEqual(self.pymea.data.GAIN, loaded.data.GAIN)
@@ -49,7 +49,7 @@ class NpzIoTest(unittest.TestCase):
 
     def test_時刻行はfloat64で再生成される(self):
         self.pymea.save_npz(self.npz, dtype="float32")
-        loaded = read_MEA_npz(self.npz, 450)
+        loaded = read_MEA_npz(self.npz)
 
         self.assertEqual(np.float64, loaded.data[0].dtype)
         np.testing.assert_array_equal(self.pymea.data[0], loaded.data[0])
@@ -68,20 +68,14 @@ class NpzIoTest(unittest.TestCase):
         self.assertLess(size_f32, raw_f64 * 0.6)
         self.assertLess(size_i16, size_f32)
 
-    def test_電極間距離を保存し読込時に省略できる(self):
-        # 保存時の電極間距離(789)がファイルに記録され、読込で省略しても復元される
+    def test_電極間距離はファイルから復元される(self):
+        # 保存時の電極間距離(789)がファイルに記録され、読込で復元される
+        # (read_MEA_npzは電極間距離を引数に取らない=意図しない値の混入を防ぐ)
         pymea = read_MEA(self.path.__str__(), 0, 3, 789)
         pymea.save_npz(self.npz)
 
-        loaded = read_MEA_npz(self.npz)  # electrode_distance を渡さない
+        loaded = read_MEA_npz(self.npz)
         self.assertEqual(789, loaded.electrode.ele_dis)
-
-    def test_読込時の電極間距離指定は保存値より優先される(self):
-        pymea = read_MEA(self.path.__str__(), 0, 3, 450)
-        pymea.save_npz(self.npz)
-
-        loaded = read_MEA_npz(self.npz, electrode_distance=600)
-        self.assertEqual(600, loaded.electrode.ele_dis)
 
     def test_デフォルトはint16保存(self):
         # 既定 dtype は int16(容量優先)。float32明示時と容量が変わることで確認する

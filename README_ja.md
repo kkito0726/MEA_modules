@@ -151,7 +151,7 @@ mea.save_npz("data.npz")                     # int16 (既定。最小サイズ)
 mea.save_npz("data.npz", dtype="float32")    # float32 (ビット完全一致)
 
 # 再読み込み (サンプリングレート・GAIN・時刻・電極間距離はメタ情報から復元)
-mea = read_MEA_npz("data.npz")   # 電極間距離も保存済みのため省略可
+mea = read_MEA_npz("data.npz")   # 電極間距離も保存済みのため引数不要
 ```
 
 元の計測ファイル(`.hed`/`.bio`)と比べて、既定の int16 で **約 1/2** のサイズになる(縮む割合はデータ内容により変動)。

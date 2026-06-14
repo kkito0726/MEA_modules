@@ -86,16 +86,13 @@ def read_MEA(
     return _build_pymea(data, electrode_distance)
 
 
-def read_MEA_npz(path: str, electrode_distance: int | None = None) -> PyMEA:
+def read_MEA_npz(path: str) -> PyMEA:
     """save_npz で保存した .npz を読み込み PyMEA を返す。
 
     Parameters
     ----------
     path : str
         .npz ファイルのパス
-    electrode_distance : int | None
-        電極間距離 (μm)。None(既定)ならファイルに保存された値を使う。
-        指定した場合は保存値より優先される
 
     Returns
     -------
@@ -103,15 +100,14 @@ def read_MEA_npz(path: str, electrode_distance: int | None = None) -> PyMEA:
 
     Notes
     -----
-    サンプリングレート・GAIN・start・end・電極間距離はファイルのメタ情報から復元する。
+    サンプリングレート・GAIN・start・end・電極間距離はすべてファイルのメタ情報から
+    復元する(読み込み時に値を渡さないため、意図しない値の混入が起きない)。
     時刻行は再生成する。.hed/.bio 読込(read_MEA)とは入口を分けている。
     """
     result = create_reader(path).read()
     distance = (
-        electrode_distance
-        if electrode_distance is not None
-        else result.electrode_distance
+        result.electrode_distance
+        if result.electrode_distance is not None
+        else DEFAULT_ELECTRODE_DISTANCE
     )
-    if distance is None:
-        distance = DEFAULT_ELECTRODE_DISTANCE
     return _build_pymea(_to_mea(result), distance)
