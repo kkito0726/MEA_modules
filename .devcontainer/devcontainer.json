@@ -15,9 +15,9 @@
 
   // Use 'postCreateCommand' to run commands after the container is created.
 "postCreateCommand": "curl -fsSL https://claude.ai/install.sh | bash && pip3 install --user -r requirements.txt && pip3 install --user -e .",
-"mounts": [
-  "source=${localEnv:MEA_DATA_PATH:/tmp/mea_data},target=/data,type=bind,consistency=cached"
-],
+// "mounts": [
+//   "source=${localEnv:MEA_DATA_PATH:${localWorkspaceFolder}/data},target=/data,type=bind,consistency=cached"
+// ],
 "customizations": {
 	"vscode": {
 		"extensions": [
