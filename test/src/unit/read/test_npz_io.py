@@ -68,6 +68,21 @@ class NpzIoTest(unittest.TestCase):
         self.assertLess(size_f32, raw_f64 * 0.6)
         self.assertLess(size_i16, size_f32)
 
+    def test_電極間距離を保存し読込時に省略できる(self):
+        # 保存時の電極間距離(789)がファイルに記録され、読込で省略しても復元される
+        pymea = read_MEA(self.path.__str__(), 0, 3, 789)
+        pymea.save_npz(self.npz)
+
+        loaded = read_MEA_npz(self.npz)  # electrode_distance を渡さない
+        self.assertEqual(789, loaded.electrode.ele_dis)
+
+    def test_読込時の電極間距離指定は保存値より優先される(self):
+        pymea = read_MEA(self.path.__str__(), 0, 3, 450)
+        pymea.save_npz(self.npz)
+
+        loaded = read_MEA_npz(self.npz, electrode_distance=600)
+        self.assertEqual(600, loaded.electrode.ele_dis)
+
     def test_デフォルトはint16保存(self):
         # 既定 dtype は int16(容量優先)。float32明示時と容量が変わることで確認する
         default_path = os.path.join(self._tmp.name, "default.npz")

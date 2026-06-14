@@ -6,6 +6,7 @@
 
 import numpy as np
 
+from pyMEA.constants import DEFAULT_ELECTRODE_DISTANCE
 from pyMEA.domain.model.MEA import MEA
 
 # .npz 内のキー(読込側 reader.py と共有)
@@ -17,13 +18,16 @@ KEY_START = "start"
 KEY_END = "end"
 KEY_DTYPE = "dtype"
 KEY_SCALE = "scale"
+KEY_ELECTRODE_DISTANCE = "electrode_distance"
 
 SUPPORTED_DTYPES = ("float32", "int16")
 
 _INT16_MAX = 32767
 
 
-def save_mea_npz(mea: MEA, path: str, dtype: str = "int16") -> None:
+def save_mea_npz(
+    mea: MEA, path: str, dtype: str = "int16", electrode_distance: int = DEFAULT_ELECTRODE_DISTANCE
+) -> None:
     """MEA計測データを .npz(圧縮)で保存する。
 
     Parameters
@@ -35,6 +39,8 @@ def save_mea_npz(mea: MEA, path: str, dtype: str = "int16") -> None:
     dtype : str
         "int16"(既定, 16bit量子化, 約1/4。誤差<半ADC-LSBで測定分解能以下) /
         "float32"(ビット完全一致, 約1/2)
+    electrode_distance : int
+        電極間距離 (μm)。読込時に再指定不要にするためファイルに保存する
 
     Notes
     -----
@@ -69,5 +75,6 @@ def save_mea_npz(mea: MEA, path: str, dtype: str = "int16") -> None:
             KEY_END: np.float64(mea.end),
             KEY_DTYPE: dtype,
             KEY_SCALE: np.float64(scale),
+            KEY_ELECTRODE_DISTANCE: np.int64(electrode_distance),
         },
     )

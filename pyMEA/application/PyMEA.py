@@ -56,7 +56,7 @@ class PyMEA:
         """
         from pyMEA.infrastructure.npz_io import save_mea_npz
 
-        save_mea_npz(self.data, path, dtype)
+        save_mea_npz(self.data, path, dtype, self.electrode.ele_dis)
 
     def _rebuild(self, new_data: MEA) -> "PyMEA":
         """変換後のMEAデータから各責務クラスを再構築したPyMEAを返す"""

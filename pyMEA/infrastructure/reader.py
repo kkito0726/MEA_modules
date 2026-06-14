@@ -17,6 +17,7 @@ from pyMEA.domain.model.HedPath import HedPath
 from pyMEA.infrastructure import read_bio
 from pyMEA.infrastructure.npz_io import (
     KEY_DTYPE,
+    KEY_ELECTRODE_DISTANCE,
     KEY_END,
     KEY_GAIN,
     KEY_HED_PATH,
@@ -37,6 +38,8 @@ class MEAReadResult:
     gain: int
     start: float
     end: float
+    # 電極間距離 (μm)。.npz は保存値を持つ。.hed/.bio は持たない(read_MEAが引数で受ける)
+    electrode_distance: int | None = None
 
 
 class MEAReader(Protocol):
@@ -81,6 +84,12 @@ class NpzReader:
             start = float(data[KEY_START])
             end = float(data[KEY_END])
             hed_path = str(data[KEY_HED_PATH])
+            # 旧形式(電極間距離なし)との後方互換のため存在チェックする
+            electrode_distance = (
+                int(data[KEY_ELECTRODE_DISTANCE])
+                if KEY_ELECTRODE_DISTANCE in data.files
+                else None
+            )
 
         if dtype == "int16":
             voltages = stored.astype(np.float32) * np.float32(scale)
@@ -100,6 +109,7 @@ class NpzReader:
             gain=gain,
             start=start,
             end=end,
+            electrode_distance=electrode_distance,
         )
 
 
