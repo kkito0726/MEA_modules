@@ -82,6 +82,8 @@ class Calculator:
         """
         stroke_frame = int(stroke_time * self.data.SAMPLING_RATE)
         data = self.data.array.copy()
+        # 時刻はfloat32保持の電位配列ではなくfloat64のtimesから取得する(FPDは時刻差分のため精度が重要)
+        times = self.data.times
         # 1st peak付近のデータを0に変換
         for p in neg_peak_index[ch]:
             data[ch][p - stroke_frame : p + stroke_frame] = 0
@@ -104,8 +106,9 @@ class Calculator:
             if len(pos_peak[ch]) == 0:
                 continue
 
-            pos_time = tmp[0][pos_peak[ch]]
-            fpd = pos_time[0] - data[0][p]
+            window_times = times[p + stroke_frame : p + max_fpd_frame]
+            pos_time = window_times[pos_peak[ch]]
+            fpd = pos_time[0] - times[p]
             if fpd_range[0] < fpd < fpd_range[1]:
                 fpds.append(fpd)
                 pos_peaks.append(p + stroke_frame + pos_peak[ch][0])

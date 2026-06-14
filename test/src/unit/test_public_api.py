@@ -24,6 +24,7 @@ from pyMEA import (
 
 EXPECTED_ALL = {
     "read_MEA",
+    "read_MEA_npz",
     "FilterType",
     "MEA",
     "MutableMEA",
