@@ -162,6 +162,8 @@ mea = read_MEA_npz("data.npz", electrode_distance=450)
 > 注: int16 の誤差は測定器の分解能(1 LSB)の半分未満で、ピーク検出・ISI・FPD等の解析結果に影響しない。
 > 元の生値を1ビットも変えずに保持したい場合のみ `dtype="float32"` を使う。
 
+詳細(API・容量の目安・区間切り出しの活用・仕組み)は [.npz 保存・読み込みドキュメント](./docs/api/npz_io_ja.md) を参照。
+
 > 注: 時刻行は保存せず、読込時に `start`/`SAMPLING_RATE`/データ長から `float64` で再生成する。
 > このため `mea[0]` / `mea.times` は常に正確な時刻 (float64) を返す。
 
