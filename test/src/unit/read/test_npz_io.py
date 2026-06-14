@@ -68,6 +68,18 @@ class NpzIoTest(unittest.TestCase):
         self.assertLess(size_f32, raw_f64 * 0.6)
         self.assertLess(size_i16, size_f32)
 
+    def test_デフォルトはint16保存(self):
+        # 既定 dtype は int16(容量優先)。float32明示時と容量が変わることで確認する
+        default_path = os.path.join(self._tmp.name, "default.npz")
+        f32_path = os.path.join(self._tmp.name, "explicit_f32.npz")
+        self.pymea.save_npz(default_path)                      # 既定
+        self.pymea.save_npz(f32_path, dtype="float32")
+
+        with np.load(default_path) as d:
+            self.assertEqual("int16", str(d["dtype"]))
+        # 既定(int16)は float32 明示より小さい
+        self.assertLess(os.path.getsize(default_path), os.path.getsize(f32_path))
+
     def test_未対応拡張子は例外(self):
         with self.assertRaises(ValueError) as ctx:
             create_reader("data.txt")

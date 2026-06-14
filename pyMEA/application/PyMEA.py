@@ -43,7 +43,7 @@ class PyMEA:
     def __floordiv__(self, value):
         return self.data.array // value
 
-    def save_npz(self, path: str, dtype: str = "float32") -> None:
+    def save_npz(self, path: str, dtype: str = "int16") -> None:
         """計測データを .npz(圧縮)で保存する。
 
         Parameters
@@ -51,7 +51,8 @@ class PyMEA:
         path : str
             保存先パス(.npz)
         dtype : str
-            "float32"(実質無損失, 約1/2) / "int16"(16bit量子化, 約1/4)
+            "int16"(既定, 16bit量子化, 約1/4。誤差は測定分解能以下) /
+            "float32"(ビット完全一致, 約1/2)
         """
         from pyMEA.infrastructure.npz_io import save_mea_npz
 

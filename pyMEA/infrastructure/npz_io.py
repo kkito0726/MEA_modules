@@ -23,7 +23,7 @@ SUPPORTED_DTYPES = ("float32", "int16")
 _INT16_MAX = 32767
 
 
-def save_mea_npz(mea: MEA, path: str, dtype: str = "float32") -> None:
+def save_mea_npz(mea: MEA, path: str, dtype: str = "int16") -> None:
     """MEA計測データを .npz(圧縮)で保存する。
 
     Parameters
@@ -33,7 +33,8 @@ def save_mea_npz(mea: MEA, path: str, dtype: str = "float32") -> None:
     path : str
         保存先パス(.npz)。拡張子が無ければ numpy が付与する
     dtype : str
-        "float32"(実質無損失, 約1/2) / "int16"(16bit量子化, 約1/4)
+        "int16"(既定, 16bit量子化, 約1/4。誤差<半ADC-LSBで測定分解能以下) /
+        "float32"(ビット完全一致, 約1/2)
 
     Notes
     -----
