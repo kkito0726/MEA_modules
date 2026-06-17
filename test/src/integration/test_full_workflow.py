@@ -5,9 +5,15 @@
 """
 
 import unittest
-from test.fixtures import fixture_hed_path
+from test.fixtures import fixture_hed_path, fixture_npz_path
 
-from pyMEA import FilterType, detect_peak_all, detect_peak_neg, read_MEA
+from pyMEA import (
+    FilterType,
+    detect_peak_all,
+    detect_peak_neg,
+    read_MEA,
+    read_MEA_npz,
+)
 from pyMEA.presentation.FigImage import FigImage
 
 
@@ -67,6 +73,32 @@ class TestCardioWorkflow(unittest.TestCase):
         neg_peaks = detect_peak_neg(mea.data)
         fpd = mea.calculator.fpd(neg_peaks, ch=32)
         self.assertGreaterEqual(len(fpd), 0)
+
+
+class TestNpzWorkflow(unittest.TestCase):
+    """read_MEA_npz でフィクスチャ .npz を直接読み込む解析ワークフロー"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mea = read_MEA_npz(fixture_npz_path("cardio"))
+        cls.neg_peaks = detect_peak_neg(cls.mea.data)
+
+    def test_メタ情報がファイルから復元される(self):
+        # SR・GAIN・start/end・電極間距離は .npz のメタ情報から復元される
+        self.assertEqual(10000, self.mea.data.SAMPLING_RATE)
+        self.assertEqual(2000, self.mea.data.GAIN)
+        self.assertEqual(0, self.mea.data.start)
+        self.assertEqual(3, self.mea.data.end)
+        self.assertEqual(450, self.mea.electrode.ele_dis)
+        self.assertEqual((65, 30000), self.mea.data.shape)
+
+    def test_読み込みからISI計算まで(self):
+        isi = self.mea.calculator.isi(self.neg_peaks, ch=32)
+        self.assertTrue((isi.values > 0).all())
+        self.assertTrue(0 < isi.mean < 2)
+
+    def test_読み込みから描画まで(self):
+        self.assertIsInstance(self.mea.fig.showAll(isBuf=True), FigImage)
 
 
 if __name__ == "__main__":
