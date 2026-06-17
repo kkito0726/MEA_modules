@@ -1,15 +1,17 @@
-from test.utils import get_resource_path
+from test.fixtures import fixture_hed_path, install_fixture_io
 
 from pyMEA.domain.model.FilterType import FilterType
 from pyMEA.domain.service.peak_detection import detect_peak_neg, detect_peak_pos
 from pyMEA.application.read_MEA import read_MEA
 
-path = get_resource_path("230615_day2_test_5s_.hed")
+# リポジトリ管理のフィクスチャ(.npz)からデータを供給する
+install_fixture_io()
+path = fixture_hed_path("cardio")
 
 start, end = 1, 2
 mea = read_MEA(path.__str__(), start, end, 450, FilterType.FILTER_MEA)
 neg_peak_index = detect_peak_neg(mea.data)
-pos_peak_index = detect_peak_pos(mea.data, height=(0, 500))
+pos_peak_index = detect_peak_pos(mea.data)
 
 
 if __name__ == "__main__":
@@ -34,8 +36,8 @@ if __name__ == "__main__":
     mea.fig.mkHist(neg_peak_index, [i for i in range(1, 65)], dpi=100)
 
     # 2Dカラーマップ
-    grads = mea.fig.draw_2d(neg_peak_index, 450, dpi=100)
-    print(grads.r2s)
+    grads = mea.fig.draw_2d(neg_peak_index, dpi=100)
+    print([grad.r2 for grad in grads])
 
     # 3Dカラーマップ
-    mea.fig.draw_3d(neg_peak_index, 450, dpi=100)
+    mea.fig.draw_3d(neg_peak_index, dpi=100)

@@ -1,11 +1,13 @@
-from test.utils import get_resource_path
+from test.fixtures import fixture_hed_path, install_fixture_io
 
 from pyMEA import detect_peak_all
 from pyMEA.presentation.plot.plot import circuit_eles
 from pyMEA.domain.service.peak_detection import detect_peak_neg, detect_peak_pos
 from pyMEA.application.read_MEA import read_MEA
 
-path = get_resource_path("230615_day2_test_5s_.hed")
+# リポジトリ管理のフィクスチャ(.npz)からデータを供給する
+install_fixture_io()
+path = fixture_hed_path("cardio")
 
 start, end = 1, 2
 mea = read_MEA(path.__str__(), start, end, 450)

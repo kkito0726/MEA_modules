@@ -30,10 +30,18 @@ def fixture_hed_path(name: str) -> str:
     return f"{name}.hed"
 
 
+def fixture_npz_path(name: str) -> str:
+    """read_MEA_npz で直接読み込む実フィクスチャ .npz の絶対パスを返す。"""
+    return str(_FIXTURE_DIR / f"{name}.npz")
+
+
 @lru_cache(maxsize=None)
 def _load_npz(name: str):
-    data = np.load(_FIXTURE_DIR / f"{name}.npz")
-    return data["array"], int(data["SAMPLING_RATE"]), int(data["GAIN"])
+    # フィクスチャは read_MEA_npz で読める正規形式(.npz)。公開API経由で実ファイルを読む。
+    from pyMEA import read_MEA_npz
+
+    mea = read_MEA_npz(str(_FIXTURE_DIR / f"{name}.npz")).data
+    return mea.array, int(mea.SAMPLING_RATE), int(mea.GAIN)
 
 
 def _fixture_name(path) -> str | None:
