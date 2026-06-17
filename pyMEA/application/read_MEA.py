@@ -80,6 +80,15 @@ def read_MEA(
             result.gain,
             filtered_array,
         )
+    elif filter_type == FilterType.CARDIO_DENOISE:
+        # 心筋(強〜中信号): ドリフト除去 + 共通モードノイズ除去
+        data = data.highpass(1).common_median_reference()
+    elif filter_type == FilterType.CARDIO_DENOISE_WEAK:
+        # 微弱心筋: 帯域通過(広帯域ノイズ除去) + 共通モードノイズ除去
+        data = data.bandpass(1, 1000).common_median_reference()
+    elif filter_type == FilterType.NEURO_DENOISE:
+        # 神経: スパイク帯のみ通過
+        data = data.bandpass(100, 3000)
     else:
         pass
 

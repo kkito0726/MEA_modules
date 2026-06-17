@@ -2,9 +2,10 @@ from dataclasses import dataclass
 from functools import cached_property
 
 import numpy as np
-from numpy import append, empty, float64, ndarray, pad
+import pywt
+from numpy import append, empty, float64, linspace, median, ndarray, pad
 from numpy._typing import NDArray
-from scipy.signal import filtfilt, iirnotch
+from scipy.signal import butter, filtfilt, iirnotch, sosfiltfilt
 
 from pyMEA.constants import NUM_ELECTRODES
 from pyMEA.domain.model.peak_model import Peaks64
@@ -205,9 +206,99 @@ class MEA:
             iirnotch_filter_single_ch(self.array[ch], self.SAMPLING_RATE, filter_hz, Q)
             for ch in range(1, NUM_ELECTRODES + 1)
         ]
-        t = self.times.reshape(1, self.array.shape[1])
-        new_array = append(t, new_voltages, axis=0)
+        return self._rebuild_voltages(new_voltages)
 
+    def highpass(self, cutoff=1, order=4):
+        """
+        ハイパスフィルタ（ゼロ位相 Butterworth）でベースラインドリフトを除去する。
+
+        Parameters
+        ----------
+        cutoff : float, optional
+            下限カットオフ周波数 [Hz]（デフォルト 1 Hz）
+        order : int, optional
+            フィルタ次数（デフォルト 4）
+
+        Returns
+        -------
+        MEA
+            フィルタ後の新しいインスタンス（ピークタイミングは不変）
+        """
+        new_voltages = [
+            zero_phase_butter(self.array[ch], self.SAMPLING_RATE, cutoff, "highpass", order)
+            for ch in range(1, NUM_ELECTRODES + 1)
+        ]
+        return self._rebuild_voltages(new_voltages)
+
+    def bandpass(self, low, high, order=4):
+        """
+        バンドパスフィルタ（ゼロ位相 Butterworth）で指定帯域のみ通す。
+
+        Parameters
+        ----------
+        low : float
+            下限カットオフ周波数 [Hz]
+        high : float
+            上限カットオフ周波数 [Hz]
+        order : int, optional
+            フィルタ次数（デフォルト 4）
+
+        Returns
+        -------
+        MEA
+            フィルタ後の新しいインスタンス（ピークタイミングは不変）
+        """
+        new_voltages = [
+            zero_phase_butter(self.array[ch], self.SAMPLING_RATE, [low, high], "bandpass", order)
+            for ch in range(1, NUM_ELECTRODES + 1)
+        ]
+        return self._rebuild_voltages(new_voltages)
+
+    def common_median_reference(self):
+        """
+        各時刻で全電極の中央値を減算し、電極間で共通するノイズ（電源・参照ドリフト等）を除去する。
+
+        Returns
+        -------
+        MEA
+            ノイズ除去後の新しいインスタンス
+        """
+        ref = median(self.array[1 : NUM_ELECTRODES + 1], axis=0)
+        new_voltages = [
+            self.array[ch] - ref for ch in range(1, NUM_ELECTRODES + 1)
+        ]
+        return self._rebuild_voltages(new_voltages)
+
+    def wavelet_denoise(self, wavelet="db4", level=None):
+        """
+        ウェーブレット縮退で帯域内の広帯域ノイズを除去する（スパイク形状を保持）。
+
+        Parameters
+        ----------
+        wavelet : str, optional
+            ウェーブレット母関数（デフォルト "db4"）
+        level : int | None, optional
+            分解レベル。None なら信号長から自動決定（最大6）
+
+        Returns
+        -------
+        MEA
+            デノイズ後の新しいインスタンス
+
+        Notes
+        -----
+        微弱信号では弱いスパイクごと削るおそれがあるため、検出率を確認すること。
+        """
+        new_voltages = [
+            wavelet_denoise_single_ch(self.array[ch], wavelet, level)
+            for ch in range(1, NUM_ELECTRODES + 1)
+        ]
+        return self._rebuild_voltages(new_voltages)
+
+    def _rebuild_voltages(self, new_voltages) -> "MEA":
+        """時刻行を保持したまま電位データを差し替えた新しい MEA を返す。"""
+        t = self.array[0].reshape(1, len(self.array[0]))
+        new_array = append(t, new_voltages, axis=0)
         return MEA(
             self.hed_path,
             self.start,
@@ -216,6 +307,67 @@ class MEA:
             self.GAIN,
             new_array,
         )
+
+
+def zero_phase_butter(signal, fs, Wn, btype, order=4):
+    """
+    Butterworth フィルタを順逆2回がけ（ゼロ位相）で適用する。
+
+    Parameters
+    ----------
+    signal : array_like
+        入力信号（1次元配列）
+    fs : float
+        サンプリング周波数 [Hz]
+    Wn : float | list[float]
+        カットオフ周波数 [Hz]。highpass はスカラ、bandpass は [low, high]
+    btype : str
+        "highpass" または "bandpass"
+    order : int, optional
+        フィルタ次数（デフォルト 4）
+
+    Returns
+    -------
+    filtered : ndarray
+        フィルタ後の信号（位相遅延なし）
+    """
+    sos = butter(order, Wn, btype=btype, fs=fs, output="sos")
+    return sosfiltfilt(sos, signal)
+
+
+def wavelet_denoise_single_ch(signal, wavelet="db4", level=None, max_level=6):
+    """
+    ウェーブレット縮退（DWT + ソフト閾値）で1電極の信号をデノイズする。
+
+    閾値はノイズ標準偏差から universal threshold (σ√(2 ln N)) で自動算出する。
+
+    Parameters
+    ----------
+    signal : array_like
+        入力信号（1次元配列）
+    wavelet : str, optional
+        ウェーブレット母関数（デフォルト "db4"）
+    level : int | None, optional
+        分解レベル。None なら信号長から自動決定
+    max_level : int, optional
+        自動決定時の上限レベル（デフォルト 6）
+
+    Returns
+    -------
+    ndarray
+        デノイズ後の信号
+    """
+    # frozen 配列は read-only のため pywt 用に書き込み可能なコピーを作る
+    signal = np.array(signal, dtype=float)
+    if level is None:
+        level = min(
+            pywt.dwt_max_level(len(signal), pywt.Wavelet(wavelet).dec_len), max_level
+        )
+    coeffs = pywt.wavedec(signal, wavelet, level=level)
+    sigma = np.median(np.abs(coeffs[-1])) / 0.6745
+    uthresh = sigma * np.sqrt(2 * np.log(len(signal)))
+    coeffs[1:] = [pywt.threshold(c, uthresh, mode="soft") for c in coeffs[1:]]
+    return pywt.waverec(coeffs, wavelet)[: len(signal)]
 
 
 def iirnotch_filter_single_ch(signal, fs, f0=50, Q=30):

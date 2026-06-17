@@ -32,6 +32,7 @@ pathspec
 pexpect
 pickleshare
 Pillow
+PyWavelets
 platformdirs
 prompt-toolkit
 psutil

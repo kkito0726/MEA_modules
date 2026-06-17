@@ -1,0 +1,23 @@
+{
+  "skill_name": "pyMEA-denoise-optimizer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "心筋の計測データ test/resources/230615_day2_test_5s_.hed のノイズが気になるんだけど、どのフィルタ設定が一番S/Nが上がるか教えてほしい",
+      "expected_output": "信号特性(SR・細胞種=cardio自動判定・帯域)を提示し、候補手法を比較した上で、振幅を保持しS/Nが高い条件(bandpass+CMR系)を推奨。pyMEAでの適用方法も提示。狭帯域bandpassを推奨しない。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "神経細胞のMEAデータ test/resources/1102_dish3_day10_p210_5sec_.hed、信号が弱くてS/Nを上げたいです。最適なデノイズ条件を探してください",
+      "expected_output": "細胞種=neuro自動判定。bandpass(100-3000)系を推奨し、振幅を大きく削るwavelet併用は主推奨にしない(別案として提示)。検出維持%が弱信号で交絡する旨を説明。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "test/resources/230615_day2_test_5s_.hed のMEAデータに最適なノイズ除去のパラメータを決めたい。0〜3秒で見て。",
+      "expected_output": "--start 0 --end 3 で実行し、心筋向けの推奨条件と比較表を返す。",
+      "files": []
+    }
+  ]
+}

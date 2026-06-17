@@ -36,6 +36,7 @@ pathspec==1.1.1
 pexpect==4.9.0
 pickleshare==0.7.5
 Pillow==12.2.0
+PyWavelets==1.8.0
 platformdirs==4.10.0
 prompt_toolkit==3.0.52
 psutil==7.2.2
