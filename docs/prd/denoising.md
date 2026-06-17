@@ -2,7 +2,7 @@
 
 | 項目 | 内容 |
 |---|---|
-| ステータス | Draft |
+| ステータス | Done |
 | 作成日 | 2026-06-13 |
 | 対象 | pyMEA（MEA計測データ解析ライブラリ） |
 | 関連 | 既存 `FilterType.FILTER_MEA` / `FilterType.CARDIO_AVE_WAVE` / `MEA.iirnotch_filter` |
