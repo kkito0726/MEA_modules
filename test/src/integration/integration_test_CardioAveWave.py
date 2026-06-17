@@ -1,16 +1,18 @@
-from test.utils import get_resource_path
+from test.fixtures import fixture_hed_path, install_fixture_io
 
 from pyMEA.domain.model.FilterType import FilterType
 from pyMEA.domain.service.peak_detection import detect_peak_neg, detect_peak_pos
 from pyMEA.application.read_MEA import read_MEA
 
-path = get_resource_path("230615_day2_test_5s_.hed")
+# リポジトリ管理のフィクスチャ(.npz, 3秒)からデータを供給する
+install_fixture_io()
+path = fixture_hed_path("cardio")
 
-start, end = 0, 5
+start, end = 0, 3
 front, back = 0.05, 0.3
 mea = read_MEA(path.__str__(), start, end, 450, FilterType.CARDIO_AVE_WAVE, front, back)
 neg_peak_index = detect_peak_neg(mea.data)
-pos_peak_index = detect_peak_pos(mea.data, height=(0, 500))
+pos_peak_index = detect_peak_pos(mea.data)
 
 
 if __name__ == "__main__":
