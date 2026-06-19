@@ -1,0 +1,8 @@
+# ビルド成果物
+/dist/
+/mea2npz
+/mea2npz.exe
+mea2npz-*-*
+
+# Go ツールチェーンの一時tarball
+*.tar.gz

@@ -1,0 +1,53 @@
+// mea2npz (Go CLI) 開発用 devcontainer。
+// pyMEA 本体(Python)とは別モジュールのため、Go ツールチェーンに特化した設定。
+//
+// devcontainers/go イメージは最新安定版(1.26)のタグが未公開のことがあるため、
+// ベースイメージ + Go feature(version 指定で go.dev から取得)で構成する。
+// For format details, see https://aka.ms/devcontainer.json
+{
+  "name": "mea2npz (Go)",
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+
+  // このフォルダ(tools/mea2npz)を独立した Go モジュールとして開く。
+  "workspaceFolder": "/workspaces/mea2npz",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/mea2npz,type=bind,consistency=cached",
+
+  "features": {
+    // 最新安定版 Go を go.dev から取得して導入する。
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.26.4"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  // gopls@v0.22.0 は Go 1.26.0+ を要求する。コンテナの Go が古くても
+  // GOTOOLCHAIN=auto なら必要な toolchain を go.dev から自動取得してビルドできる。
+  "containerEnv": {
+    "GOTOOLCHAIN": "auto"
+  },
+
+  // まずビルド確認(必須)。その後 gopls(定義ジャンプ/補完) と staticcheck(lint) を
+  // best-effort で導入する(導入に失敗してもコンテナ作成は止めない)。
+  "postCreateCommand": "go build ./... && go vet ./... && { go install golang.org/x/tools/gopls@v0.22.0 && go install honnef.co/go/tools/cmd/staticcheck@latest || echo '⚠ gopls/staticcheck の自動導入に失敗しました。VS Code のコマンド「Go: Install/Update Tools」で導入するか、go version が 1.26.0 以上か確認してください。'; }",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "go.useLanguageServer": true,
+        "go.lintTool": "staticcheck",
+        "go.testFlags": ["-v"],
+        "[go]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "golang.go",
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
+        }
+      }
+    }
+  }
+}

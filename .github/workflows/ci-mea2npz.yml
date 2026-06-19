@@ -1,0 +1,45 @@
+name: ci-mea2npz
+
+# mea2npz(Go) の変更に対して test / vet / gofmt を実行する。
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "tools/mea2npz/**"
+      - ".github/workflows/ci-mea2npz.yml"
+  pull_request:
+    paths:
+      - "tools/mea2npz/**"
+      - ".github/workflows/ci-mea2npz.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/mea2npz
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+          cache: false # 外部依存ゼロのため go.sum なし
+
+      - name: gofmt
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "gofmt が必要なファイル:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: go test
+        run: go test -race ./...
+
+      - name: build
+        run: go build ./...

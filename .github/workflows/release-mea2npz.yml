@@ -1,0 +1,48 @@
+name: release-mea2npz
+
+# mea2npz-v* タグを push するとクロスビルドして Releases に添付する。
+on:
+  push:
+    tags:
+      - "mea2npz-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - { goos: windows, goarch: amd64, ext: ".exe" }
+          - { goos: darwin, goarch: arm64, ext: "" }
+          - { goos: darwin, goarch: amd64, ext: "" }
+          - { goos: linux, goarch: amd64, ext: "" }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+          cache: false # 外部依存ゼロのため go.sum なし
+
+      - name: Test
+        working-directory: tools/mea2npz
+        run: go test ./...
+
+      - name: Build
+        working-directory: tools/mea2npz
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+        run: |
+          out="mea2npz-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}"
+          go build -ldflags "-s -w -X github.com/kkito0726/MEA_modules/tools/mea2npz/internal/interface/cli.Version=${GITHUB_REF_NAME}" -o "$out" ./cmd/mea2npz
+          echo "ASSET=$out" >> "$GITHUB_ENV"
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: tools/mea2npz/${{ env.ASSET }}
