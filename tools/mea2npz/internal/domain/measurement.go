@@ -13,6 +13,20 @@ type Measurement struct {
 	End          float64
 }
 
+// Info は実際に保持している計測区間のメタ情報を返す(表示用)。
+// Start/End は読み込んだ時間窓を反映するため、.npz 保存後の情報表示と一致する。
+func (m Measurement) Info(distance int, dtype Dtype) MeasurementInfo {
+	return MeasurementInfo{
+		SamplingRate:      m.SamplingRate,
+		Gain:              m.Gain,
+		Start:             m.Start,
+		End:               m.End,
+		ElectrodeDistance: distance,
+		HasDistance:       distance > 0,
+		Dtype:             string(dtype),
+	}
+}
+
 // Channels は電極数を返す。
 func (m Measurement) Channels() int { return len(m.Voltages) }
 

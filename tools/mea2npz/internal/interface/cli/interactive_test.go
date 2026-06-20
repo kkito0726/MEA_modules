@@ -136,6 +136,26 @@ func TestCollectOptions_DirAsksRecursive(t *testing.T) {
 	}
 }
 
+// Finder からコピーした引用符付きパスでも入力として認識される。
+func TestCollectOptions_QuotedInput(t *testing.T) {
+	hed := tempHed(t)
+	in := script(
+		"'"+hed+"'", // 引用符で囲まれた入力
+		"",          // dtype
+		"n",         // 時間指定なし
+		"",          // 距離
+		"",          // リセット
+		"",          // 出力
+	)
+	o, code, ok := collectOptions(strings.NewReader(in), &bytes.Buffer{})
+	if !ok {
+		t.Fatalf("引用符付き入力で失敗 code=%d", code)
+	}
+	if o.input != hed {
+		t.Errorf("input=%q, want %q", o.input, hed)
+	}
+}
+
 func TestCollectOptions_MissingInput(t *testing.T) {
 	_, code, ok := collectOptions(strings.NewReader("/no/such/path.hed\n"), &bytes.Buffer{})
 	if ok || code != 2 {

@@ -71,29 +71,6 @@ func (r *Reader) decodeHed() (samplingRate, gain int, err error) {
 	return sr, g, nil
 }
 
-// Info は .hed/.bio ペアの計測メタ情報を返す。電位データは読まない。
-func (r *Reader) Info(distance int) (domain.MeasurementInfo, error) {
-	sr, gain, err := r.decodeHed()
-	if err != nil {
-		return domain.MeasurementInfo{}, err
-	}
-	bioPath := bioPathFor(r.hedPath)
-	fi, err := os.Stat(bioPath)
-	if err != nil {
-		return domain.MeasurementInfo{}, &domain.ValidationError{
-			Msg: fmt.Sprintf(".bio が見つかりません: %s", bioPath)}
-	}
-	nFrames := int(fi.Size()) / 2 / dataUnitLength
-	return domain.MeasurementInfo{
-		SamplingRate:      sr,
-		Gain:              gain,
-		Start:             0,
-		End:               float64(nFrames) / float64(sr),
-		ElectrodeDistance: distance,
-		HasDistance:       distance > 0,
-	}, nil
-}
-
 // Load は指定時間窓の計測データを読み込む。
 func (r *Reader) Load(w domain.TimeWindow) (domain.Measurement, error) {
 	sr, gain, err := r.decodeHed()

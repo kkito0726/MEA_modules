@@ -81,7 +81,7 @@ func (b *BatchConvertUseCase) convertOne(input string) {
 		b.report(input, err)
 		return
 	}
-	if err := conv.Execute(b.window); err != nil {
+	if _, err := conv.Execute(b.window); err != nil {
 		b.report(input, err)
 		return
 	}

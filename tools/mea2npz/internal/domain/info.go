@@ -11,7 +11,7 @@ type MeasurementInfo struct {
 	Dtype             string
 }
 
-// DurationSec は計測時間(秒) = End - Start を返す。
+// DurationSec はデータ長(秒) = End - Start を返す。
 func (i MeasurementInfo) DurationSec() float64 { return i.End - i.Start }
 
 // MeasurementInfoReader は計測メタ情報の取得元を表すリポジトリポート。
