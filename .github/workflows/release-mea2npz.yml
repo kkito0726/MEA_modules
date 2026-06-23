@@ -38,8 +38,10 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: "0"
         run: |
+          # タグ mea2npz-v1.0.0 → バージョン 1.0.0(プレフィックスを剥がす)
+          version="${GITHUB_REF_NAME#mea2npz-v}"
           out="mea2npz-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}"
-          go build -ldflags "-s -w -X github.com/kkito0726/MEA_modules/tools/mea2npz/internal/interface/cli.Version=${GITHUB_REF_NAME}" -o "$out" ./cmd/mea2npz
+          go build -ldflags "-s -w -X github.com/kkito0726/MEA_modules/tools/mea2npz/internal/interface/cli.Version=${version}" -o "$out" ./cmd/mea2npz
           echo "ASSET=$out" >> "$GITHUB_ENV"
 
       - name: Upload to Release
