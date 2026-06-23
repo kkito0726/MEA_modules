@@ -17,7 +17,7 @@ import (
 )
 
 // Version はビルド時に -ldflags で差し替え可能。
-var Version = "0.1.0"
+var Version = "1.0.0"
 
 // options は1回の変換実行に必要な設定。フラグ経路と対話経路の両方がこれを組み立てる。
 type options struct {
@@ -91,8 +91,8 @@ func Run(args []string) int {
 	}
 
 	return dispatch(options{
-		input:     fl.Arg(0),
-		out:       *out,
+		input:     unquotePath(fl.Arg(0)),
+		out:       unquotePath(*out),
 		window:    window,
 		dtype:     dtype,
 		distance:  *distance,
@@ -100,6 +100,20 @@ func Run(args []string) int {
 		recursive: *recursive,
 		jobs:      *jobs,
 	})
+}
+
+// unquotePath は Finder やエクスプローラからコピー&ペーストした際に付く
+// 引用符を取り除く。両端が同じ引用符 (' または ") で囲まれている場合のみ外す。
+// 例: '/Volumes/Extreme SSD/data/230411' → /Volumes/Extreme SSD/data/230411
+func unquotePath(s string) string {
+	s = strings.TrimSpace(s)
+	if len(s) >= 2 {
+		q := s[0]
+		if (q == '\'' || q == '"') && s[len(s)-1] == q {
+			return s[1 : len(s)-1]
+		}
+	}
+	return s
 }
 
 // dispatch は入力の種別で振り分ける。
@@ -126,21 +140,19 @@ func runSingle(o options) int {
 		return 2
 	}
 
-	reader := hedbio.NewReader(o.input)
-	if info, err := reader.Info(o.distance); err == nil {
-		printInfoTable(os.Stdout, o.input, info, isTerminal(os.Stdout))
-	}
-
 	outPath := resolveSingleOutput(o.input, o.out)
 
 	conv := usecase.NewConvert(
-		reader,
+		hedbio.NewReader(o.input),
 		npz.NewWriter(outPath, o.dtype, o.distance, o.resetTime, o.input),
 	)
-	if err := conv.Execute(o.window); err != nil {
+	m, err := conv.Execute(o.window)
+	if err != nil {
 		fmt.Fprintln(os.Stderr, "エラー:", err)
 		return 1
 	}
+	// 実際に保存した区間の情報を表示する(.npz の情報表示と一致する)。
+	printInfoTable(os.Stdout, o.input, m.Info(o.distance, o.dtype), isTerminal(os.Stdout))
 	fmt.Println("変換完了:", outPath)
 	return 0
 }

@@ -35,7 +35,7 @@ mea2npz                                     # 引数なしで対話モード
 
 ```
 $ mea2npz -version
-mea2npz 0.1.0
+mea2npz 1.0.0
 Copyright (C) 2026 kkito0726
 License: MIT
 Written by kkito0726.
@@ -69,7 +69,7 @@ mea2npz data.npz                    # .npz の情報を表形式で表示(変換
 
 ### .npz の情報表示
 
-`.npz` を渡すと、電極間距離・サンプリングレート・GAIN・計測時間を表で確認できます（pyMEA 生成の `.npz` も可）。
+`.npz` を渡すと、電極間距離・サンプリングレート・GAIN・データ長を表で確認できます（pyMEA 生成の `.npz` も可）。
 
 ```
 $ mea2npz data.npz
@@ -80,7 +80,7 @@ $ mea2npz data.npz
 │ 電極間距離 (um)         │ 450   │
 │ サンプリングレート (Hz) │ 5000  │
 │ GAIN                    │ 50000 │
-│ 計測時間 (s)            │ 1     │
+│ データ長 (s)            │ 1     │
 │ dtype                   │ int16 │
 └─────────────────────────┴───────┘
 ```
@@ -140,7 +140,7 @@ sequenceDiagram
     IR->>FS: .npz の ZIP からスカラ.npy のみ読込<br/>(voltages は読まない)
     IR-->>UC: MeasurementInfo
     UC-->>CLI: MeasurementInfo
-    CLI-->>U: 電極間距離/サンプリングレート/GAIN/計測時間 を表で表示
+    CLI-->>U: 電極間距離/サンプリングレート/GAIN/データ長 を表で表示
 ```
 
 ## 開発

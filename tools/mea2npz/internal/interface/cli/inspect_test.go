@@ -24,7 +24,7 @@ func TestPrintInfoTable_ContainsFields(t *testing.T) {
 		"電極間距離 (um)", "450",
 		"サンプリングレート (Hz)", "5000",
 		"GAIN", "50000",
-		"計測時間 (s)", "30",
+		"データ長 (s)", "30",
 		"int16",
 	} {
 		if !strings.Contains(out, want) {

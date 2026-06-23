@@ -32,6 +32,7 @@ func collectOptions(in io.Reader, out io.Writer) (options, int, bool) {
 		fmt.Fprintln(out, "入力がありませんでした。終了します。")
 		return options{}, 2, false
 	}
+	input = unquotePath(input)
 	info, err := os.Stat(input)
 	if err != nil {
 		fmt.Fprintln(out, "エラー: 入力が見つかりません:", input)
@@ -72,7 +73,7 @@ func collectOptions(in io.Reader, out io.Writer) (options, int, bool) {
 
 	distance := promptInt(r, out, "電極間距離 (μm)", 450)
 	resetTime := promptYesNo(r, out, "時刻を 0s にリセットする", true)
-	outPath := promptDefault(r, out, "出力先 — 空で既定", "")
+	outPath := unquotePath(promptDefault(r, out, "出力先 — 空で既定", ""))
 
 	recursive := false
 	if info.IsDir() {

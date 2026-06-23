@@ -33,7 +33,7 @@ func printInfoTable(w io.Writer, path string, info domain.MeasurementInfo, color
 		{"電極間距離 (um)", dist},
 		{"サンプリングレート (Hz)", strconv.Itoa(info.SamplingRate)},
 		{"GAIN", strconv.Itoa(info.Gain)},
-		{"計測時間 (s)", strconv.FormatFloat(info.DurationSec(), 'g', -1, 64)},
+		{"データ長 (s)", strconv.FormatFloat(info.DurationSec(), 'g', -1, 64)},
 	}
 	if info.Dtype != "" {
 		rows = append(rows, [2]string{"dtype", info.Dtype})

@@ -14,11 +14,14 @@ func NewConvert(reader domain.MeasurementReader, writer domain.MeasurementWriter
 	return &ConvertUseCase{reader: reader, writer: writer}
 }
 
-// Execute は時間窓を読み込み、保存する。
-func (c *ConvertUseCase) Execute(window domain.TimeWindow) error {
+// Execute は時間窓を読み込み、保存する。保存した計測データを返す(表示・検証用)。
+func (c *ConvertUseCase) Execute(window domain.TimeWindow) (domain.Measurement, error) {
 	m, err := c.reader.Load(window)
 	if err != nil {
-		return err
+		return domain.Measurement{}, err
 	}
-	return c.writer.Write(m)
+	if err := c.writer.Write(m); err != nil {
+		return domain.Measurement{}, err
+	}
+	return m, nil
 }
