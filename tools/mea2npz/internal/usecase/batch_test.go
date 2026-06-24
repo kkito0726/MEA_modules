@@ -4,6 +4,7 @@ import (
 	"errors"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/kkito0726/MEA_modules/tools/mea2npz/internal/domain"
 )
@@ -17,9 +18,10 @@ type fakeReporter struct {
 	ok, skipped, failed int
 }
 
-func (r *fakeReporter) Done(string)           { r.mu.Lock(); r.ok++; r.mu.Unlock() }
-func (r *fakeReporter) Skipped(string, error) { r.mu.Lock(); r.skipped++; r.mu.Unlock() }
-func (r *fakeReporter) Failed(string, error)  { r.mu.Lock(); r.failed++; r.mu.Unlock() }
+func (r *fakeReporter) Begin(int)                  {}
+func (r *fakeReporter) Done(string, time.Duration) { r.mu.Lock(); r.ok++; r.mu.Unlock() }
+func (r *fakeReporter) Skipped(string, error)      { r.mu.Lock(); r.skipped++; r.mu.Unlock() }
+func (r *fakeReporter) Failed(string, error)       { r.mu.Lock(); r.failed++; r.mu.Unlock() }
 func (r *fakeReporter) Summary() (int, int, int) {
 	r.mu.Lock()
 	defer r.mu.Unlock()

@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/kkito0726/MEA_modules/tools/mea2npz/internal/domain"
 	"github.com/kkito0726/MEA_modules/tools/mea2npz/internal/infrastructure/fs"
@@ -17,7 +18,7 @@ import (
 )
 
 // Version はビルド時に -ldflags で差し替え可能。
-var Version = "1.0.0"
+var Version = "1.1.0"
 
 // options は1回の変換実行に必要な設定。フラグ経路と対話経路の両方がこれを組み立てる。
 type options struct {
@@ -35,7 +36,7 @@ type options struct {
 // 引数なしで呼ばれた場合は対話モードに入る。
 func Run(args []string) int {
 	if len(args) == 0 {
-		printBanner(os.Stderr, isTerminal(os.Stderr))
+		printBanner(os.Stderr, colorEnabled(os.Stderr))
 		return runInteractive(os.Stdin, os.Stderr)
 	}
 
@@ -65,7 +66,7 @@ func Run(args []string) int {
 		return 0
 	}
 
-	printBanner(os.Stderr, isTerminal(os.Stderr))
+	printBanner(os.Stderr, colorEnabled(os.Stderr))
 
 	if fl.NArg() != 1 {
 		fmt.Fprintln(os.Stderr, "エラー: 入力 (.hed ファイル or ディレクトリ) を1つ指定してください")
@@ -121,7 +122,7 @@ func unquotePath(s string) string {
 func dispatch(o options) int {
 	info, err := os.Stat(o.input)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "エラー: 入力が見つかりません:", o.input)
+		reportError(os.Stderr, fmt.Errorf("入力が見つかりません: %s", o.input))
 		return 2
 	}
 	if info.IsDir() {
@@ -141,19 +142,26 @@ func runSingle(o options) int {
 	}
 
 	outPath := resolveSingleOutput(o.input, o.out)
+	st := newStyler(colorEnabled(os.Stdout))
+
+	// 大きいファイルは読込・保存に時間がかかるため、開始を明示して利用者を安心させる。
+	fmt.Printf("%s 変換開始\n", st.cyan("▶"))
+	fmt.Printf("   入力: %s\n", o.input)
+	fmt.Printf("   出力: %s\n", outPath)
 
 	conv := usecase.NewConvert(
 		hedbio.NewReader(o.input),
 		npz.NewWriter(outPath, o.dtype, o.distance, o.resetTime, o.input),
 	)
+	start := time.Now()
 	m, err := conv.Execute(o.window)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "エラー:", err)
+		reportError(os.Stderr, err)
 		return 1
 	}
+	fmt.Printf("\n%s 変換完了  %s\n", st.green("✓"), st.dim(fmtDur(time.Since(start))))
 	// 実際に保存した区間の情報を表示する(.npz の情報表示と一致する)。
-	printInfoTable(os.Stdout, o.input, m.Info(o.distance, o.dtype), isTerminal(os.Stdout))
-	fmt.Println("変換完了:", outPath)
+	printInfoTable(os.Stdout, o.input, m.Info(o.distance, o.dtype), colorEnabled(os.Stdout))
 	return 0
 }
 
@@ -165,7 +173,7 @@ func runBatch(o options) int {
 	}
 
 	lister := fs.NewLister()
-	reporter := newConsoleReporter()
+	reporter := newConsoleReporter(colorEnabled(os.Stderr))
 
 	build := func(input, output string) (*usecase.ConvertUseCase, error) {
 		return usecase.NewConvert(
@@ -183,13 +191,14 @@ func runBatch(o options) int {
 	}
 
 	batch := usecase.NewBatch(lister, reporter, build, outputFor, o.window, o.jobs)
+	start := time.Now()
 	if err := batch.Execute(o.input, o.recursive); err != nil {
-		fmt.Fprintln(os.Stderr, "エラー:", err)
+		reportError(os.Stderr, err)
 		return 1
 	}
 
 	ok, skipped, failed := reporter.Summary()
-	fmt.Printf("\n完了: 成功 %d / スキップ %d / 失敗 %d (出力先: %s)\n", ok, skipped, failed, outRoot)
+	printSummary(os.Stdout, newStyler(colorEnabled(os.Stdout)), ok, skipped, failed, time.Since(start), outRoot)
 	if skipped+failed > 0 {
 		return 1
 	}

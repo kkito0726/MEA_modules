@@ -16,10 +16,10 @@ import (
 func runInspect(path string) int {
 	info, err := usecase.NewInspect(npz.NewInfoReader(path)).Execute()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "エラー:", err)
+		reportError(os.Stderr, err)
 		return 1
 	}
-	printInfoTable(os.Stdout, path, info, isTerminal(os.Stdout))
+	printInfoTable(os.Stdout, path, info, colorEnabled(os.Stdout))
 	return 0
 }
 
