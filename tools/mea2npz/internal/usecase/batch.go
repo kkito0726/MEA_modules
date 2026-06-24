@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 	"sync"
+	"time"
 
 	"github.com/kkito0726/MEA_modules/tools/mea2npz/internal/domain"
 )
@@ -53,6 +54,9 @@ func (b *BatchConvertUseCase) Execute(root string, recursive bool) error {
 		return err
 	}
 
+	// 並列処理に入る前に総数を通知し、利用者へ「これから N 件処理する」と伝える。
+	b.reporter.Begin(len(files))
+
 	sem := make(chan struct{}, b.jobs)
 	var wg sync.WaitGroup
 	for _, input := range files {
@@ -81,11 +85,12 @@ func (b *BatchConvertUseCase) convertOne(input string) {
 		b.report(input, err)
 		return
 	}
+	start := time.Now()
 	if _, err := conv.Execute(b.window); err != nil {
 		b.report(input, err)
 		return
 	}
-	b.reporter.Done(input)
+	b.reporter.Done(input, time.Since(start))
 }
 
 func (b *BatchConvertUseCase) report(input string, err error) {
