@@ -19,6 +19,7 @@ jobs:
           - { goos: darwin, goarch: arm64, ext: "" }
           - { goos: darwin, goarch: amd64, ext: "" }
           - { goos: linux, goarch: amd64, ext: "" }
+          - { goos: linux, goarch: arm64, ext: "" }
     steps:
       - uses: actions/checkout@v4
 
