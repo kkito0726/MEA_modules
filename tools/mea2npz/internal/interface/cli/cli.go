@@ -18,7 +18,7 @@ import (
 )
 
 // Version はビルド時に -ldflags で差し替え可能。
-var Version = "1.0.0"
+var Version = "1.1.0"
 
 // options は1回の変換実行に必要な設定。フラグ経路と対話経路の両方がこれを組み立てる。
 type options struct {
