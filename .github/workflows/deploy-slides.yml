@@ -67,8 +67,10 @@ jobs:
               transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
             }
             .card:hover{ transform:translateY(-3px); box-shadow:0 12px 28px rgba(15,30,60,.12); border-left-color:var(--accent); }
-            .card .t{ font-size:21px; font-weight:700; }
-            .card .f{ font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--mute); margin-top:4px; }
+            .meta{ flex:1; padding-right:18px; }
+            .card .t{ display:block; font-size:21px; font-weight:700; }
+            .card .d{ display:block; margin-top:7px; font-size:14px; line-height:1.6; color:var(--fg); }
+            .card .f{ display:block; margin-top:7px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mute); }
             .card .go{ font-family:'JetBrains Mono',monospace; color:var(--primary); font-weight:800; font-size:22px; }
             footer{ margin-top:40px; color:var(--mute); font-size:13px; font-family:'JetBrains Mono',monospace; }
           </style>
@@ -80,18 +82,36 @@ jobs:
           <div class="grid">
           HTML
 
-          # 各スライドを HTML 化し、トップページにリンクを追加
-          for f in $(find docs -name '*_slides.md' | sort); do
+          # スライドを HTML 化し、トップページにカード（タイトル＋説明）を追加する関数
+          emit_card () {
+            f="$1"; desc="$2"
             base=$(basename "$f" .md)
             title=$(grep -m1 '^# ' "$f" | sed -e 's/^# //' -e 's/<[^>]*>//g')
             echo "Building $f -> site/${base}.html (${title})"
             npx -y @marp-team/marp-cli@latest "$f" -o "site/${base}.html"
             {
               echo "<a class=\"card\" href=\"./${base}.html\">"
-              echo "  <span><span class=\"t\">${title}</span><br><span class=\"f\">${f}</span></span>"
+              echo "  <span class=\"meta\">"
+              echo "    <span class=\"t\">${title}</span>"
+              echo "    <span class=\"d\">${desc}</span>"
+              echo "    <span class=\"f\">${f}</span>"
+              echo "  </span>"
               echo "  <span class=\"go\">&rarr;</span>"
               echo "</a>"
             } >> site/index.html
+          }
+
+          # 表示順と内容説明（この順でトップページに並ぶ）
+          emit_card "docs/pyMEA_code_guide_slides.md"         "pyMEA で MEA 計測データを解析する基本パターンを初心者向けに解説"
+          emit_card "docs/setup/devcontainer_guide_slides.md" "Dev Container を使って pyMEA の開発・解析環境を手早く構築する手順を解説"
+          emit_card "docs/mea2npz_manual_slides.md"           "複数の .hed/.bio をまとめて .npz に変換する Python 非依存の CLI ツール mea2npz の使い方を解説"
+
+          # 上記リストに無い *_slides.md があれば末尾へ自動追加（説明なし）
+          for f in $(find docs -name '*_slides.md' | sort); do
+            case "$f" in
+              docs/pyMEA_code_guide_slides.md|docs/setup/devcontainer_guide_slides.md|docs/mea2npz_manual_slides.md) ;;
+              *) emit_card "$f" "" ;;
+            esac
           done
 
           # フッター
