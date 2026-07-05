@@ -111,6 +111,12 @@ func TestValidateInputPath(t *testing.T) {
 	}
 }
 
+func TestYesNo(t *testing.T) {
+	if yesNo(true) != "はい" || yesNo(false) != "いいえ" {
+		t.Errorf("yesNo: true=%q false=%q", yesNo(true), yesNo(false))
+	}
+}
+
 func TestValidateInt(t *testing.T) {
 	if err := validateInt(" 42 "); err != nil {
 		t.Errorf("整数はエラーにならないはず: %v", err)

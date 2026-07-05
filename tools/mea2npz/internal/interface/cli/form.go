@@ -25,20 +25,22 @@ func runForm() int {
 
 // collectOptionsForm は huh フォームで対話的に options を組み立てる。
 // 成功時は (options, 0, true)、中断は (zero, 130, false)、入力不正は (zero, 2, false)。
+//
+// 各項目は独立した単一フォームとして1問ずつ尋ねる。huh は完了時に自身の描画を消すため、
+// 確定した回答は askForm が自前で1行印字して画面に残す(回答済みは残る・未回答は出さない)。
 // 入力パスは Validate で存在確認し、失敗時はフォーム内で再入力を促す(プロセスは落とさない)。
 func collectOptionsForm() (options, int, bool) {
-	// Stage 1: 入力パス。存在するまでフォーム内で再入力を求める。
+	// 入力パス。存在するまでフォーム内で再入力を求める。
 	var input string
-	pathForm := huh.NewForm(
-		huh.NewGroup(
-			huh.NewInput().
-				Title("入力パス (.hed ファイル or ディレクトリ)").
-				Description("ドラッグ&ドロップやコピー&ペーストで指定できます").
-				Value(&input).
-				Validate(validateInputPath),
-		),
-	)
-	if err := pathForm.Run(); err != nil {
+	if err := askForm(
+		"入力パス",
+		huh.NewInput().
+			Title("入力パス (.hed ファイル or ディレクトリ)").
+			Description("ドラッグ&ドロップやコピー&ペーストで指定できます").
+			Value(&input).
+			Validate(validateInputPath),
+		func() string { return unquotePath(input) },
+	); err != nil {
 		return abortForm(err)
 	}
 	input = unquotePath(input)
@@ -53,36 +55,44 @@ func collectOptionsForm() (options, int, bool) {
 		return options{input: input}, 0, true
 	}
 
-	// Stage 2: 変換オプション。
+	// 保存 dtype。
 	dtypeStr := "int16"
-	specifyRange := true
-	var startStr, endStr string
-	distanceStr := "450"
-	resetTime := true
-	var outPath string
-	recursive := false
+	if err := askForm(
+		"保存 dtype",
+		huh.NewSelect[string]().
+			Title("保存 dtype").
+			Options(
+				huh.NewOption("int16 (既定・軽量)", "int16"),
+				huh.NewOption("float32", "float32"),
+			).
+			Value(&dtypeStr),
+		func() string { return dtypeStr },
+	); err != nil {
+		return abortForm(err)
+	}
 
-	// 1項目=1グループにする。huh はグループ単位でページ送り表示するため、
-	// こうすると「今どこを入力中か」が明確になる(次の項目が同時に見えない)。
-	hideRange := func() bool { return !specifyRange }
-	groups := []*huh.Group{
-		huh.NewGroup(
-			huh.NewSelect[string]().
-				Title("保存 dtype").
-				Options(
-					huh.NewOption("int16 (既定・軽量)", "int16"),
-					huh.NewOption("float32", "float32"),
-				).
-				Value(&dtypeStr),
-		),
-		huh.NewGroup(
-			huh.NewConfirm().Title("読み込み時間を指定する").Value(&specifyRange),
-		),
-		// 区間指定が Yes のときだけ表示する。
-		huh.NewGroup(
+	// 読み込み時間の指定有無。
+	specifyRange := true
+	if err := askForm(
+		"読み込み時間を指定する",
+		huh.NewConfirm().Title("読み込み時間を指定する").Value(&specifyRange),
+		func() string { return yesNo(specifyRange) },
+	); err != nil {
+		return abortForm(err)
+	}
+
+	// 区間(指定時のみ)。
+	var startStr, endStr string
+	if specifyRange {
+		if err := askForm(
+			"読込開始 (秒)",
 			huh.NewInput().Title("読込開始 (秒)").Value(&startStr).Validate(validateInt),
-		).WithHideFunc(hideRange),
-		huh.NewGroup(
+			func() string { return strings.TrimSpace(startStr) + " 秒" },
+		); err != nil {
+			return abortForm(err)
+		}
+		if err := askForm(
+			"読込終了 (秒)",
 			huh.NewInput().Title("読込終了 (秒)").Value(&endStr).Validate(func(s string) error {
 				end, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
@@ -94,24 +104,57 @@ func collectOptionsForm() (options, int, bool) {
 				}
 				return nil
 			}),
-		).WithHideFunc(hideRange),
-		huh.NewGroup(
-			huh.NewInput().Title("電極間距離 (μm)").Value(&distanceStr).Validate(validateInt),
-		),
-		huh.NewGroup(
-			huh.NewConfirm().Title("時刻を 0s にリセットする").Value(&resetTime),
-		),
-		huh.NewGroup(
-			huh.NewInput().Title("出力先 (空で既定)").Value(&outPath),
-		),
+			func() string { return strings.TrimSpace(endStr) + " 秒" },
+		); err != nil {
+			return abortForm(err)
+		}
 	}
-	if info.IsDir() {
-		groups = append(groups, huh.NewGroup(
-			huh.NewConfirm().Title("サブフォルダも探索する").Value(&recursive),
-		))
-	}
-	if err := huh.NewForm(groups...).Run(); err != nil {
+
+	// 電極間距離。
+	distanceStr := "450"
+	if err := askForm(
+		"電極間距離 (μm)",
+		huh.NewInput().Title("電極間距離 (μm)").Value(&distanceStr).Validate(validateInt),
+		func() string { return strings.TrimSpace(distanceStr) + " μm" },
+	); err != nil {
 		return abortForm(err)
+	}
+
+	// 時刻リセット。
+	resetTime := true
+	if err := askForm(
+		"時刻を 0s にリセットする",
+		huh.NewConfirm().Title("時刻を 0s にリセットする").Value(&resetTime),
+		func() string { return yesNo(resetTime) },
+	); err != nil {
+		return abortForm(err)
+	}
+
+	// 出力先。
+	var outPath string
+	if err := askForm(
+		"出力先",
+		huh.NewInput().Title("出力先 (空で既定)").Value(&outPath),
+		func() string {
+			if strings.TrimSpace(outPath) == "" {
+				return "(既定)"
+			}
+			return unquotePath(outPath)
+		},
+	); err != nil {
+		return abortForm(err)
+	}
+
+	// 再帰探索(ディレクトリ入力のときのみ)。
+	recursive := false
+	if info.IsDir() {
+		if err := askForm(
+			"サブフォルダも探索する",
+			huh.NewConfirm().Title("サブフォルダも探索する").Value(&recursive),
+			func() string { return yesNo(recursive) },
+		); err != nil {
+			return abortForm(err)
+		}
 	}
 
 	return assembleOptions(formValues{
@@ -125,6 +168,30 @@ func collectOptionsForm() (options, int, bool) {
 		outPath:      outPath,
 		recursive:    recursive,
 	})
+}
+
+// askForm は単一項目のフォームを実行し、完了後に回答を transcript として1行残す。
+// huh は完了時に自身の描画を消す(View が空を返す)ため、確定回答の表示は自前で行う。
+func askForm(label string, field huh.Field, answer func() string) error {
+	if err := huh.NewForm(huh.NewGroup(field)).Run(); err != nil {
+		return err
+	}
+	echoAnswer(label, answer())
+	return nil
+}
+
+// echoAnswer は確定した回答を「✓ ラベル: 値」の形で標準エラーへ残す。
+func echoAnswer(label, value string) {
+	st := newStyler(colorEnabled(os.Stderr))
+	fmt.Fprintf(os.Stderr, "%s %s: %s\n", st.green("✓"), label, st.cyan(value))
+}
+
+// yesNo は Confirm の結果を transcript 表示用の日本語にする。
+func yesNo(b bool) string {
+	if b {
+		return "はい"
+	}
+	return "いいえ"
 }
 
 // formValues はフォームで集めた生の入力値(文字列/真偽)。
