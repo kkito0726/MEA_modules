@@ -37,6 +37,10 @@ type options struct {
 func Run(args []string) int {
 	if len(args) == 0 {
 		printBanner(os.Stderr, colorEnabled(os.Stderr))
+		// TTY では huh フォーム、非 TTY(パイプ・CI) では手書きプロンプトにフォールバックする。
+		if isInteractive() {
+			return runForm()
+		}
 		return runInteractive(os.Stdin, os.Stderr)
 	}
 
