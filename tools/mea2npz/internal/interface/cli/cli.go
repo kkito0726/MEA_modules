@@ -158,7 +158,13 @@ func runSingle(o options) int {
 		npz.NewWriter(outPath, o.dtype, o.distance, o.resetTime, o.input),
 	)
 	start := time.Now()
-	m, err := conv.Execute(o.window)
+	// 大きい .hed は読込・保存に時間がかかるため、作業中はスピナーで無反応に見せない。
+	var m domain.Measurement
+	err := runWithSpinner("変換中… (読込・量子化・保存)", func() error {
+		var e error
+		m, e = conv.Execute(o.window)
+		return e
+	})
 	if err != nil {
 		reportError(os.Stderr, err)
 		return 1
@@ -177,7 +183,7 @@ func runBatch(o options) int {
 	}
 
 	lister := fs.NewLister()
-	reporter := newConsoleReporter(colorEnabled(os.Stderr))
+	reporter := newBatchReporter(os.Stderr, isInteractive(), colorEnabled(os.Stderr))
 
 	build := func(input, output string) (*usecase.ConvertUseCase, error) {
 		return usecase.NewConvert(
@@ -200,6 +206,7 @@ func runBatch(o options) int {
 		reportError(os.Stderr, err)
 		return 1
 	}
+	reporter.finish()
 
 	ok, skipped, failed := reporter.Summary()
 	printSummary(os.Stdout, newStyler(colorEnabled(os.Stdout)), ok, skipped, failed, time.Since(start), outRoot)
