@@ -62,6 +62,9 @@ func collectOptionsForm() (options, int, bool) {
 	var outPath string
 	recursive := false
 
+	// 1項目=1グループにする。huh はグループ単位でページ送り表示するため、
+	// こうすると「今どこを入力中か」が明確になる(次の項目が同時に見えない)。
+	hideRange := func() bool { return !specifyRange }
 	groups := []*huh.Group{
 		huh.NewGroup(
 			huh.NewSelect[string]().
@@ -71,13 +74,15 @@ func collectOptionsForm() (options, int, bool) {
 					huh.NewOption("float32", "float32"),
 				).
 				Value(&dtypeStr),
-			huh.NewConfirm().
-				Title("読み込み時間を指定する").
-				Value(&specifyRange),
+		),
+		huh.NewGroup(
+			huh.NewConfirm().Title("読み込み時間を指定する").Value(&specifyRange),
 		),
 		// 区間指定が Yes のときだけ表示する。
 		huh.NewGroup(
 			huh.NewInput().Title("読込開始 (秒)").Value(&startStr).Validate(validateInt),
+		).WithHideFunc(hideRange),
+		huh.NewGroup(
 			huh.NewInput().Title("読込終了 (秒)").Value(&endStr).Validate(func(s string) error {
 				end, err := strconv.Atoi(strings.TrimSpace(s))
 				if err != nil {
@@ -89,10 +94,14 @@ func collectOptionsForm() (options, int, bool) {
 				}
 				return nil
 			}),
-		).WithHideFunc(func() bool { return !specifyRange }),
+		).WithHideFunc(hideRange),
 		huh.NewGroup(
 			huh.NewInput().Title("電極間距離 (μm)").Value(&distanceStr).Validate(validateInt),
+		),
+		huh.NewGroup(
 			huh.NewConfirm().Title("時刻を 0s にリセットする").Value(&resetTime),
+		),
+		huh.NewGroup(
 			huh.NewInput().Title("出力先 (空で既定)").Value(&outPath),
 		),
 	}
