@@ -252,7 +252,24 @@ strong { color: var(--indigo); font-weight: 700; }
 .flow .box.hi small { color: #d7d9f5; }
 
 .flow .arrow { color: var(--violet); font-size: 26px; font-weight: 700; }
+
+/* mermaid 図（エクスポート HTML でレンダリング） */
+.mermaid {
+  background: var(--card);
+  border: 1px solid #dfe3f2;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-top: 10px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(29,36,64,0.08);
+}
+.mermaid svg { max-height: 360px; height: auto; }
 </style>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+</script>
 
 <!-- _class: lead -->
 <!-- _paginate: false -->
@@ -463,14 +480,18 @@ print(mea.data.array.shape)
 
 変換ボタンを押すと、中ではこう動いています。
 
-```
-あなた  ─▶  mea2npz : sample.hed を変換して！
-mea2npz ─▶  ファイル : sample.hed を読む（設定）
-mea2npz ─▶  ファイル : sample0001.bio を読む（電位）
-mea2npz ─▶  自分     : データを軽い形に圧縮
-mea2npz ─▶  ファイル : sample.npz として保存
-mea2npz ◀─  あなた   : 変換完了！
-```
+<div class="mermaid">
+sequenceDiagram
+  actor You as あなた
+  participant M as mea2npz
+  participant F as ファイル
+  You->>M: sample.hed を変換して！
+  M->>F: sample.hed を読む（設定）
+  M->>F: sample0001.bio を読む（電位）
+  M->>M: データを軽い形に圧縮
+  M->>F: sample.npz として保存
+  M-->>You: 変換完了！
+</div>
 
 > 中身確認のときは、**重い電位データは読まず** 設定部分だけを読みます。
 

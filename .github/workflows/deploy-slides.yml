@@ -114,6 +114,7 @@ jobs:
           }
 
           # 表示順と内容説明（この順でトップページに並ぶ）
+          emit_card "docs/python_learning_roadmap_slides.md"  "プログラミング初心者が pyMEA で研究解析を自走できるようになるための Python 学習ロードマップ"
           emit_card "docs/pyMEA_code_guide_slides.md"         "pyMEA で MEA 計測データを解析する基本パターンを初心者向けに解説"
           emit_card "docs/setup/devcontainer_guide_slides.md" "Dev Container を使って pyMEA の開発・解析環境を手早く構築する手順を解説"
           emit_card "docs/mea2npz_manual_slides.md"           "複数の .hed/.bio をまとめて .npz に変換する Python 非依存の CLI ツール mea2npz の使い方を解説"
@@ -121,7 +122,7 @@ jobs:
           # 上記リストに無い *_slides.md があれば末尾へ自動追加（説明なし）
           for f in $(find docs -name '*_slides.md' | sort); do
             case "$f" in
-              docs/pyMEA_code_guide_slides.md|docs/setup/devcontainer_guide_slides.md|docs/mea2npz_manual_slides.md) ;;
+              docs/python_learning_roadmap_slides.md|docs/pyMEA_code_guide_slides.md|docs/setup/devcontainer_guide_slides.md|docs/mea2npz_manual_slides.md) ;;
               *) emit_card "$f" "" ;;
             esac
           done
