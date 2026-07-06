@@ -10,6 +10,13 @@ import (
 	"github.com/kkito0726/MEA_modules/tools/mea2npz/internal/usecase"
 )
 
+// batchReporter は一括変換で使う進捗レポータ。ProgressReporter に、
+// 変換終了後の後始末 finish を加えたもの(バー表示の行送り等に使う)。
+type batchReporter interface {
+	usecase.ProgressReporter
+	finish()
+}
+
 // consoleReporter は usecase.ProgressReporter を標準エラー出力で実装する。
 // 並列ジョブから呼ばれるためカウントを mutex で保護する。色付け・進捗カウンタ・所要時間を表示する。
 type consoleReporter struct {
@@ -77,3 +84,6 @@ func (r *consoleReporter) Summary() (ok, skipped, failed int) {
 	defer r.mu.Unlock()
 	return r.ok, r.skipped, r.failed
 }
+
+// finish は行ベース出力では何もしない(バー表示との API 互換のため)。
+func (r *consoleReporter) finish() {}

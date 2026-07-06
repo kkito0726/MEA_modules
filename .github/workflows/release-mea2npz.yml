@@ -26,7 +26,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.26"
-          cache: false # 外部依存ゼロのため go.sum なし
+          cache: true # Charm 依存(huh/bubbletea 等)の go.sum をキャッシュキーにする
+          cache-dependency-path: tools/mea2npz/go.sum
 
       - name: Test
         working-directory: tools/mea2npz

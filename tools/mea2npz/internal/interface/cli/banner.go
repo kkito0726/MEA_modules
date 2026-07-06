@@ -52,3 +52,9 @@ func isTerminal(f *os.File) bool {
 	}
 	return fi.Mode()&os.ModeCharDevice != 0
 }
+
+// isInteractive は標準入出力がともに端末かを返す。
+// huh フォームや bubbletea は TTY を要求するため、真のときだけ TUI 経路に入る。
+func isInteractive() bool {
+	return isTerminal(os.Stdin) && isTerminal(os.Stdout)
+}
