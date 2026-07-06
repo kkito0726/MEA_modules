@@ -188,7 +188,24 @@ section.lead::after { color: rgba(255,255,255,0.5); }
 .note strong { color: #1d4ed8; }
 
 .lead-sub { color: #9fc4ec !important; font-size: 18px !important; margin-top: 8px; }
+
+/* mermaid 図（エクスポート HTML でレンダリング） */
+.mermaid {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: 10px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(15,30,60,0.08);
+}
+.mermaid svg { max-height: 360px; height: auto; }
 </style>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+</script>
 
 <!-- _class: lead -->
 <!-- _paginate: false -->
@@ -266,13 +283,13 @@ pip install git+https://github.com/kkito0726/MEA_modules.git
 
 pyMEA では `PyMEA` という1つのオブジェクトが**すべての機能への入口**になります。
 
-```text
-PyMEA
-  ├── .data        # 計測データ（電位・時間）
-  ├── .fig         # グラフ描画
-  ├── .calculator  # 数値計算（ISI / FPD / 伝導速度）
-  └── .electrode   # 電極位置情報
-```
+<div class="mermaid">
+flowchart LR
+  mea["mea（PyMEA）<br/>すべての入口"] --> data[".data<br/>計測データ（電位・時間）"]
+  mea --> fig[".fig<br/>グラフ描画"]
+  mea --> calc[".calculator<br/>数値計算 ISI / FPD / 伝導速度"]
+  mea --> ele[".electrode<br/>電極位置情報"]
+</div>
 
 <div class="note">
 

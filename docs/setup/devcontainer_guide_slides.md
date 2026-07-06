@@ -141,7 +141,24 @@ style: |
   section.qa h2 { font-size: 30px; margin-bottom: 14px; }
   section.qa h3 { font-size: 21px; margin: 14px 0 3px; }
   section.qa p  { margin: 0 0 6px; }
+
+  /* ── Mermaid figures ─────────────────── */
+  .mermaid {
+    background: #ffffff;
+    border: 1px solid #d5dce6;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 10px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(21,101,192,0.08);
+  }
+  .mermaid svg { max-height: 340px; height: auto; }
 ---
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });
+</script>
 
 <!-- _backgroundColor: #1565c0 -->
 <!-- _class: title -->
@@ -183,18 +200,16 @@ pyMEA の開発環境を誰でも同じようにセットアップできます
 
 **プログラムを動かすための「専用の箱」** をパソコンの中に作る仕組みです。
 
-```
-あなたのパソコン
-┌───────────────────────────────────────────┐
-│  ┌─────────────────────────────────────┐  │
-│  │  Dev Container（専用の箱）          │  │
-│  │  Python 3.12 + 必要なライブラリ     │  │
-│  │  VS Code 拡張機能                   │  │
-│  │                                     │  │
-│  │  /data  ←───  外付けHDD（計測データ） │  │
-│  └─────────────────────────────────────┘  │
-└───────────────────────────────────────────┘
-```
+<div class="mermaid">
+flowchart LR
+  subgraph PC["あなたのパソコン"]
+    subgraph BOX["Dev Container（専用の箱）"]
+      env["Python 3.12 + 必要なライブラリ<br/>VS Code 拡張機能"]
+      mount["/data（計測データ）"]
+    end
+  end
+  hdd[("外付けHDD<br/>計測データ")] -->|マウント| mount
+</div>
 
 この「箱」の中に pyMEA を動かすために必要なものがすべて入っています。
 
@@ -322,19 +337,14 @@ docker --version
 
 ## セットアップの全体の流れ
 
-```
-  Step 1   リポジトリをクローンする
-               ↓
-  Step 2   計測データの場所を登録する（初回のみ）
-               ↓
-  Step 3   VS Code でフォルダを開く
-               ↓
-  Step 4   Dev Container で再度開く
-               ↓
-  Step 5   環境の自動セットアップを待つ（初回のみ数分）
-               ↓
-           完了！
-```
+<div class="mermaid">
+flowchart TD
+  s1["Step 1　リポジトリをクローンする"] --> s2["Step 2　計測データの場所を登録する（初回のみ）"]
+  s2 --> s3["Step 3　VS Code でフォルダを開く"]
+  s3 --> s4["Step 4　Dev Container で再度開く"]
+  s4 --> s5["Step 5　環境の自動セットアップを待つ（初回のみ数分）"]
+  s5 --> done["完了！"]
+</div>
 
 ---
 
@@ -433,17 +443,13 @@ code ~/Workspace/MEA_modules
 
 初回はライブラリのダウンロード・インストールが **自動で** 行われます。
 
-```
-[初回のみ] 数分かかる場合があります
-  ↓
-Python 3.12 の環境を準備中...
-  ↓
-NumPy, SciPy, Matplotlib ... をインストール中
-  ↓
-VS Code 拡張機能をインストール中...
-  ↓
-完了！
-```
+<div class="mermaid">
+flowchart TD
+  a["[初回のみ] 数分かかる場合があります"] --> b["Python 3.12 の環境を準備中..."]
+  b --> c["NumPy, SciPy, Matplotlib ... をインストール中"]
+  c --> d["VS Code 拡張機能をインストール中..."]
+  d --> e["完了！"]
+</div>
 
 VS Code の左下が以下のように変われば成功です：
 
