@@ -119,5 +119,47 @@ class TestDenoisePresetsAndSNR(unittest.TestCase):
         self.assertEqual(raw.data.shape, den.data.shape)
 
 
+class TestPyMEADenoiseMethods(unittest.TestCase):
+    """PyMEA 経由のデノイズは fig・calculator も組み直した PyMEA を返す。"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mea = read_MEA(fixture_hed_path("cardio").__str__(), 0, 3, 450)
+
+    def test_各メソッドはPyMEAを返し内部データを差し替える(self):
+        for filtered in (
+            self.mea.highpass(1),
+            self.mea.bandpass(1, 1000),
+            self.mea.common_median_reference(),
+            self.mea.wavelet_denoise(),
+        ):
+            # PyMEA を返す (data だけでなく fig・calculator も持つ)
+            self.assertEqual(type(self.mea).__name__, type(filtered).__name__)
+            self.assertEqual(self.mea.data.shape, filtered.data.shape)
+            # calculator・fig が差し替え後のデータを指している
+            self.assertIs(filtered.calculator.data, filtered.data)
+            self.assertIs(filtered.fig.data, filtered.data)
+
+    def test_元のPyMEAを変更しない(self):
+        before = self.mea.data.array.copy()
+        self.mea.bandpass(1, 1000).common_median_reference()
+        self.assertTrue((before == self.mea.data.array).all())
+
+    def test_チェーンしたcalculatorはデノイズ後のSN比を返す(self):
+        ch = 6
+        denoised = self.mea.wavelet_denoise()
+        # PyMEA チェーンの calculator はデノイズ後データで評価する
+        chained = denoised.calculator.snr(detect_peak_neg(denoised.data), ch)
+        # 生データに束縛された元 calculator とは異なる値になる
+        raw = self.mea.calculator.snr(detect_peak_neg(self.mea.data), ch)
+        self.assertNotAlmostEqual(chained, raw)
+        # プリセット CARDIO_DENOISE 相当を手組みしても read_MEA と一致する
+        preset = read_MEA(
+            fixture_hed_path("cardio").__str__(), 0, 3, 450, FilterType.CARDIO_DENOISE
+        )
+        manual = self.mea.highpass(1).common_median_reference()
+        np.testing.assert_allclose(manual.data.array, preset.data.array)
+
+
 if __name__ == "__main__":
     unittest.main()
