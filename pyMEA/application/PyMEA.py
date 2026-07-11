@@ -104,3 +104,84 @@ class PyMEA:
             フィルタ後の信号
         """
         return self._rebuild(self.data.iirnotch_filter(filter_hz, Q))
+
+    def highpass(self, cutoff=1, order=4):
+        """
+        ハイパスフィルタ（ゼロ位相 Butterworth）でベースラインドリフトを除去する。
+
+        fig・calculator もデノイズ後のデータで再構築した PyMEA を返すため、
+        そのまま描画・数値計算に使える（ピークタイミングは不変）。
+
+        Parameters
+        ----------
+        cutoff : float, optional
+            下限カットオフ周波数 [Hz]（デフォルト 1 Hz）
+        order : int, optional
+            フィルタ次数（デフォルト 4）
+
+        Returns
+        -------
+        PyMEA
+            フィルタ後の新しいインスタンス
+        """
+        return self._rebuild(self.data.highpass(cutoff, order))
+
+    def bandpass(self, low, high, order=4):
+        """
+        バンドパスフィルタ（ゼロ位相 Butterworth）で指定帯域のみ通す。
+
+        fig・calculator もデノイズ後のデータで再構築した PyMEA を返すため、
+        そのまま描画・数値計算に使える（ピークタイミングは不変）。
+
+        Parameters
+        ----------
+        low : float
+            下限カットオフ周波数 [Hz]
+        high : float
+            上限カットオフ周波数 [Hz]
+        order : int, optional
+            フィルタ次数（デフォルト 4）
+
+        Returns
+        -------
+        PyMEA
+            フィルタ後の新しいインスタンス
+        """
+        return self._rebuild(self.data.bandpass(low, high, order))
+
+    def common_median_reference(self):
+        """
+        各時刻で全電極の中央値を減算し、電極間で共通するノイズ（電源・参照ドリフト等）を除去する。
+
+        fig・calculator もデノイズ後のデータで再構築した PyMEA を返す。
+
+        Returns
+        -------
+        PyMEA
+            ノイズ除去後の新しいインスタンス
+        """
+        return self._rebuild(self.data.common_median_reference())
+
+    def wavelet_denoise(self, wavelet="db4", level=None):
+        """
+        ウェーブレット縮退で帯域内の広帯域ノイズを除去する（スパイク形状を保持）。
+
+        fig・calculator もデノイズ後のデータで再構築した PyMEA を返す。
+
+        Parameters
+        ----------
+        wavelet : str, optional
+            ウェーブレット母関数（デフォルト "db4"）
+        level : int | None, optional
+            分解レベル。None なら信号長から自動決定（最大6）
+
+        Returns
+        -------
+        PyMEA
+            デノイズ後の新しいインスタンス
+
+        Notes
+        -----
+        微弱信号では弱いスパイクごと削るおそれがあるため、検出率を確認すること。
+        """
+        return self._rebuild(self.data.wavelet_denoise(wavelet, level))

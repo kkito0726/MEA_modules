@@ -109,6 +109,10 @@ def test_pymea_facade_contract():
     assert param_names(pymea_cls.init_time) == ["self"]
     assert param_names(pymea_cls.down_sampling) == ["self", "down_sampling_rate"]
     assert param_names(pymea_cls.iirnotch_filter) == ["self", "filter_hz", "Q"]
+    assert param_names(pymea_cls.highpass) == ["self", "cutoff", "order"]
+    assert param_names(pymea_cls.bandpass) == ["self", "low", "high", "order"]
+    assert param_names(pymea_cls.common_median_reference) == ["self"]
+    assert param_names(pymea_cls.wavelet_denoise) == ["self", "wavelet", "level"]
     for dunder in ("__getitem__", "__len__", "__iter__", "__add__", "__sub__"):
         assert hasattr(pymea_cls, dunder)
 

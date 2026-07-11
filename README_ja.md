@@ -133,20 +133,25 @@ mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.CARDIO_DENOI
 mea = read_MEA(hed_path, start, end, electrode_distance, FilterType.NEURO_DENOISE)
 ```
 
-プリセットを使わず、`MEA` のデノイズメソッドを直接合成して独自パイプラインを組むこともできる (いずれもゼロ位相でピークタイミングを変えず、新インスタンスを返す)。
+プリセットを使わず、デノイズメソッドを直接合成して独自パイプラインを組むこともできる (いずれもゼロ位相でピークタイミングを変えず、新インスタンスを返す)。`mea` のメソッドとして呼べば、デノイズ後のデータで再構築した `PyMEA` が返るので `fig` / `calculator` もそのまま使える。
 
 ```python
 # ハイパス(ドリフト除去) / バンドパス / 共通中央値リファレンス / ウェーブレット縮退
-denoised = mea.data.highpass(cutoff=1).common_median_reference()
-denoised = mea.data.bandpass(low=100, high=3000)
-denoised = mea.data.wavelet_denoise(wavelet="db4")
+denoised = mea.highpass(cutoff=1).common_median_reference()  # PyMEA を返す
+denoised = mea.bandpass(low=100, high=3000)
+denoised = mea.wavelet_denoise(wavelet="db4")
 
-# 手法の効果はS/N比で確認できる (スパイク振幅 / 静穏区間ノイズRMS)
-peak_index = detect_peak_neg(denoised)
-snr = mea.calculator.snr(peak_index, ch=6)
+# fig・calculator はデノイズ後データに追従済み (組み直し不要)
+peak_index = detect_peak_neg(denoised.data)
+snr = denoised.calculator.snr(peak_index, ch=6)   # スパイク振幅 / 静穏区間ノイズRMS
+denoised.fig.showAll()
 ```
 
+`mea.data.xxx()` (MEA を直接触る) 場合だけは `fig` / `calculator` が追従しないので、`Calculator` / `FigMEA` を手で組み直す必要がある。
+
 > **手法選定の目安**: 心筋(強)は `CARDIO_DENOISE`、微弱な心筋は `CARDIO_DENOISE_WEAK`、神経は `NEURO_DENOISE`。`wavelet_denoise` は強信号で最もS/Nが上がるが、微弱信号では弱スパイクを削るおそれがあるため `snr` で検出を確認すること。
+
+詳しい使い方・手法の選び方・注意点は [ノイズ除去 (S/N比改善) の使い方](docs/api/denoising.md) を参照。
 
 ### データの分割
 ```python
