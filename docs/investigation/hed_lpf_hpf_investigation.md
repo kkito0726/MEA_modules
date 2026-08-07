@@ -48,7 +48,7 @@ md5sum data/lpf_hpf/*.hed
 
 - `.bio` のファイルサイズは全て1フレーム（68 int16 = 136 byte）の整数倍ちょうど（余り0）→ ヘッダ/フッタ無し、純粋な信号データ。
 - フレーム先頭の予約4語（`read_bio` で `np.delete(range(4))` される部分）は固定マーカーと 100 kHz タイムスタンプで、フィルタ設定とは無相関。
-  詳細は下記「詳細4」および [`docs/api/hed_bio_io_ja.md`](../api/hed_bio_io_ja.md) を参照。
+  詳細は下記「詳細4」および [`docs/api/hed_bio_io.md`](../api/hed_bio_io.md) を参照。
 
 ### 推定される理由
 
