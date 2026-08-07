@@ -15,10 +15,14 @@ const (
 	numElectrodes  = 64
 	dataUnitLength = numElectrodes + 4 // 68 = 64ch + 4
 	referenceGain  = 50000
-	voltRange      = 100.0 // mV
+	voltRange      = 100.0 // μV
 )
 
 // 電位換算係数: volt_range / (2^16 - 2) * 4 (pyMEA read_bio と一致)
+//
+// この式は (2 * voltRange) / (2^15 - 1) と厳密に等しく、「int16の最大値 32767 で正規化し、
+// フルスケールを ±2*voltRange = ±200 μV に合わせる」ことを意味する。
+// ±200 μV は GAIN=50000 時の測定範囲(装置マニュアル)と一致する。
 var convFactor = voltRange / (1<<16 - 2) * 4
 
 // .hed の解読テーブル(pyMEA decode_hed と一致)

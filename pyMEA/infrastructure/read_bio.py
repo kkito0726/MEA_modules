@@ -42,29 +42,43 @@ def read_bio(
     sampling_rate=10000,
     gain=REFERENCE_GAIN,
     volt_range=100,
-) -> NDArray[float64]:  # sampling_rate (Hz), volt_range (mV)
+) -> NDArray[float64]:  # sampling_rate (Hz), volt_range (μV)
     data_unit_length = NUM_ELECTRODES + 4
 
     bytesize = np.dtype("<h").itemsize
+
+    # 生AD値 (int16) を μV へ換算する。
+    # (volt_range / (2**16 - 2)) * 4 は (2 * volt_range) / (2**15 - 1) と厳密に等しく、
+    # 「int16の最大値 32767 で正規化し、フルスケールを ±2*volt_range に合わせる」ことを意味する。
+    # volt_range=100 なら ±200 μV となり、GAIN=50000 時の測定範囲 (装置マニュアル) と一致する。
+    # 計算順は変更しないこと (tools/mea2npz が float64 の演算順ごと再現しているため)。
     data = (
         np.fromfile(
             bio_path.path,
             dtype="<h",
             sep="",
+            # offset はバイト単位、count は要素数単位 (np.fromfile の仕様)
             offset=start * sampling_rate * bytesize * data_unit_length,
             count=(end - start) * sampling_rate * data_unit_length,
         )
         * (volt_range / (2**16 - 2))
         * 4
     )
+    # (フレーム数, 68) へ整形して転置 → (68, フレーム数)
     data = data.reshape(int(len(data) / data_unit_length), data_unit_length).T
+    # 各フレーム先頭の4語 (w0=固定マーカー3970, w1/w2=100kHzタイムスタンプ, w3=0) を除去し
+    # 電極64chのみを残す。詳細は docs/api/hed_bio_io_ja.md を参照。
     data = np.delete(data, range(4), 0)
 
     # Gainの値に合わせてデータを増幅させる。
+    # 上の換算は GAIN=50000 (±200 μV) 基準なので、実測GAINの測定範囲 ±200 μV * (50000/gain)
+    # に合わせて補正する。GAINが低いほど測定範囲が広く、掛ける係数も大きくなる。
     if gain != REFERENCE_GAIN:
         amp = REFERENCE_GAIN / gain
         data *= amp
 
+    # 時刻データを先頭行に付与する。ハードウェアのタイムスタンプではなく公称サンプリング
+    # レートから合成し、start を足して録画開始からの絶対時刻にする。
     t = np.arange(len(data[0])) / sampling_rate
     t = t.reshape(1, len(t))
     t = t + start
