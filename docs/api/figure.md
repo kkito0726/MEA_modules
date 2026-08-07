@@ -1,47 +1,40 @@
-## FigMEA class
+## FigMEAクラス
 
-Tools for plotting and visualizing data
+グラフ描画のクラス
 
 ```python
 from pyMEA import *
 
-hed_path = "/Users/you/your_mea_recording.hed"
-start, end = 0, 5
-ele_dis = 450 # Distance between electrodes (μm)
+path = ".hedファイルのパス"
+start, end = 0, 5 # 読み込み時間 (s)
+ele_dis = 450 # 電極間距離 (μm)
 
-# Read recording data
-data = MEA(hed_path, start, end)
-fm = FigMEA(data)
-
-# Detecting negative peaks in the waveform
+data = MEA(path, start, end) # MEA計測データの読み込み
+fm = FigMEA(data) # グラフ描画クラスのインスタンス化
 peak_index = detect_peak_neg(data)
 
-# Show 64 waveforms
+# 64電極波形表示 引数で描画パラメータ管理
 fm.showAll()
 
-# Show a waveform
-ch = 32 # electrode number
-fm.showSingle(ch)
+ch = 32 # 電極番号
+fm.showSingle(ch) # 1電極波形表示
 
-# Plot a waveform ant peaks
+# ピーク抽出位置確認
 fm.plotPeaks(ch, peak_index)
 
-# Show stacked waveforms
+# 波形積み上げ表示
 chs = [i for i in range(1, 65)] # 表示したい電極のリスト (今回は1-64電極すべて)
 fm.showDetection(chs)
 
-# Raster plot
+# ラスタプロット
 fm.raster_plot(peak_index, chs)
 
-# Histgram by peaks
+# ピーク位置のヒストグラム
 fm.mkHist(peak_index, chs)
 
-# Draw 2D color maps
+# 2Dカラーマップ描画 (Gradientsクラスを返す)
 grads = fm.draw_2d(peak_index, ele_dis)
 
-# Draw 3D color maps
+# 3Dカラーマップ描画 (Gradientsクラスを返す)
 grads_3d = fm.draw_3d(peak_index, ele_dis)
 ```
-
-## Language
-[Japanese](./README_ja.md)

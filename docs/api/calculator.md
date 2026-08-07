@@ -1,34 +1,27 @@
 
-## Calculator class
+## Calculatorクラス
 
-Utilities for calculating ISI, FPD, conduction velocity, and more
+ISI (s), FPD (s), 伝導速度 (m/s), 速度ベクトルによる伝導速度 (m/s)を計算する
 
 ```python
 from pyMEA import *
 
-hed_path = "/Users/you/your_mea_recording.hed"
-start, end = 0, 5
+path = ".hedファイルのパス"
+start, end = 0, 5 # 読み込み時間 (s)
+ele_dis = 450 # 電極間距離 (μm)
 
-# Read recording data
-data = MEA(hed_path, start, end)
+data = MEA(path, start, end) # MEA計測データの読み込み
+cal = Calculator(data, ele_dis) # 数値計算クラスのインスタンス化
 
-# Initialize calculator with electrode distance
-electrode_distance = 450 # Distance between electrodes (μm)
-cal = Calculator(data, 450)
+peak_index = detect_peak_neg(data.array) # 下ピーク抽出
 
-# Detecting negative peaks in the waveform
-peak_index = detect_peak_neg(data)
-
-ch = 32 # electrode number
+ch = 32 # 電極番号
 isi = cal.isi(peak_index, ch) # ISI (s)
 fpd = cal.fpd(peak_index, ch) # FPD (s)
 
-# Calculate Conduction velocity between electrodes (m/s)
-conduction_velocity = cal.conduction_velocity(peak_index, ch, ch+1)
+# 2つの電極間の伝導速度を計算 (m/s)
+conduction_velocity = cal.conduction_velocity(peak_index, 1, 2)
 
-# Conduction velocity calculated by gradient analysis (m/s)
-gradient_velocity = cal.gradient_velocity(peak_index)
+# 速度ベクトルから伝導速度を計算 (m/s)
+cvs = cal.gradient_velocity(peak_index)
 ```
-
-## Language
-[Japanese](./README_ja.md)

@@ -67,7 +67,7 @@ def read_bio(
     # (フレーム数, 68) へ整形して転置 → (68, フレーム数)
     data = data.reshape(int(len(data) / data_unit_length), data_unit_length).T
     # 各フレーム先頭の4語 (w0=固定マーカー3970, w1/w2=100kHzタイムスタンプ, w3=0) を除去し
-    # 電極64chのみを残す。詳細は docs/api/hed_bio_io_ja.md を参照。
+    # 電極64chのみを残す。詳細は docs/api/hed_bio_io.md を参照。
     data = np.delete(data, range(4), 0)
 
     # Gainの値に合わせてデータを増幅させる。
