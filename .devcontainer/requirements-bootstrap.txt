@@ -1,0 +1,14 @@
+# devcontainer 作成時に最初に入れるツール類 (ハッシュ検証付き)
+#
+# イメージ同梱の pip は eMudhra / emSign CA 侵害 (2026-10) 以前の版で、
+# 失効すべき中間 CA を信頼したままのため、他のパッケージより先に更新する。
+# 古い pip でダウンロードするため --require-hashes で改ざんを検出する。
+# https://discuss.python.org/t/information-for-python-users-regarding-emudhra-emsign-ca-certificate-security-incident/109576
+#
+# 更新時のハッシュ取得: https://pypi.org/project/<name>/<version>/#files
+pip==26.2.2 \
+    --hash=sha256:fd7f4dfa8190e014013b9f08f3e973f4e4c26ffd179a204895533a7254813a70 \
+    --hash=sha256:3a8e5c800492787f33a4114ef54444546c340df428974ebba17e0fd47e11af2f
+certifi==2026.10.19 \
+    --hash=sha256:42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b \
+    --hash=sha256:035c1e85572b141bf1c3a3eff0e33a8eb74917522f2559075ff8d2fea780a1ae
